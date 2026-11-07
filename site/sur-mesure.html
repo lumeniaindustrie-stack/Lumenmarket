@@ -5,27 +5,27 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Agents IA sur mesure – Lumen</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;700;800&family=Public+Sans:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&display=swap">
 <link rel="stylesheet" href="style.css">
 <style>
 .page{display:grid;grid-template-columns:minmax(0,.8fr) minmax(0,1.2fr);gap:56px;padding-block:56px 80px;align-items:start}
-.intro h1{font-size:clamp(2rem,4vw,3rem);font-weight:800;letter-spacing:-.02em}
-.intro > p{color:var(--muted);font-size:1.08rem;margin-top:16px}
-.exemples{margin-top:28px;border-left:2px solid var(--accent);display:grid}
+.intro h1{font-size:clamp(1.7rem,3vw,2.4rem);font-weight:700;letter-spacing:-.02em}
+.intro > p{color:var(--muted);font-size:1rem;margin-top:16px}
+.exemples{margin-top:28px;border-left:2px solid var(--blue);display:grid}
 .exemples p{padding:10px 0 10px 20px;color:var(--muted)}
 .exemples strong{color:var(--ink);display:block}
-form{background:var(--sheet);border:1px solid var(--line);border-radius:10px;padding:28px;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}
+form{background:#fff;border:1px solid var(--line);border-radius:14px;box-shadow:0 1px 2px rgba(16,24,40,.04);padding:28px;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}
 form .full{grid-column:1/-1}
 .choix{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
-.choix label{display:flex;gap:10px;align-items:flex-start;border:1px solid var(--line);border-radius:8px;padding:12px 14px;cursor:pointer;background:var(--paper)}
-.choix label:has(input:checked){border-color:var(--accent);background:rgba(240,181,28,.08)}
-.choix input{margin-top:4px;accent-color:var(--accent);width:auto;flex:none}
+.choix label{display:flex;gap:10px;align-items:flex-start;border:1px solid var(--line);border-radius:10px;padding:12px 14px;cursor:pointer;background:#fff}
+.choix label:has(input:checked){border-color:var(--blue);background:var(--blue-f)}
+.choix input{margin-top:4px;accent-color:var(--blue);width:auto;flex:none}
 .choix span{display:grid;gap:2px}
 .choix small{color:var(--muted);font-size:.86rem}
 textarea{min-height:170px;resize:vertical;line-height:1.5}
 .compteur{text-align:right}
 .consent{display:flex;gap:10px;align-items:flex-start;font-size:.9rem;color:var(--muted)}
-.consent input{margin-top:4px;accent-color:var(--accent)}
+.consent input{margin-top:4px;accent-color:var(--blue)}
 .envoi{display:flex;gap:14px;align-items:center;flex-wrap:wrap}
 @media (max-width:900px){ .page{grid-template-columns:1fr;gap:28px;padding-block:32px 56px} }
 @media (max-width:600px){ form{grid-template-columns:1fr;padding:20px} .choix{grid-template-columns:1fr} }

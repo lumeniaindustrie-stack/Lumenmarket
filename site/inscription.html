@@ -5,51 +5,50 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Créer mon compte – Lumen Marchés</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;700;800&family=Public+Sans:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&display=swap">
 <link rel="stylesheet" href="style.css">
 <style>
 body{min-height:100vh;display:flex;flex-direction:column}
 .page{flex:1;display:grid;grid-template-columns:minmax(0,.75fr) minmax(0,1.25fr)}
-.side{position:relative;overflow:hidden;background:var(--blue-deep);padding:56px 48px;display:flex;flex-direction:column;gap:28px;isolation:isolate}
-.side::before{content:"";position:absolute;inset:0;z-index:-1;background:linear-gradient(180deg,rgba(19,41,74,.9),rgba(15,21,28,.96)),url("https://images.unsplash.com/photo-1631771819642-90cee9a2ccac?auto=format&fit=crop&w=900&q=50") center/cover}
-.side h1{font-size:clamp(1.9rem,3vw,2.6rem);font-weight:800}
-.side p{color:#c3ccd6}
+.side{position:relative;overflow:hidden;background:var(--sheet-2);border-right:1px solid var(--line);padding:56px 48px;display:flex;flex-direction:column;gap:28px;isolation:isolate}
+.side h1{font-size:clamp(1.6rem,2.4vw,2.1rem);font-weight:700}
+.side p{color:#4B5262}
 .steps-list{list-style:none;margin:0;padding:0;display:grid;gap:4px}
 .steps-list li{display:flex;gap:14px;align-items:center;padding:10px 0;color:var(--muted)}
-.steps-list li span{display:grid;place-items:center;width:30px;height:30px;border-radius:50%;border:2px solid var(--line);font-family:var(--f-mono);font-size:.82rem;flex:none}
+.steps-list li span{display:grid;place-items:center;width:30px;height:30px;border-radius:9px;border:1px solid var(--line-2);background:#fff;font-family:var(--f-mono);font-size:.82rem;flex:none}
 .steps-list li.on{color:var(--ink);font-weight:600}
-.steps-list li.on span{border-color:var(--accent);color:var(--accent)}
-.steps-list li.done span{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
-.side .perks{margin-top:auto;display:grid;gap:8px;font-size:.92rem;color:#c3ccd6}
-.side .perks span::before{content:"✓";color:var(--accent);margin-right:8px;font-weight:700}
+.steps-list li.on span{border-color:var(--blue);color:var(--blue);background:var(--blue-f)}
+.steps-list li.done span{background:var(--blue);border-color:var(--blue);color:#fff}
+.side .perks{margin-top:auto;display:grid;gap:8px;font-size:.92rem;color:#4B5262}
+.side .perks span::before{content:"✓";color:var(--blue);margin-right:8px;font-weight:700}
 
 .main{padding:56px clamp(20px,5vw,72px);display:flex;flex-direction:column}
-.progress{height:6px;background:var(--sheet-2);border-radius:3px;overflow:hidden;max-width:620px}
-.progress span{display:block;height:100%;width:20%;background:var(--accent);transition:width .3s}
+.progress{height:5px;background:var(--sheet-2);border-radius:3px;overflow:hidden;max-width:620px}
+.progress span{display:block;height:100%;width:20%;background:var(--blue);transition:width .3s}
 .count{margin:14px 0 6px;color:var(--muted);font-size:.95rem}
 form{max-width:620px;display:flex;flex-direction:column;flex:1}
 .step{display:none;flex-direction:column;gap:20px}
 .step.on{display:flex}
-.step h2{font-size:clamp(1.6rem,3vw,2.2rem)}
+.step h2{font-size:clamp(1.4rem,2.4vw,1.8rem)}
 .step > p{color:var(--muted);margin-top:-8px}
 .grid2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
 .presets{display:flex;flex-wrap:wrap;gap:8px}
-.presets button{background:none;border:1px dashed var(--line);color:var(--accent);border-radius:6px;padding:6px 12px;font-size:.88rem}
-.presets button:hover{border-color:var(--accent)}
-.recap{border:1px solid var(--line);border-radius:8px;background:var(--sheet)}
+.presets button{background:#fff;border:1px dashed var(--line-2);color:var(--blue);border-radius:8px;padding:6px 12px;font-size:.88rem}
+.presets button:hover{border-color:var(--blue)}
+.recap{border:1px solid var(--line);border-radius:12px;background:#fff}
 .recap div{display:grid;grid-template-columns:150px 1fr auto;gap:12px;padding:12px 16px;border-bottom:1px solid var(--line);align-items:baseline}
 .recap div:last-child{border-bottom:0}
 .recap dt{color:var(--muted);font-size:.88rem}
 .recap dd{margin:0;font-weight:500;overflow-wrap:anywhere}
 .consent{display:flex;gap:10px;align-items:flex-start;font-size:.9rem;color:var(--muted)}
-.consent input{margin-top:4px;accent-color:var(--accent)}
+.consent input{margin-top:4px;accent-color:var(--blue)}
 .nav-steps{display:flex;justify-content:space-between;gap:12px;align-items:center;margin-top:32px;padding-top:20px;border-top:1px solid var(--line)}
 .mdp-wrap{position:relative}
 .mdp-wrap input{padding-right:84px}
 .voir{position:absolute;right:6px;top:50%;transform:translateY(-50%);background:none;border:0;color:var(--muted);font-size:.85rem;padding:6px 8px;text-decoration:underline}
 .done-box{display:none;flex-direction:column;gap:18px;max-width:560px}
 .done-box.on{display:flex}
-.done-box .big{width:64px;height:64px;border-radius:50%;background:var(--accent);color:var(--accent-ink);display:grid;place-items:center;font-size:2rem;font-weight:800}
+.done-box .big{width:56px;height:56px;border-radius:14px;background:var(--ok-f);color:var(--ok);display:grid;place-items:center;font-size:1.6rem;font-weight:700}
 @media (max-width:900px){
   .page{grid-template-columns:1fr}
   .side{padding:32px 20px;gap:16px}

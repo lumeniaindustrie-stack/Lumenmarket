@@ -5,17 +5,17 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Nouveau mot de passe – Lumen Marchés</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;700;800&family=Public+Sans:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&display=swap">
 <link rel="stylesheet" href="style.css">
 <style>
-body{min-height:100vh;display:grid;place-items:center;padding:24px;background:radial-gradient(ellipse at top,rgba(36,71,107,.45),transparent 60%),var(--paper)}
-.card{width:min(440px,100%);background:var(--sheet);border:1px solid var(--line);border-radius:12px;padding:32px;display:grid;gap:16px}
+body{min-height:100vh;display:grid;place-items:center;padding:24px;background:var(--sheet-2)}
+.card{width:min(420px,100%);background:#fff;border:1px solid var(--line);border-radius:16px;box-shadow:0 10px 30px -18px rgba(16,24,40,.25);padding:32px;display:grid;gap:16px}
 </style>
 </head>
 <body>
 <form class="card" id="f-nouveau" novalidate>
   <a class="brand" href="index.html"><i aria-hidden="true"></i>Lumen Marchés</a>
-  <h1 style="font-size:1.8rem;font-weight:800">Choisissez un nouveau mot de passe</h1>
+  <h1 style="font-size:1.5rem;font-weight:600">Choisissez un nouveau mot de passe</h1>
   <p class="muted" id="intro">Vérification du lien…</p>
   <input type="email" autocomplete="username" id="user" hidden>
   <div class="field"><label for="mdp">Nouveau mot de passe</label><input id="mdp" type="password" autocomplete="new-password" disabled><small>Au moins 10 caractères, avec des lettres et des chiffres.</small></div>
