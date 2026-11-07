@@ -380,13 +380,15 @@ function rendreReseau() {
   }).join("");
   const noeuds = Object.keys(RNOEUDS).filter(vis).map(code => {
     const [x, y] = RNOEUDS[code], n = info[code], t = y - RH / 2;
+    const coupe = (s, max) => s.length > max ? s.slice(0, max - 1).trimEnd() + "…" : s;
     const fondIc = { ok: "#E3F8EF", att: "#FEF0CC", ko: "#FDE3E3", idle: "#EDEFF3" }[n.cl], coulIc = { ok: "#16A06F", att: "#C27C00", ko: "#D93636", idle: "#8C95A6" }[n.cl];
     const icF = code === "CLIENTS" || code === "BOAMP" ? ["#EAF1FF", "#2F6BF2"] : [fondIc, coulIc];
     return `<g class="rn ${n.cl}${n.fixe ? " fixe" : ""}" ${n.fixe ? "" : `data-agent="${code}" tabindex="0" role="button"`} aria-label="${esc(n.nom)} : ${esc(n.sous)}">
       <rect class="boite" x="${x}" y="${t}" width="${RW}" height="${RH}" rx="16" filter="url(#ombre-r)"/>
       <circle cx="${x + 30}" cy="${y}" r="17" fill="${icF[0]}"/>
       <svg x="${x + 21}" y="${y - 9}" width="18" height="18" viewBox="0 0 24 24" fill="currentColor" color="${icF[1]}">${n.ic}</svg>
-      <text class="nom" x="${x + 56}" y="${y - 3}">${esc(n.nom)}</text><text class="sous" x="${x + 56}" y="${y + 15}">${esc(n.sous)}</text></g>`;
+      <title>${esc(n.nom)} : ${esc(n.sous)}</title>
+      <text class="nom" x="${x + 56}" y="${y - 3}">${esc(coupe(n.nom, 16))}</text><text class="sous" x="${x + 56}" y="${y + 15}">${esc(coupe(n.sous, 21))}</text></g>`;
   }).join("");
   svg.innerHTML = `<defs><filter id="ombre-r" x="-20%" y="-30%" width="140%" height="170%"><feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#101828" flood-opacity=".06"/></filter></defs>` + liens + noeuds;
   const nb = AGENTS.filter(a => info[a.code].cl === "ok").length, nbS = AGENTS.filter(a => ["att", "ko"].includes(info[a.code].cl)).length;
@@ -515,8 +517,9 @@ function rendreAgents() {
       ${on ? `<circle class="halo" cx="-42" r="21" fill="none" stroke="${c}" stroke-width="2"/>` : ""}
       <circle cx="-42" r="21" fill="${on ? pc : "#94A3B8"}" fill-opacity=".12" stroke="${c}" stroke-width="2"/>
       <svg x="-52" y="-10" width="20" height="20" viewBox="0 0 24 24" fill="currentColor" color="${on ? pc : "#94A3B8"}">${ICONES[ag.code]}</svg>
+      <title>${esc(ag.nom)} · ${esc(ag.titre)} : ${esc(libEtat(ag, e))}</title>
       <text class="titre" x="-12" y="-1">${esc(COURT[ag.code])}</text>
-      <circle cx="-8" cy="13.5" r="3" fill="${c}"/><text class="etat" x="0" y="17.5" fill="${on ? "#059669" : "#DC2626"}">${esc(libEtat(ag, e))}</text>
+      <circle cx="-8" cy="13.5" r="3" fill="${c}"/><text class="etat" x="0" y="17.5" fill="${on ? "#059669" : "#DC2626"}">${esc(libEtat(ag, e).length > 15 ? libEtat(ag, e).slice(0, 14).trimEnd() + "…" : libEtat(ag, e))}</text>
       ${pillSvg(DEMI - 8, -29, ag.nom.replace("Agent ", ""), "#F1F4F9", "#64748B")}</g>`;
   }).join("");
   const cl = D.profils.filter(p => !p.est_admin), actifs = cl.filter(p => p.actif !== false);
@@ -602,6 +605,12 @@ function aller(v) {
   history.replaceState(null, "", "#" + v);
 }
 $$(".nav [data-v]").forEach(b => b.onclick = () => aller(b.dataset.v));
+/* Texte coupé : on affiche le texte complet au survol */
+document.addEventListener("mouseover", e => {
+  const el = e.target.closest(".kpi-lab, .kpi-pied small, .sante-liste li > span, .liste-pil li > span, .passage span, .passage small, .palette b, .palette small, .ag-proch-nom, .ag-kpi-label, .reseau-tete p, .entete p, .profil-txt b, .alertes li > span, td strong, td .muted, td");
+  if (!el || el.hasAttribute("title")) return;
+  if (el.scrollWidth > el.clientWidth + 1 || el.scrollHeight > el.clientHeight + 1) el.title = el.textContent.replace(/\s+/g, " ").trim();
+});
 entrer().catch(() => porte("Connexion à la base impossible. Réessayez."));
 </script>
 </body>

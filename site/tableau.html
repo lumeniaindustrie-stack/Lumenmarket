@@ -704,6 +704,12 @@ function carte(o) {
     </div>
   </article>`;
 }
+/* Texte coupé : texte complet au survol */
+document.addEventListener("mouseover", e => {
+  const el = e.target.closest(".carte-titre h3, .carte-lieu span, .carte-resume, .carte-chiffres dd span, .ech a, .histo button > span, .palette b");
+  if (!el || el.hasAttribute("title")) return;
+  if (el.scrollWidth > el.clientWidth + 1 || el.scrollHeight > el.clientHeight + 1) el.title = el.textContent.replace(/\s+/g, " ").trim();
+});
 const index = new Map();
 function lister(el, offres, vide) {
   offres.forEach(o => index.set(String(o.id), o));
