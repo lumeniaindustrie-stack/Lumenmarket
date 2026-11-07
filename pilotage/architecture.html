@@ -8,6 +8,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&display=swap">
 <link rel="stylesheet" href="admin.css">
+<script src="config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
 <style>
 /* ── Page architecture ── */
 .archi-wrap { padding: 24px; max-width: 1400px; margin: 0 auto; }
@@ -565,24 +567,25 @@ import { SB, Compte } from "./commun.js";
 import { verifierAdmin } from "./agents.js";
 
 (async () => {
-  const porte  = document.getElementById("porte");
-  const app    = document.getElementById("app");
-  const qui    = document.getElementById("qui");
-  const sortir = document.getElementById("sortir");
-  const fPorte = document.getElementById("f-porte");
-  const porteTxt = document.getElementById("porte-txt");
-  const aSt   = document.getElementById("a-st");
-  const aGo   = document.getElementById("a-go");
+  const porte    = document.getElementById("porte");
+  const app      = document.getElementById("app");
+  const qui      = document.getElementById("qui");
+  const sortir   = document.getElementById("sortir");
+  const fPorte   = document.getElementById("f-porte");
+  const aSt      = document.getElementById("a-st");
+  const aGo      = document.getElementById("a-go");
 
   // Vérif admin
-  const { erreur, moi } = await verifierAdmin();
-  if (erreur) {
-    porteTxt.textContent = erreur || "Espace réservé à l'administrateur.";
-    porte.hidden = false; return;
+  const res = await verifierAdmin();
+  if (res.erreur) {
+    document.getElementById("porte-txt").textContent = res.erreur;
+    porte.hidden = false;
+    return;
   }
-  if (!moi) { porte.hidden = false; }
-  else {
-    qui.textContent = moi.email || moi.entreprise || "";
+  if (!res.moi) {
+    porte.hidden = false;
+  } else {
+    qui.textContent = res.moi.email || res.moi.entreprise || "";
     app.hidden = false;
   }
 
@@ -601,14 +604,9 @@ import { verifierAdmin } from "./agents.js";
   // Déconnexion
   sortir.addEventListener("click", async () => { await Compte.deconnecter(); location.reload(); });
 
-  // Navigation entre vues (liens sidebar)
+  // Navigation sidebar → index.html
   document.querySelectorAll(".nav button[data-v]").forEach(btn => {
-    btn.addEventListener("click", () => {
-      const v = btn.dataset.v;
-      // Les autres vues sont sur index.html
-      if (v === "architecture") return;
-      location.href = "index.html#" + v;
-    });
+    btn.addEventListener("click", () => { location.href = "index.html#" + btn.dataset.v; });
   });
 })();
 </script>
