@@ -405,7 +405,8 @@ function rendreAgents() {
     return `<button data-agent="${ag.code}"><span class="ic" style="background:${on ? pc : "#94A3B8"}18;color:${on ? pc : "#94A3B8"}">${icone(ag.code, 16)}<i style="background:${on ? "var(--vert)" : "var(--rouge)"}"></i></span><span><b>${esc(ag.titre)}</b><small>${esc(ag.nom)} · ${esc(libEtat(ag, e))}</small></span></button>`; }).join("");
   const hh = d => d ? new Date(d).toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" }) : null;
   const k = s => `<span class="k">${s}</span>`;
-  $("#etat-code").innerHTML = `{\n  ${k("actifs")}: <span class="n">${nbOn}</span>,\n  ${k("arretes")}: <span class="n">${AGENTS.length - nbOn}</span>,\n  ${k("agents")}: {\n` +
+  const etatCodeEl = $("#etat-code");
+  if (etatCodeEl) etatCodeEl.innerHTML = `{\n  ${k("actifs")}: <span class="n">${nbOn}</span>,\n  ${k("arretes")}: <span class="n">${AGENTS.length - nbOn}</span>,\n  ${k("agents")}: {\n` +
     AGENTS.map(ag => { const e = etats[ag.code]; return `    ${k(ag.nom.replace("Agent ", ""))}: <span class="${estActif(e) ? "v" : "r"}">"${ag.avenir ? "à construire" : estActif(e) ? "actif " + (hh(e.der?.debut) || "") : e.cle}"</span>`; }).join(",\n") +
     `\n  },\n  ${k("clients")}: <span class="n">${actifs.length}</span>\n}`;
 
