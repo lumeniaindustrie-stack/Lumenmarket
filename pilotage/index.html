@@ -62,18 +62,60 @@
       </div>
     </section>
 
-    <section class="vue" id="v-agents" data-titre="Agents">
-      <div class="page">
-        <div class="entete"><span class="tuile-ic"><svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor"><circle cx="5.5" cy="12" r="3.2"/><circle cx="18.5" cy="5.5" r="3.2"/><circle cx="18.5" cy="18.5" r="3.2"/><path d="M8 11.2 16 6.6M8 12.8l8 4.6" fill="none" stroke="currentColor" stroke-width="1.9"/></svg></span><div><h1>Carte des agents</h1><p>Cliquez sur un agent pour son résumé, double-cliquez pour ses analytics.</p></div><div class="actions"><button class="btn js-rafraichir"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M20 11a8 8 0 1 0-2.3 5.7M20 4v7h-7"/></svg>Actualiser</button><a class="btn prim" href="agent.html?a=A-collecteur">Analytics de l'agent A</a></div></div>
-        <div class="disposition">
-          <div class="w carte-w">
-            <div class="w-tete"><span class="grip"></span><h2>Pôles et liaisons</h2><span class="pill" id="ag-pill"></span></div>
-            <div class="defile"><svg id="schema" viewBox="0 0 1330 872" role="group" aria-label="Carte des agents et de leurs liaisons"></svg></div>
-            <div class="aide"><span><i style="background:var(--vert)"></i>Actif</span><span><i style="background:var(--rouge)"></i>Arrêté, en erreur ou à construire</span><span><i style="background:var(--bleu)"></i>Les points bleus montrent les informations qui circulent</span><span class="glisser">Faites glisser la carte pour tout voir</span></div>
+    <section class="vue" id="v-agents" data-titre="Mapping des agents">
+      <div class="page ag-page">
+        <div class="entete">
+          <span class="tuile-ic"><svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor"><circle cx="5.5" cy="12" r="3.2"/><circle cx="18.5" cy="5.5" r="3.2"/><circle cx="18.5" cy="18.5" r="3.2"/><path d="M8 11.2 16 6.6M8 12.8l8 4.6" fill="none" stroke="currentColor" stroke-width="1.9"/></svg></span>
+          <div><h1>Mapping des agents</h1><p>Visualisez le fonctionnement de vos agents et leurs interactions</p></div>
+          <div class="actions">
+            <button class="btn js-rafraichir"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M20 11a8 8 0 1 0-2.3 5.7M20 4v7h-7"/></svg>Actualiser</button>
           </div>
-          <div class="dessous">
-            <div class="w"><div class="w-tete"><span class="grip"></span><h2>Agents</h2><span class="pill gris">8</span></div><div class="palette" id="palette"></div><span class="coin"></span></div>
-            <div class="w"><div class="w-tete"><span class="grip"></span><h2>État</h2><span class="pill ok">en direct</span></div><pre class="code" id="etat-code"></pre><span class="coin"></span></div>
+        </div>
+
+        <!-- Bandeau KPI -->
+        <div class="ag-kpi" id="ag-kpi">
+          <div class="ag-kpi-item"><span class="ag-kpi-label">Agents actifs</span><strong class="ag-kpi-val" id="kpi-actifs">—</strong></div>
+          <div class="ag-kpi-item"><span class="ag-kpi-label">Passages (24 h)</span><strong class="ag-kpi-val" id="kpi-passages">—</strong></div>
+          <div class="ag-kpi-item"><span class="ag-kpi-label">Taux de réussite</span><strong class="ag-kpi-val" id="kpi-taux">—</strong></div>
+          <div class="ag-kpi-item"><span class="ag-kpi-label">Dernière exécution</span><strong class="ag-kpi-val ag-kpi-sm" id="kpi-dernier">—</strong></div>
+        </div>
+
+        <!-- Corps principal : mapping + panneau droit -->
+        <div class="ag-corps">
+          <!-- Zone mapping -->
+          <div class="ag-mapping">
+            <div class="w carte-w">
+              <div class="w-tete"><span class="grip"></span><h2>Pôles et liaisons</h2><span class="pill" id="ag-pill"></span></div>
+              <div class="defile"><svg id="schema" viewBox="0 0 1330 872" role="group" aria-label="Carte des agents et de leurs liaisons"></svg></div>
+              <!-- Légende -->
+              <div class="ag-legende">
+                <span class="ag-leg-item"><i class="ag-leg-dot" style="background:var(--vert)"></i>Actif</span>
+                <span class="ag-leg-item"><i class="ag-leg-dot" style="background:var(--orange)"></i>À construire</span>
+                <span class="ag-leg-item"><i class="ag-leg-dot" style="background:var(--rouge)"></i>Erreur / arrêté</span>
+                <span class="ag-leg-sep"></span>
+                <span class="ag-leg-item"><i class="ag-leg-line" style="background:var(--bleu)"></i>Flux de données</span>
+                <span class="ag-leg-item"><i class="ag-leg-line" style="background:var(--t3)"></i>Supervision</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Panneau droit -->
+          <div class="ag-panneau">
+            <!-- État global -->
+            <div class="panneau ag-side-bloc">
+              <div class="ag-side-tete"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path fill-rule="evenodd" d="M11.6 2.3a1 1 0 0 1 .8 0l6.8 2.9c.37.16.6.52.6.92v5.3c0 4.7-3.05 8.75-7.45 10.3a1 1 0 0 1-.7 0C7.25 20.17 4.2 16.12 4.2 11.42v-5.3c0-.4.23-.76.6-.92z"/></svg>État du système</div>
+              <div id="etat-sys" class="ag-side-corps"></div>
+            </div>
+            <!-- Répartition par statut -->
+            <div class="panneau ag-side-bloc">
+              <div class="ag-side-tete"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><rect x="3" y="3" width="8" height="8" rx="2.2"/><rect x="13" y="3" width="8" height="8" rx="2.2"/><rect x="3" y="13" width="8" height="8" rx="2.2"/><rect x="13" y="13" width="8" height="8" rx="2.2"/></svg>Agents</div>
+              <div class="palette" id="palette"></div>
+            </div>
+            <!-- Prochaines exécutions -->
+            <div class="panneau ag-side-bloc">
+              <div class="ag-side-tete"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>Prochaines exécutions</div>
+              <div id="ag-prochaines" class="ag-side-corps"></div>
+            </div>
           </div>
         </div>
       </div>
@@ -242,6 +284,33 @@ function rendreAgents() {
   const etats = Object.fromEntries(AGENTS.map(a => [a.code, sante(a, D.runs)]));
   const nbOn = AGENTS.filter(a => estActif(etats[a.code])).length;
   $("#ag-pill").textContent = `${nbOn} actif${nbOn > 1 ? "s" : ""} sur ${AGENTS.length}`;
+
+  // --- KPI bandeau ---
+  const runs24 = D.runs.filter(r => new Date(r.debut) >= new Date(Date.now() - 864e5));
+  const runs7 = D.runs.filter(r => new Date(r.debut) >= new Date(ilYa(7)));
+  const taux = runs7.length ? Math.round(runs7.filter(r => r.statut !== "erreur").length / runs7.length * 100) : null;
+  const derRun = D.runs[0];
+  $("#kpi-actifs").textContent = `${nbOn} / ${AGENTS.length}`;
+  $("#kpi-passages").textContent = runs24.length > 0 ? String(runs24.length) : "Aucun";
+  $("#kpi-taux").textContent = taux !== null ? taux + " %" : "Non disponible";
+  $("#kpi-dernier").textContent = derRun ? heure(derRun.debut) : "Jamais";
+
+  // --- État système (panneau droit) ---
+  const enService = AGENTS.filter(a => !a.avenir);
+  const nbErr = enService.filter(a => etats[a.code].cle === "erreur").length;
+  const nbRet = enService.filter(a => etats[a.code].cle === "retard").length;
+  const etatGlob = nbErr > 0 ? "ko" : nbRet > 0 ? "att" : "ok";
+  const etatTxt = nbErr > 0 ? `${nbErr} agent${nbErr>1?"s":""} en erreur` : nbRet > 0 ? `${nbRet} agent${nbRet>1?"s":""} en retard` : "Tous les agents fonctionnent";
+  $("#etat-sys").innerHTML = `<div class="ag-etat-glob ${etatGlob}"><div class="ag-etat-ind"></div><span>${etatTxt}</span></div>` +
+    enService.filter(a => etats[a.code].cle === "erreur" || etats[a.code].cle === "retard").map(a => {
+      const e = etats[a.code]; return `<div class="ag-alerte"><span class="tag ko">${esc(a.titre)}</span><span>${esc(e.txt)}</span></div>`;
+    }).join("") || `<p class="vide">Aucune alerte.</p>`;
+
+  // --- Prochaines exécutions ---
+  const prochs = AGENTS.filter(a => !a.avenir && prochaine(a.code)).map(a => ({ ag: a, d: prochaine(a.code) })).sort((a, b) => a.d - b.d).slice(0, 5);
+  $("#ag-prochaines").innerHTML = prochs.length ? prochs.map(({ ag, d }) =>
+    `<div class="ag-proch"><span class="ag-proch-nom">${esc(ag.titre)}</span><span class="ag-proch-heure">${d.toLocaleTimeString("fr-FR",{hour:"2-digit",minute:"2-digit"})}</span></div>`
+  ).join("") : `<p class="vide">Aucune prévue.</p>`;
   const defs = `<defs><filter id="lueur" x="-200%" y="-200%" width="500%" height="500%"><feGaussianBlur stdDeviation="2" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>`;
   const cadres = CADRES.map(([k, x, y, w, h]) => { const n = Object.values(POS).filter(p => p[2] === k).length;
     return `<g><rect x="${x}" y="${y}" width="${w}" height="${h}" rx="14" fill="#F7F8FC" stroke="#E5EAF2"/>${grip(x + 16, y + 17)}
