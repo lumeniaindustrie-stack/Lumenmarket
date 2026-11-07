@@ -13,10 +13,10 @@
 <style>
 /* ── Page architecture ── */
 .archi-wrap {
-  padding: 16px 20px 20px;
+  padding: 12px 24px 24px 20px;
   display: flex;
   flex-direction: column;
-  height: calc(100vh - 56px);
+  height: calc(100vh - 100px);
   box-sizing: border-box;
   overflow: hidden;
 }
@@ -197,6 +197,9 @@
 .legende-trait.orange { background: var(--orange) }
 .legende-trait.cyan   { background: #06B6D4 }
 .legende-trait.gris   { background: var(--line-2) }
+/* carte englobante, comme les autres pages */
+.ac-schema-outer { background: var(--canvas); border: 10px solid var(--panel-d); outline: 1px solid var(--line); border-radius: var(--r-xl); box-shadow: var(--shadow); margin-top: 4px }
+.archi-wrap .legende { border-radius: 999px; margin-top: 14px }
 </style>
 </head>
 <body>
@@ -213,21 +216,39 @@
 </div>
 
 <div class="app" id="app" hidden>
-  <aside class="cote">
-    <a class="logo" href="index.html"><span class="tuile-ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><rect x="3" y="3" width="8" height="8" rx="2.2"/><rect x="13" y="3" width="8" height="8" rx="2.2"/><rect x="3" y="13" width="8" height="8" rx="2.2"/><rect x="13" y="13" width="8" height="8" rx="2.2" fill-opacity=".45"/></svg></span>Lumen Pilotage</a>
-    <p class="nav-titre">Pilotage</p>
-    <nav class="nav" aria-label="Menu">
-      <button data-v="ensemble"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="3" y="3" width="8" height="8" rx="2.2"/><rect x="13" y="3" width="8" height="8" rx="2.2"/><rect x="3" y="13" width="8" height="8" rx="2.2"/><rect x="13" y="13" width="8" height="8" rx="2.2"/></svg>Vue d'ensemble</button>
-      <button data-v="agents"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="5.5" cy="12" r="3.2"/><circle cx="18.5" cy="5.5" r="3.2"/><circle cx="18.5" cy="18.5" r="3.2"/><path d="M8 11.2 16 6.6M8 12.8l8 4.6" fill="none" stroke="currentColor" stroke-width="1.9"/></svg>Agents</button>
-      <button data-v="clients"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="9" cy="7.9" r="3.7"/><path d="M2.4 19.2c0-3.35 2.95-5.7 6.6-5.7s6.6 2.35 6.6 5.7c0 .72-.56 1.3-1.25 1.3H3.65c-.69 0-1.25-.58-1.25-1.3z"/><circle cx="17" cy="8.5" r="2.9"/><path d="M16.9 13.4c2.85.12 4.8 2.05 4.8 4.75 0 .7-.55 1.25-1.22 1.25h-3.1c.18-.38.27-.8.27-1.24 0-1.86-.8-3.5-2.18-4.62.45-.1.92-.15 1.43-.14z"/></svg>Clients</button>
-      <button data-v="demandes"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M5.3 3.5h13.4c.9 0 1.7.6 2 1.45L23 12v6a2.5 2.5 0 0 1-2.5 2.5h-17A2.5 2.5 0 0 1 1 18v-6l2.3-7.05c.3-.85 1.1-1.45 2-1.45zm-1.6 8h4.1c.45 0 .85.3.96.74.37 1.4 1.64 2.36 3.24 2.36s2.87-.96 3.24-2.36c.11-.44.51-.74.96-.74h4.1L18.4 5.6H5.6z" fill-rule="evenodd"/></svg>Demandes <span class="compteur zero" id="n-demandes">0</span></button>
-      <button data-v="architecture" class="actif"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a3.5 3.5 0 0 1 3.5 3.5v.6A6.5 6.5 0 0 1 20 12v.5a3.5 3.5 0 1 1-2 0V12a4.5 4.5 0 0 0-3-4.24V9.5a3.5 3.5 0 1 1-6 0V7.76A4.5 4.5 0 0 0 6 12v.5a3.5 3.5 0 1 1-2 0V12a6.5 6.5 0 0 1 4.5-6.14V5.5A3.5 3.5 0 0 1 12 2z"/></svg>Architecture</button>
+  <header class="topbar">
+    <a class="marque" href="index.html"><span class="marque-ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="4" y="10" width="3.6" height="10" rx="1.8"/><rect x="10.2" y="5" width="3.6" height="15" rx="1.8"/><rect x="16.4" y="12" width="3.6" height="8" rx="1.8"/></svg></span><span>Lumen Pilotage</span></a>
+    <nav class="onglets nav" aria-label="Menu">
+      <button data-v="ensemble">Vue d'ensemble</button>
+      <button data-v="agents">Agents</button>
+      <button data-v="clients">Clients</button>
+      <button data-v="demandes">Demandes<span class="compteur zero" id="n-demandes">0</span></button>
+      <a href="architecture.html" class="actif" aria-current="page">Architecture</a>
     </nav>
-    <div class="bas"><span id="qui"></span><button id="sortir">Se déconnecter</button></div>
+    <div class="top-droite">
+      <details class="profil">
+        <summary><span class="avatar" id="avatar">L</span><span class="profil-txt"><b id="qui"></b><small>Administrateur</small></span><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></summary>
+        <div class="profil-menu"><button id="sortir"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 4h3a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-3M10 17l5-5-5-5M15 12H4"/></svg>Se déconnecter</button></div>
+      </details>
+    </div>
+  </header>
+
+  <aside class="rail" aria-label="Raccourcis">
+    <div class="rail-groupe">
+      <button class="js-rafraichir" title="Actualiser" aria-label="Actualiser les données"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 11a8 8 0 1 0-2.3 5.7M20 4v7h-7"/></svg></button>
+      <button class="js-sortir" title="Se déconnecter" aria-label="Se déconnecter"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 4h3a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-3M10 17l5-5-5-5M15 12H4"/></svg></button>
+    </div>
+    <div class="rail-groupe nav">
+      <button data-v="ensemble" title="Vue d'ensemble" aria-label="Vue d'ensemble"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="3.5" width="7" height="7" rx="1.6"/><rect x="13.5" y="3.5" width="7" height="7" rx="1.6"/><rect x="3.5" y="13.5" width="7" height="7" rx="1.6"/><rect x="13.5" y="13.5" width="7" height="7" rx="1.6"/></svg></button>
+      <button data-v="agents" title="Agents" aria-label="Agents"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="8" width="16" height="11" rx="3"/><path d="M12 4v4M9 13v1M15 13v1M2 13v2M22 13v2"/></svg></button>
+      <button data-v="clients" title="Clients" aria-label="Clients"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.6-3.4 3.2-5.5 6.5-5.5s5.9 2.1 6.5 5.5M16 4.8a3.5 3.5 0 0 1 0 6.4M18.5 14.8c1.7.8 2.8 2.6 3 5.2"/></svg></button>
+      <button data-v="demandes" title="Demandes" aria-label="Demandes"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 13h5l1.5 3h5L16 13h5"/><path d="M5.5 5h13L21 13v5a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-5z"/></svg><i class="badge" id="rail-badge" hidden></i></button>
+      <a href="architecture.html" title="Architecture" aria-label="Architecture" class="actif" aria-current="page"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="6" rx="1.5"/><rect x="14" y="15" width="7" height="6" rx="1.5"/><rect x="3" y="15" width="7" height="6" rx="1.5"/><path d="M6.5 9v6M10 18h4M10 6h4.5a2.5 2.5 0 0 1 2.5 2.5V15"/></svg></a>
+    </div>
   </aside>
 
-  <div class="principal">
-    <header class="barre" hidden></header>
+  <main class="principal">
+    <h1 class="sr-only" id="titre">Architecture </h1>
 
     <section class="vue on" id="v-architecture" data-titre="Architecture">
       <div class="archi-wrap">
@@ -409,9 +430,7 @@
 
       </div>
     </section>
-
-
-  </div>
+  </main>
 </div>
 
 <script src="commun.js"></script>
@@ -456,7 +475,11 @@
   // Déconnexion
   sortir.addEventListener("click", async () => { await Compte.deconnecter(); location.reload(); });
 
-  // Navigation sidebar → index.html
+  document.querySelectorAll(".js-sortir").forEach(b => b.addEventListener("click", async () => { await Compte.deconnecter(); location.reload(); }));
+  document.querySelectorAll(".js-rafraichir").forEach(b => b.addEventListener("click", () => location.reload()));
+  const av = document.getElementById("avatar"); if (av && qui.textContent) av.textContent = qui.textContent.trim()[0].toUpperCase();
+
+  // Navigation → index.html
   document.querySelectorAll(".nav button[data-v]").forEach(btn => {
     btn.addEventListener("click", () => { location.href = "index.html#" + btn.dataset.v; });
   });
@@ -471,7 +494,7 @@
     const sh = schema.scrollHeight;
     const ow = outer.clientWidth;
     const oh = outer.clientHeight;
-    const scale = Math.min(ow / sw, oh / sh, 1);
+    const scale = Math.min((ow - 48) / sw, (oh - 48) / sh, 1.55);
     schema.style.transform = `scale(${scale})`;
   }
   window.addEventListener("resize", scaleSchema);

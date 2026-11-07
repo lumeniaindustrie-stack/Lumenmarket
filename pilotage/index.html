@@ -23,87 +23,88 @@
 </div>
 
 <div class="app" id="app" hidden>
-  <aside class="cote">
-    <a class="logo" href="index.html"><span class="tuile-ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><rect x="3" y="3" width="8" height="8" rx="2.2"/><rect x="13" y="3" width="8" height="8" rx="2.2"/><rect x="3" y="13" width="8" height="8" rx="2.2"/><rect x="13" y="13" width="8" height="8" rx="2.2" fill-opacity=".45"/></svg></span>Lumen Pilotage</a>
-    <p class="nav-titre">Pilotage</p>
-    <nav class="nav" aria-label="Menu">
-      <button data-v="ensemble"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="3" y="3" width="8" height="8" rx="2.2"/><rect x="13" y="3" width="8" height="8" rx="2.2"/><rect x="3" y="13" width="8" height="8" rx="2.2"/><rect x="13" y="13" width="8" height="8" rx="2.2"/></svg>Vue d'ensemble</button>
-      <button data-v="agents"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="5.5" cy="12" r="3.2"/><circle cx="18.5" cy="5.5" r="3.2"/><circle cx="18.5" cy="18.5" r="3.2"/><path d="M8 11.2 16 6.6M8 12.8l8 4.6" fill="none" stroke="currentColor" stroke-width="1.9"/></svg>Agents</button>
-      <button data-v="clients"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="9" cy="7.9" r="3.7"/><path d="M2.4 19.2c0-3.35 2.95-5.7 6.6-5.7s6.6 2.35 6.6 5.7c0 .72-.56 1.3-1.25 1.3H3.65c-.69 0-1.25-.58-1.25-1.3z"/><circle cx="17" cy="8.5" r="2.9"/><path d="M16.9 13.4c2.85.12 4.8 2.05 4.8 4.75 0 .7-.55 1.25-1.22 1.25h-3.1c.18-.38.27-.8.27-1.24 0-1.86-.8-3.5-2.18-4.62.45-.1.92-.15 1.43-.14z"/></svg>Clients</button>
-      <button data-v="demandes"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M5.3 3.5h13.4c.9 0 1.7.6 2 1.45L23 12v6a2.5 2.5 0 0 1-2.5 2.5h-17A2.5 2.5 0 0 1 1 18v-6l2.3-7.05c.3-.85 1.1-1.45 2-1.45zm-1.6 8h4.1c.45 0 .85.3.96.74.37 1.4 1.64 2.36 3.24 2.36s2.87-.96 3.24-2.36c.11-.44.51-.74.96-.74h4.1L18.4 5.6H5.6z" fill-rule="evenodd"/></svg>Demandes <span class="compteur zero" id="n-demandes">0</span></button>
-      <a href="architecture.html" class="nav-lien"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a3.5 3.5 0 0 1 3.5 3.5v.6A6.5 6.5 0 0 1 20 12v.5a3.5 3.5 0 1 1-2 0V12a4.5 4.5 0 0 0-3-4.24V9.5a3.5 3.5 0 1 1-6 0V7.76A4.5 4.5 0 0 0 6 12v.5a3.5 3.5 0 1 1-2 0V12a6.5 6.5 0 0 1 4.5-6.14V5.5A3.5 3.5 0 0 1 12 2z"/></svg>Architecture</a>
+  <header class="topbar">
+    <a class="marque" href="index.html"><span class="marque-ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="4" y="10" width="3.6" height="10" rx="1.8"/><rect x="10.2" y="5" width="3.6" height="15" rx="1.8"/><rect x="16.4" y="12" width="3.6" height="8" rx="1.8"/></svg></span><span>Lumen Pilotage</span></a>
+    <nav class="onglets nav" aria-label="Menu">
+      <button data-v="ensemble">Vue d'ensemble</button>
+      <button data-v="agents">Agents</button>
+      <button data-v="clients">Clients</button>
+      <button data-v="demandes">Demandes<span class="compteur zero" id="n-demandes">0</span></button>
+      <a href="architecture.html">Architecture</a>
     </nav>
-    <div class="bas"><span id="qui"></span><button id="sortir">Se déconnecter</button></div>
+    <div class="top-droite">
+      <div class="groupe">
+        <span class="etat-live" id="etat-live"><i></i><span>En direct</span></span>
+        <label class="periode"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg><select id="periode" aria-label="Période analysée"><option value="7">7 jours</option><option value="30">30 jours</option></select><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></label>
+      </div>
+      <div class="groupe">
+        <button class="rond" id="loupe" aria-label="Rechercher un client"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg></button>
+        <button class="rond" id="cloche" aria-label="Points d'attention"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9a6 6 0 1 1 12 0c0 6 2.5 7.5 2.5 7.5h-17S6 15 6 9"/><path d="M10 20a2.2 2.2 0 0 0 4 0"/></svg><i class="point-rouge" hidden></i></button>
+      </div>
+      <details class="profil">
+        <summary><span class="avatar" id="avatar">L</span><span class="profil-txt"><b id="qui"></b><small>Administrateur</small></span><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></summary>
+        <div class="profil-menu"><button id="sortir"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 4h3a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-3M10 17l5-5-5-5M15 12H4"/></svg>Se déconnecter</button></div>
+      </details>
+    </div>
+  </header>
+
+  <aside class="rail" aria-label="Raccourcis">
+    <div class="rail-groupe">
+      <button class="js-rafraichir" title="Actualiser" aria-label="Actualiser les données"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 11a8 8 0 1 0-2.3 5.7M20 4v7h-7"/></svg></button>
+      <button class="js-sortir" title="Se déconnecter" aria-label="Se déconnecter"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 4h3a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-3M10 17l5-5-5-5M15 12H4"/></svg></button>
+    </div>
+    <div class="rail-groupe nav">
+      <button data-v="ensemble" title="Vue d'ensemble" aria-label="Vue d'ensemble"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="3.5" width="7" height="7" rx="1.6"/><rect x="13.5" y="3.5" width="7" height="7" rx="1.6"/><rect x="3.5" y="13.5" width="7" height="7" rx="1.6"/><rect x="13.5" y="13.5" width="7" height="7" rx="1.6"/></svg></button>
+      <button data-v="agents" title="Agents" aria-label="Agents"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="8" width="16" height="11" rx="3"/><path d="M12 4v4M9 13v1M15 13v1M2 13v2M22 13v2"/></svg></button>
+      <button data-v="clients" title="Clients" aria-label="Clients"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.6-3.4 3.2-5.5 6.5-5.5s5.9 2.1 6.5 5.5M16 4.8a3.5 3.5 0 0 1 0 6.4M18.5 14.8c1.7.8 2.8 2.6 3 5.2"/></svg></button>
+      <button data-v="demandes" title="Demandes" aria-label="Demandes"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 13h5l1.5 3h5L16 13h5"/><path d="M5.5 5h13L21 13v5a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-5z"/></svg><i class="badge" id="rail-badge" hidden></i></button>
+      <a href="architecture.html" title="Architecture" aria-label="Architecture"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="6" rx="1.5"/><rect x="14" y="15" width="7" height="6" rx="1.5"/><rect x="3" y="15" width="7" height="6" rx="1.5"/><path d="M6.5 9v6M10 18h4M10 6h4.5a2.5 2.5 0 0 1 2.5 2.5V15"/></svg></a>
+    </div>
   </aside>
 
-  <div class="principal">
-    <header class="barre">
-      <h1 id="titre">Vue d'ensemble <small id="maj"></small></h1>
-      <div class="actions"><button class="btn" id="rafraichir"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M20 11a8 8 0 1 0-2.3 5.7M20 4v7h-7"/></svg>Actualiser</button></div>
-    </header>
+  <main class="principal">
+    <h1 class="sr-only" id="titre">Vue d'ensemble </h1>
 
     <section class="vue" id="v-ensemble" data-titre="Vue d'ensemble">
       <div class="page ens-page">
-        <div class="entete">
-          <span class="tuile-ic"><svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor"><rect x="3" y="3" width="8" height="8" rx="2.2"/><rect x="13" y="3" width="8" height="8" rx="2.2"/><rect x="3" y="13" width="8" height="8" rx="2.2"/><rect x="13" y="13" width="8" height="8" rx="2.2"/></svg></span>
-          <div><h1>Vue d'ensemble</h1><p><span class="maj"></span></p></div>
-          <div class="actions">
-            <button class="btn js-rafraichir"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M20 11a8 8 0 1 0-2.3 5.7M20 4v7h-7"/></svg>Actualiser</button>
-            <button class="btn prim" data-aller="agents">Carte des agents</button>
+        <div class="ens-haut">
+          <div class="carte-xl sante">
+            <div class="sante-tete"><h2>Santé</h2><span class="pill ok" id="sante-pill">Opérationnel</span></div>
+            <div class="sante-corps">
+              <div class="jauge"><svg id="jauge" viewBox="0 0 220 170" aria-hidden="true"></svg><div class="jauge-val"><strong id="sante-score">–</strong><small id="sante-sous"></small></div></div>
+              <ul class="sante-liste" id="sante-liste"></ul>
+            </div>
+          </div>
+          <div class="carte-xl kpis" id="kpis"></div>
+        </div>
+
+        <div class="carte-xl reseau">
+          <div class="reseau-tete">
+            <div><h2>Réseau des agents</h2><p id="reseau-sous"></p></div>
+            <div class="actions">
+              <label class="btn-pil sel"><select id="reseau-filtre" aria-label="Agents affichés"><option value="tous">Tous les agents</option><option value="service">Agents en service</option></select><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></label>
+              <span class="btn-pil statique" id="reseau-periode">7 derniers jours</span>
+              <button class="btn-pil" data-aller="agents"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7M8 7h9v9"/></svg>Agrandir</button>
+            </div>
+          </div>
+          <div class="reseau-canvas">
+            <div class="legende-pil"><span><i style="background:var(--vert)"></i>Opérationnel</span><span><i style="background:var(--orange)"></i>En retard</span><span><i style="background:var(--rouge)"></i>En erreur</span><span><i style="background:#C3C9D4"></i>À construire</span></div>
+            <svg id="reseau" viewBox="0 0 1400 400" role="group" aria-label="Réseau des agents et de leurs liaisons"></svg>
           </div>
         </div>
 
-        <!-- KPI principaux (ligne 1) -->
-        <div class="chiffres ens-kpi-top">
-          <div class="chiffre mis">
-            <span><svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 1 0 0 20A10 10 0 0 0 12 2zm1 14.93V18a1 1 0 1 1-2 0v-1.07A6 6 0 0 1 6.07 11H5a1 1 0 1 1 0-2h1.07A6 6 0 0 1 11 3.07V2a1 1 0 1 1 2 0v1.07A6 6 0 0 1 17.93 9H19a1 1 0 1 1 0 2h-1.07A6 6 0 0 1 13 16.93z"/></svg>Revenu mensuel récurrent</span>
-            <strong id="k-mrr">0 €</strong><small id="k-mrr-d"></small>
-          </div>
-          <div class="chiffre">
-            <span><svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="9" cy="7.9" r="3.7"/><path d="M2.4 19.2c0-3.35 2.95-5.7 6.6-5.7s6.6 2.35 6.6 5.7c0 .72-.56 1.3-1.25 1.3H3.65c-.69 0-1.25-.58-1.25-1.3z"/></svg>Clients abonnés</span>
-            <strong id="k-abonnes">0</strong><small id="k-abonnes-d"></small>
-          </div>
-          <div class="chiffre">
-            <span><svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9V8h2v8zm4 0h-2V8h2v8z"/></svg>En essai gratuit</span>
-            <strong id="k-essai">0</strong><small id="k-essai-d"></small>
-          </div>
-          <div class="chiffre">
-            <span><svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M16 11c1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3 1.34 3 3 3zm-8 0c1.66 0 3-1.34 3-3S9.66 5 8 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>Nouvelles inscriptions</span>
-            <strong id="k-inscr">0</strong><small id="k-inscr-d"></small>
-          </div>
-        </div>
-
-        <!-- Corps : graphique + alertes -->
-        <div class="grille ens-grille">
-          <div class="panneau">
-            <div class="ens-pan-tete"><h2>Inscriptions par semaine</h2><span class="pill">8 semaines</span></div>
-            <div class="barres" id="g-inscr"></div>
-            <div class="ens-vide" id="g-inscr-vide" hidden><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" opacity=".3"><path d="M3 20h18M5 20V10l7-7 7 7v10"/></svg><p>Pas encore d'inscriptions.<br>Les données apparaîtront ici dès que des clients s'inscriront.</p></div>
-          </div>
-          <div class="panneau">
-            <div class="ens-pan-tete"><h2>Points d'attention</h2><span class="pill gris" id="n-alertes-pill">à traiter</span></div>
+        <div class="ens-bas">
+          <div class="carte-xl" id="bloc-alertes">
+            <div class="bloc-tete"><h2>Points d'attention</h2><button class="btn-pil" data-aller="agents"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7M8 7h9v9"/></svg>Voir tout</button></div>
             <div id="alertes"></div>
           </div>
-        </div>
-
-        <!-- KPI secondaires (ligne 2) -->
-        <div class="ens-sec-titre">Activité des agents</div>
-        <div class="chiffres ens-kpi-sec">
-          <div class="chiffre">
-            <span><svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2.5c.66 0 1.2.54 1.2 1.2v7.3l2.35-2.35a1.2 1.2 0 1 1 1.7 1.7l-4.4 4.4a1.2 1.2 0 0 1-1.7 0l-4.4-4.4a1.2 1.2 0 1 1 1.7-1.7l2.35 2.35V3.7c0-.66.54-1.2 1.2-1.2z"/><path d="M3 14.6c0-.55.45-1 1-1h3.1c.47 0 .86.33.97.78.42 1.62 2.02 2.82 3.93 2.82s3.51-1.2 3.93-2.82c.11-.45.5-.78.97-.78H20c.55 0 1 .45 1 1v4.4a2.5 2.5 0 0 1-2.5 2.5h-13A2.5 2.5 0 0 1 3 19z"/></svg>Offres collectées (24 h)</span>
-            <strong id="k-collect">0</strong><small id="k-collect-d"></small>
+          <div class="carte-xl">
+            <div class="bloc-tete"><h2>Passages par agent</h2><span class="btn-pil statique" id="passages-periode">7 jours</span></div>
+            <div id="ens-passages"></div>
           </div>
-          <div class="chiffre">
-            <span><svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M4.6 4.8h14.8A2.6 2.6 0 0 1 22 7.4v.4l-10 6.1L2 7.8v-.4a2.6 2.6 0 0 1 2.6-2.6z"/><path d="m2 10.2 9.48 5.78c.32.2.72.2 1.04 0L22 10.2v6.4a2.6 2.6 0 0 1-2.6 2.6H4.6A2.6 2.6 0 0 1 2 16.6z"/></svg>Offres envoyées (7 j)</span>
-            <strong id="k-envoi">0</strong><small id="k-envoi-d"></small>
-          </div>
-          <div class="chiffre">
-            <span><svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M6.6 2.4h6.6c.4 0 .78.16 1.06.44l4.4 4.4c.28.28.44.66.44 1.06v4.1a5.6 5.6 0 0 0-8 7.2H6.6a2.1 2.1 0 0 1-2.1-2.1V4.5c0-1.16.94-2.1 2.1-2.1z"/><circle cx="15.6" cy="16.6" r="3.3" fill="none" stroke="currentColor" stroke-width="2.1"/><path d="m18.1 19.1 2.4 2.4" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>Dossiers analysés (30 j)</span>
-            <strong id="k-analyses">0</strong><small>par les clients</small>
-          </div>
-          <div class="chiffre">
-            <span><svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="5.5" cy="12" r="3.2"/><circle cx="18.5" cy="5.5" r="3.2"/><circle cx="18.5" cy="18.5" r="3.2"/><path d="M8 11.2 16 6.6M8 12.8l8 4.6" fill="none" stroke="currentColor" stroke-width="1.9"/></svg>Agents actifs</span>
-            <strong id="k-agents">0</strong><small id="k-agents-d"></small>
+          <div class="carte-xl">
+            <div class="bloc-tete"><h2>Clients</h2><button class="btn-pil" data-aller="clients"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7M8 7h9v9"/></svg>Voir tout</button></div>
+            <ul class="liste-pil" id="ens-clients"></ul>
           </div>
         </div>
       </div>
@@ -166,7 +167,6 @@
           </div>
         </div>
       </div>
-      <dialog class="ndv" id="fiche" aria-labelledby="fa-titre"></dialog>
     </section>
 
     <section class="vue" id="v-clients" data-titre="Clients">
@@ -185,7 +185,8 @@
         <div class="panneau"><div class="tableau"><table><thead><tr><th>Date</th><th>Offre</th><th>Entreprise</th><th>Contact</th><th>Besoin</th><th>Statut</th></tr></thead><tbody id="d-liste"></tbody></table></div></div>
       </div>
     </section>
-  </div>
+  </main>
+  <dialog class="ndv" id="fiche" aria-labelledby="fa-titre"></dialog>
 </div>
 
 <script src="config.js"></script>
@@ -203,13 +204,13 @@ $("#f-porte").addEventListener("submit", async e => {
   catch (er) { st.className = "statut err"; st.textContent = traduireErreur(er); }
 });
 $("#sortir").onclick = async () => { await Compte.deconnecter(); porte(); };
-$$(".js-rafraichir").forEach(b => b.onclick = () => charger().then(rendre));
+$$(".js-rafraichir").forEach(b => b.onclick = async () => { b.classList.add("tourne"); try { await charger(); rendre(); } finally { b.classList.remove("tourne"); } });
 $$("[data-aller]").forEach(b => b.onclick = () => aller(b.dataset.aller));
 
 async function entrer() {
   const { moi, erreur } = await verifierAdmin();
   if (!moi) return porte(erreur);
-  $("#qui").textContent = moi.email; $("#porte").hidden = true; $("#app").hidden = false;
+  $("#qui").textContent = moi.email; $("#avatar").textContent = (moi.entreprise || moi.email || "L").trim()[0].toUpperCase(); $("#porte").hidden = true; $("#app").hidden = false;
   await charger(); rendre(); aller(location.hash.slice(1) || "ensemble");
 }
 
@@ -225,48 +226,180 @@ async function charger() {
     SB.from("offres").select("avis_id", { count: "exact", head: true })
   ]);
   D = { profils: p.data || [], envoyees: e.data || [], analyses: a.data || [], demandes: d.data || [], runs: r.data || [], collecte24: c24.count || 0, offresTotal: tot.count || 0 };
-  $$(".maj").forEach(m => m.textContent = "Mis à jour le " + heure(new Date()));
+  $$(".maj").forEach(m => m.textContent = "Actualisé à " + new Date().toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" }));
+}
+
+let PERIODE = 7;
+const IC = {
+  euro: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M15.5 8.5a4 4 0 1 0 0 7M7.5 11h6M7.5 13.5h6"/></svg>',
+  user: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="3.6"/><path d="M5 20c.7-3.6 3.6-5.6 7-5.6s6.3 2 7 5.6M19 3.5v4M17 5.5h4"/></svg>',
+  send: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 3 10 14M21 3l-7 18-4-7-7-4z"/></svg>',
+  doc: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h4"/></svg>'
+};
+/* Courbe lissée (Catmull-Rom) */
+function courbe(pts) { let d = `M${pts[0][0]} ${pts[0][1]}`; for (let i = 0; i < pts.length - 1; i++) { const p0 = pts[i - 1] || pts[i], p1 = pts[i], p2 = pts[i + 1], p3 = pts[i + 2] || p2;
+  d += ` C${p1[0] + (p2[0] - p0[0]) / 6} ${p1[1] + (p2[1] - p0[1]) / 6} ${p2[0] - (p3[0] - p1[0]) / 6} ${p2[1] - (p3[1] - p1[1]) / 6} ${p2[0]} ${p2[1]}`; } return d; }
+let nSpark = 0;
+function spark(serie, coul) {
+  if (!serie || serie.length < 2) return "";
+  const W = 150, H = 56, max = Math.max(1, ...serie), id = "sp" + (nSpark++);
+  const pts = serie.map((v, i) => [i * W / (serie.length - 1), H - 8 - v / max * (H - 18)]);
+  const d = courbe(pts), [lx, ly] = pts[pts.length - 1];
+  return `<svg class="spark" viewBox="0 0 ${W} ${H}" aria-hidden="true"><defs><linearGradient id="${id}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${coul}" stop-opacity=".28"/><stop offset="1" stop-color="${coul}" stop-opacity="0"/></linearGradient></defs>
+    <path d="${d} L${W} ${H} L0 ${H}Z" fill="url(#${id})"/><path d="${d}" fill="none" stroke="${coul}" stroke-width="2.2" stroke-linecap="round"/><circle cx="${lx}" cy="${ly}" r="4" fill="${coul}" stroke="#fff" stroke-width="1.5"/></svg>`;
+}
+function delta(act, prec) { const d = act - prec; return { txt: (d > 0 ? "+" : d < 0 ? "−" : "") + nf(Math.abs(d)), cl: d > 0 ? "up" : d < 0 ? "dn" : "" }; }
+function carteKpi(k) {
+  return `<div class="kpi"><span class="kpi-ic" style="--f-ic:${k.fond};--c-ic:${k.coul}">${k.ic}</span><div class="kpi-txt"><span class="kpi-lab">${k.lab}</span><strong>${k.val}</strong>
+    <div class="kpi-pied"><span class="chip ${k.chipCl || ""}"><i></i>${k.chip}</span><small>${k.sous}</small></div></div>${k.droite || ""}</div>`;
+}
+function jauge(score) {
+  const cx = 110, cy = 104, R = 86, a0 = 150, a1 = 390, rad = a => a * Math.PI / 180, pt = a => [cx + R * Math.cos(rad(a)), cy + R * Math.sin(rad(a))];
+  const arc = (de, a) => { const [x0, y0] = pt(de), [x1, y1] = pt(a); return `M${x0} ${y0} A${R} ${R} 0 ${a - de > 180 ? 1 : 0} 1 ${x1} ${y1}`; };
+  const fin = a0 + (a1 - a0) * Math.max(0.001, score / 100), [kx, ky] = pt(fin);
+  return `<defs><linearGradient id="jg" x1="0" y1="1" x2="1" y2="0"><stop offset="0" stop-color="#3B82F6"/><stop offset=".55" stop-color="#6366F1"/><stop offset="1" stop-color="#8B5CF6"/></linearGradient></defs>
+    <path d="${arc(a0, a1)}" fill="none" stroke="#E9ECF2" stroke-width="16" stroke-linecap="round"/>
+    ${score > 0 ? `<path d="${arc(a0, fin)}" fill="none" stroke="url(#jg)" stroke-width="16" stroke-linecap="round"/><circle cx="${kx}" cy="${ky}" r="6" fill="#fff" stroke="#8B5CF6" stroke-width="2"/>` : ""}`;
 }
 
 /* ---------- Vue d'ensemble ---------- */
 function rendre() {
-  const P = CFG.PRIX || 99, auj = new Date();
+  const P = CFG.PRIX || 99, auj = new Date(), J = PERIODE;
   const clientsSeuls = D.profils.filter(p => !p.est_admin);
   const actifs = clientsSeuls.filter(p => p.actif !== false);
   const abonnes = actifs.filter(p => p.formule === "abonne" || p.formule === "accompagnement");
   const essais = actifs.filter(p => (p.formule || "essai") === "essai" && (!p.fin_essai || new Date(p.fin_essai + "T23:59:59") >= auj));
   const finSemaine = essais.filter(p => p.fin_essai && (new Date(p.fin_essai) - auj) / 864e5 <= 7);
-  const inscr7 = clientsSeuls.filter(p => new Date(p.cree_le) >= new Date(ilYa(7)));
-  const inscr30 = clientsSeuls.filter(p => new Date(p.cree_le) >= new Date(ilYa(30)));
-  const env7 = D.envoyees.filter(x => x.date_envoi >= ilYa(7).slice(0, 10));
-  const an30 = D.analyses.filter(x => new Date(x.cree_le) >= new Date(ilYa(30)));
+  const entre = (t, a, b) => t >= new Date(ilYa(a)) && t < new Date(ilYa(b));
+  const inscrN = clientsSeuls.filter(p => entre(new Date(p.cree_le), J, 0)).length, inscrP = clientsSeuls.filter(p => entre(new Date(p.cree_le), 2 * J, J)).length;
+  const jourStr = j => ilYa(j).slice(0, 10);
+  const envN = D.envoyees.filter(x => x.date_envoi >= jourStr(J)), envP = D.envoyees.filter(x => x.date_envoi >= jourStr(2 * J) && x.date_envoi < jourStr(J)).length;
+  const anN = D.analyses.filter(x => entre(new Date(x.cree_le), J, 0)).length, anP = D.analyses.filter(x => entre(new Date(x.cree_le), 2 * J, J)).length;
   const enService = AGENTS.filter(a => !a.avenir), etats = enService.map(a => sante(a, D.runs));
-  $("#k-mrr").textContent = nf(abonnes.length * P) + " €"; $("#k-mrr-d").textContent = `${abonnes.length} × ${P} € HT par mois`;
-  $("#k-abonnes").textContent = nf(abonnes.length); $("#k-abonnes-d").textContent = `${clientsSeuls.filter(p => p.actif === false).length} compte(s) en pause`;
-  $("#k-essai").textContent = nf(essais.length); $("#k-essai-d").textContent = `${finSemaine.length} se termine(nt) dans 7 jours`;
-  $("#k-inscr").textContent = nf(inscr7.length); $("#k-inscr-d").textContent = `${inscr30.length} sur 30 jours`;
-  $("#k-collect").textContent = nf(D.collecte24); $("#k-collect-d").textContent = `${nf(D.offresTotal)} offres en base`;
-  $("#k-envoi").textContent = nf(env7.length); $("#k-envoi-d").textContent = `à ${new Set(env7.map(x => x.client_id)).size} client(s)`;
-  $("#k-analyses").textContent = nf(an30.length);
-  $("#k-agents").textContent = `${etats.filter(estActif).length} / ${etats.length}`; $("#k-agents-d").textContent = `${AGENTS.filter(a => a.avenir).length} agents à construire`;
-  const sem = [...Array(8)].map((_, i) => { const fin = new Date(Date.now() - (7 - i) * 7 * 864e5); const debut = new Date(fin - 7 * 864e5); return { debut, n: clientsSeuls.filter(p => { const t = new Date(p.cree_le); return t > debut && t <= fin; }).length }; });
-  const max = Math.max(1, ...sem.map(s => s.n));
-  const totalInscr = sem.reduce((s, x) => s + x.n, 0);
-  $("#g-inscr").hidden = totalInscr === 0;
-  if ($("#g-inscr-vide")) $("#g-inscr-vide").hidden = totalInscr > 0;
-  $("#g-inscr").innerHTML = sem.map(s => `<div title="Semaine du ${jour(s.debut)} : ${s.n} inscription(s)"><b>${s.n}</b><i style="height:${s.n / max * 100}%"></i><small>${jour(s.debut)}</small></div>`).join("");
+  const nbOk = etats.filter(estActif).length, nbErr = etats.filter(e => e.cle === "erreur").length, nbRet = etats.filter(e => e.cle === "retard").length;
+  const runsJ = D.runs.filter(r => new Date(r.debut) >= new Date(ilYa(Math.min(J, 30))));
+  const taux = runsJ.length ? Math.round(runsJ.filter(r => r.statut !== "erreur").length / runsJ.length * 100) : null;
+  const runs24 = D.runs.filter(r => new Date(r.debut) >= new Date(ilYa(1))).length;
+
+  // séries pour les mini-courbes : 8 tranches de la période / 8 (min 1 jour)
+  const pas = Math.max(1, J / 7 >= 1 ? Math.round(J * 2 / 8) : 1), N = 8;
+  const tranches = [...Array(N)].map((_, i) => [(N - i) * pas, (N - 1 - i) * pas]);
+  const sInscr = tranches.map(([a, b]) => clientsSeuls.filter(p => entre(new Date(p.cree_le), a, b)).length);
+  const sEnv = tranches.map(([a, b]) => D.envoyees.filter(x => x.date_envoi >= jourStr(a) && x.date_envoi < jourStr(b)).length);
+  const sAn = tranches.map(([a, b]) => D.analyses.filter(x => entre(new Date(x.cree_le), a, b)).length);
+  const coulS = (d) => d.cl === "up" ? "#16B981" : d.cl === "dn" ? "#EF4444" : "#8B5CF6";
+
+  // ---- Santé ----
+  const score = enService.length ? Math.round(nbOk / enService.length * 100) : 0;
+  const glob = nbErr ? ["ko", "Incident"] : nbRet ? ["att", "À surveiller"] : ["ok", "Opérationnel"];
+  $("#sante-pill").className = "pill " + glob[0]; $("#sante-pill").textContent = glob[1];
+  $("#etat-live").className = "etat-live " + glob[0]; $("#etat-live span").textContent = glob[0] === "ok" ? "En direct" : glob[1];
+  $("#jauge").innerHTML = jauge(score);
+  $("#sante-score").textContent = score;
+  $("#sante-sous").textContent = `sur 100 · ${nbOk}/${enService.length} agents actifs`;
+
+  // ---- Points d'attention ----
   const al = [];
-  etats.forEach((e, i) => { const ag = enService[i]; if (e.cle === "erreur") al.push(`<b>${esc(ag.nom)} (${esc(ag.titre)})</b> : ${esc(e.der?.message || e.txt)}`); if (e.cle === "retard") al.push(`<b>${esc(ag.nom)}</b> n'a pas tourné depuis ${heure(e.der.debut)}. Ton ordinateur, n8n ou Ollama sont-ils allumés ?`); });
-  finSemaine.forEach(p => al.push(`L'essai de <b>${esc(p.entreprise)}</b> se termine le ${jour(p.fin_essai)} : un appel peut le convertir (${esc(p.telephone || p.email)}).`));
+  etats.forEach((e, i) => { const ag = enService[i]; if (e.cle === "erreur") al.push(["ko", `<b>${esc(ag.nom)} (${esc(ag.titre)})</b> : ${esc(e.der?.message || e.txt)}`]); if (e.cle === "retard") al.push(["att", `<b>${esc(ag.nom)}</b> n'a pas tourné depuis ${heure(e.der.debut)}. Ton ordinateur, n8n ou Ollama sont-ils allumés ?`]); });
+  finSemaine.forEach(p => al.push(["att", `L'essai de <b>${esc(p.entreprise)}</b> se termine le ${jour(p.fin_essai)} : un appel peut le convertir (${esc(p.telephone || p.email)}).`]));
   const aRappeler = D.demandes.filter(d => d.statut === "à rappeler");
-  if (aRappeler.length) al.push(`<b>${aRappeler.length} demande(s) sur mesure</b> à rappeler.`);
+  if (aRappeler.length) al.push(["att", `<b>${aRappeler.length} demande(s) sur mesure</b> à rappeler.`]);
   const sansQ = actifs.filter(p => !p.onboarding_fait).length;
-  if (sansQ) al.push(`${sansQ} client(s) n'ont pas rempli le questionnaire : leurs offres seront moins précises.`);
-  $("#alertes").innerHTML = al.length ? `<ul class="alertes">${al.map(x => `<li><span>${x}</span></li>`).join("")}</ul>` : `<p class="vide">Rien à signaler.</p>`;
-  if ($("#n-alertes-pill")) { $("#n-alertes-pill").textContent = al.length ? al.length + " point" + (al.length > 1 ? "s" : "") : "aucun"; $("#n-alertes-pill").className = "pill " + (al.length ? "att" : "ok"); }
+  if (sansQ) al.push(["att", `${sansQ} client(s) n'ont pas rempli le questionnaire : leurs offres seront moins précises.`]);
+  const MAXA = 5, vus = [...al].sort((a, b) => (a[0] === "ko" ? 0 : 1) - (b[0] === "ko" ? 0 : 1)).slice(0, MAXA);
+  $("#alertes").innerHTML = al.length ? `<ul class="alertes">${vus.map(([c, x]) => `<li class="${c}"><span>${x}</span></li>`).join("")}${al.length > MAXA ? `<li class="plus">et ${al.length - MAXA} autre${al.length - MAXA > 1 ? "s" : ""} point${al.length - MAXA > 1 ? "s" : ""}</li>` : ""}</ul>` : `<p class="ens-ok"><i></i>Rien à signaler.</p>`;
+  $("#cloche .point-rouge").hidden = !al.length;
+
+  $("#sante-liste").innerHTML = [
+    ["Taux de réussite", taux !== null ? taux + " %" : "–"],
+    ["Passages (24 h)", nf(runs24)],
+    ["Collecte (24 h)", nf(D.collecte24)],
+    ["Agents actifs", `${nbOk} / ${enService.length}`],
+    ["Points d'attention", al.length]
+  ].map(([a, b]) => `<li><span>${a}</span><b>${b}</b></li>`).join("");
+
+  // ---- KPI ----
+  const dI = delta(inscrN, inscrP), dE = delta(envN.length, envP), dA = delta(anN, anP), lib = `vs ${J} j préc.`;
+  $("#kpis").innerHTML = [
+    { ic: IC.euro, fond: "#E3F8EF", coul: "#0E8A5F", lab: "Revenu mensuel", val: nf(abonnes.length * P) + " €", chip: `${abonnes.length} abonné${abonnes.length > 1 ? "s" : ""}`, chipCl: "neutre", sous: `× ${P} € HT / mois`,
+      droite: `<div class="kpi-cote"><b>${nf(essais.length)}</b><small>en essai</small></div>` },
+    { ic: IC.user, fond: "#F1EBFF", coul: "#7C4DEB", lab: "Nouvelles inscriptions", val: nf(inscrN), chip: dI.txt, chipCl: dI.cl, sous: lib, droite: spark(sInscr, coulS(dI)) },
+    { ic: IC.send, fond: "#EAF1FF", coul: "#2F6BF2", lab: "Offres envoyées", val: nf(envN.length), chip: dE.txt, chipCl: dE.cl, sous: lib, droite: spark(sEnv, coulS(dE)) },
+    { ic: IC.doc, fond: "#FEF3DC", coul: "#B26B00", lab: "Dossiers analysés", val: nf(anN), chip: dA.txt, chipCl: dA.cl, sous: lib, droite: spark(sAn, coulS(dA)) }
+  ].map(carteKpi).join("");
+
+  // ---- Passages par agent ----
+  const parAg = enService.map((a, i) => { const r = D.runs.filter(x => x.agent === a.code && new Date(x.debut) >= new Date(ilYa(Math.min(J, 30)))); return { a, e: etats[i], n: r.length, ok: r.length ? Math.round(r.filter(x => x.statut !== "erreur").length / r.length * 100) : null }; });
+  const maxP = Math.max(1, ...parAg.map(x => x.n));
+  $("#ens-passages").innerHTML = parAg.map(x => `<div class="passage${x.e.cle === "erreur" ? " ko" : ""}"><span>${esc(x.a.titre)}</span><small>${nf(x.n)} passage${x.n > 1 ? "s" : ""}${x.ok !== null ? " · " + x.ok + " %" : ""}</small><div class="barre-h"><i style="width:${x.n / maxP * 100}%"></i></div></div>`).join("") || `<p class="vide">Aucun agent en service.</p>`;
+  $("#passages-periode").textContent = Math.min(J, 30) + " jours";
+  $("#reseau-periode").textContent = Math.min(J, 30) + " derniers jours";
+
+  // ---- Clients ----
+  $("#ens-clients").innerHTML = [
+    ["Abonnés", nf(abonnes.length)], ["En essai gratuit", nf(essais.length)], ["Essais finissant sous 7 j", nf(finSemaine.length)],
+    ["Comptes en pause", nf(clientsSeuls.filter(p => p.actif === false).length)], ["Questionnaire non rempli", nf(sansQ)], [`Inscriptions (${J} j)`, nf(inscrN)]
+  ].map(([a, b]) => `<li><span>${a}</span><b>${b}</b></li>`).join("");
+
   $("#n-demandes").textContent = aRappeler.length; $("#n-demandes").classList.toggle("zero", !aRappeler.length);
-  rendreClients(); rendreAgents(); rendreDemandes();
+  $("#rail-badge").hidden = !aRappeler.length;
+  rendreReseau(); rendreClients(); rendreAgents(); rendreDemandes();
 }
+
+/* ---------- Réseau des agents (Vue d'ensemble) ---------- */
+const RW = 196, RH = 58;
+const RNOEUDS = {
+  "BOAMP": [16, 200], "A-collecteur": [306, 200], "B-tri": [596, 200], "CLIENTS": [886, 200],
+  "C-chat": [1184, 70], "D-analyse": [1184, 200], "H-comptable": [1184, 330],
+  "G-controle": [451, 64], "E-prospection": [306, 336], "F-commercial": [596, 336]
+};
+const RLIENS = [["BOAMP", "A-collecteur"], ["A-collecteur", "B-tri"], ["B-tri", "CLIENTS"], ["E-prospection", "F-commercial"], ["F-commercial", "CLIENTS"],
+  ["CLIENTS", "C-chat"], ["CLIENTS", "D-analyse"], ["CLIENTS", "H-comptable"], ["G-controle", "A-collecteur", "sup"], ["G-controle", "B-tri", "sup"]];
+const IC_BOAMP = '<path d="M12 2.5a9.5 9.5 0 1 0 0 19 9.5 9.5 0 0 0 0-19zm0 2c.9 0 2.2 1.9 2.7 5.5H9.3C9.8 6.4 11.1 4.5 12 4.5zm-2.9.6A13.6 13.6 0 0 0 7.3 10H4.8a7.5 7.5 0 0 1 4.3-4.9zm5.8 0A7.5 7.5 0 0 1 19.2 10h-2.5a13.6 13.6 0 0 0-1.8-4.9zM4.6 12h2.6c0 .7 0 1.4.1 2H4.8a7.4 7.4 0 0 1-.2-2zm4.6 0h5.6l-.1 2H9.3zm7.6 0h2.6c0 .7-.1 1.4-.2 2h-2.5l.1-2zM4.8 16h2.5c.4 1.9 1 3.5 1.8 4.9A7.5 7.5 0 0 1 4.8 16zm4.5 0h5.4c-.5 3.2-1.8 5.5-2.7 5.5s-2.2-2.3-2.7-5.5zm7.4 0h2.5a7.5 7.5 0 0 1-4.3 4.9c.8-1.4 1.4-3 1.8-4.9z"/>';
+function rendreReseau() {
+  const svg = $("#reseau"); if (!svg) return;
+  const filtre = $("#reseau-filtre").value, J = Math.min(PERIODE, 30);
+  const cl = D.profils.filter(p => !p.est_admin), act = cl.filter(p => p.actif !== false), ab = act.filter(p => p.formule === "abonne" || p.formule === "accompagnement").length;
+  const info = {};
+  info.BOAMP = { cl: "ok", nom: "Source BOAMP", sous: `${nf(D.offresTotal)} offres en base`, ic: IC_BOAMP, fixe: true };
+  info.CLIENTS = { cl: "ok", nom: "Clients", sous: `${nf(act.length)} actifs · ${nf(ab)} abonnés`, ic: ICONES.CLIENTS };
+  AGENTS.forEach(a => {
+    const e = sante(a, D.runs), r = e.runs.filter(x => new Date(x.debut) >= new Date(ilYa(J))), ok = r.length ? Math.round(r.filter(x => x.statut !== "erreur").length / r.length * 100) : null;
+    const c = a.avenir ? "idle" : e.cle === "erreur" ? "ko" : e.cle === "retard" ? "att" : "ok";
+    const sous = a.avenir ? `À construire · ${a.avenir}` : c === "ok" ? `${nf(r.length)} passage${r.length > 1 ? "s" : ""}${ok !== null ? " · " + ok + " %" : ""}` : e.txt;
+    info[a.code] = { cl: c, nom: COURT[a.code] || a.titre, sous, ic: ICONES[a.code] };
+  });
+  const vis = c => filtre === "tous" || info[c].cl !== "idle";
+  const pire = (a, b) => { const o = ["idle", "ko", "att", "ok"]; return o[Math.min(o.indexOf(info[a].cl), o.indexOf(info[b].cl))]; };
+  const liens = RLIENS.filter(([a, b]) => vis(a) && vis(b)).map(([a, b, t], i) => {
+    const [ax, ay] = RNOEUDS[a], [bx, by] = RNOEUDS[b]; let d;
+    if (t === "sup") { const x0 = ax + RW / 2, y0 = ay + RH / 2, x1 = bx + RW / 2, y1 = by - RH / 2; d = `M${x0} ${y0} C${x0} ${(y0 + y1) / 2} ${x1} ${(y0 + y1) / 2} ${x1} ${y1}`; }
+    else { const x0 = ax + RW, x1 = bx, m = (x1 - x0) / 2; d = `M${x0} ${ay} C${x0 + m} ${ay} ${x1 - m} ${by} ${x1} ${by}`; }
+    const etat = pire(a, b), anime = etat === "ok" && !t && !sansMouvement;
+    return `<path id="rl-${i}" class="rl ${etat}${t ? " sup" : ""}" d="${d}"/>${anime ? `<circle class="rl-point" r="5"><animateMotion dur="${3 + i % 3}s" repeatCount="indefinite"><mpath href="#rl-${i}"/></animateMotion></circle>` : ""}`;
+  }).join("");
+  const noeuds = Object.keys(RNOEUDS).filter(vis).map(code => {
+    const [x, y] = RNOEUDS[code], n = info[code], t = y - RH / 2;
+    const fondIc = { ok: "#E3F8EF", att: "#FEF0CC", ko: "#FDE3E3", idle: "#EDEFF3" }[n.cl], coulIc = { ok: "#16A06F", att: "#C27C00", ko: "#D93636", idle: "#8C95A6" }[n.cl];
+    const icF = code === "CLIENTS" || code === "BOAMP" ? ["#EAF1FF", "#2F6BF2"] : [fondIc, coulIc];
+    return `<g class="rn ${n.cl}${n.fixe ? " fixe" : ""}" ${n.fixe ? "" : `data-agent="${code}" tabindex="0" role="button"`} aria-label="${esc(n.nom)} : ${esc(n.sous)}">
+      <rect class="boite" x="${x}" y="${t}" width="${RW}" height="${RH}" rx="16" filter="url(#ombre-r)"/>
+      <circle cx="${x + 30}" cy="${y}" r="17" fill="${icF[0]}"/>
+      <svg x="${x + 21}" y="${y - 9}" width="18" height="18" viewBox="0 0 24 24" fill="currentColor" color="${icF[1]}">${n.ic}</svg>
+      <text class="nom" x="${x + 56}" y="${y - 3}">${esc(n.nom)}</text><text class="sous" x="${x + 56}" y="${y + 15}">${esc(n.sous)}</text></g>`;
+  }).join("");
+  svg.innerHTML = `<defs><filter id="ombre-r" x="-20%" y="-30%" width="140%" height="170%"><feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#101828" flood-opacity=".06"/></filter></defs>` + liens + noeuds;
+  const nb = AGENTS.filter(a => info[a.code].cl === "ok").length, nbS = AGENTS.filter(a => ["att", "ko"].includes(info[a.code].cl)).length;
+  $("#reseau-sous").textContent = `${AGENTS.length} agents · ${nb} actif${nb > 1 ? "s" : ""} · ${nbS} à surveiller · ${nf(act.length)} clients · mis à jour à ${new Date().toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" })}`;
+  $$("#reseau [data-agent]").forEach(n => { const c = n.dataset.agent;
+    n.addEventListener("click", () => ouvrirFiche(c));
+    n.addEventListener("keydown", ev => { if (ev.key === "Enter" || ev.key === " ") { ev.preventDefault(); ouvrirFiche(c); } }); });
+}
+$("#reseau-filtre").addEventListener("change", rendreReseau);
+$("#periode").addEventListener("change", e => { PERIODE = +e.target.value; rendre(); });
+$("#loupe").onclick = () => { aller("clients"); setTimeout(() => $("#c-filtre").focus(), 50); };
+$("#cloche").onclick = () => { aller("ensemble"); $("#bloc-alertes").scrollIntoView({ behavior: "smooth", block: "center" }); };
+$$(".js-sortir").forEach(b => b.onclick = async () => { await Compte.deconnecter(); porte(); });
 
 function rendreClients() {
   const f = $("#c-filtre").value.toLowerCase();
@@ -364,7 +497,7 @@ function rendreAgents() {
   ).join("") : `<p class="vide">Aucune prévue.</p>`;
   const defs = `<defs><filter id="lueur" x="-200%" y="-200%" width="500%" height="500%"><feGaussianBlur stdDeviation="2" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>`;
   const cadres = CADRES.map(([k, x, y, w, h]) => { const n = Object.values(POS).filter(p => p[2] === k).length;
-    return `<g><rect x="${x}" y="${y}" width="${w}" height="${h}" rx="14" fill="#F7F8FC" stroke="#E5EAF2"/>${grip(x + 16, y + 17)}
+    return `<g><rect x="${x}" y="${y}" width="${w}" height="${h}" rx="18" fill="#FFFFFF" stroke="#E9ECF1"/>${grip(x + 16, y + 17)}
       <text x="${x + 34}" y="${y + 26}" fill="#111827" font-size="12.5" font-weight="600">${POLES[k].t}</text>${pillSvg(x + w - 14, y + 13, n + " agent" + (n > 1 ? "s" : ""), "rgba(52,120,246,.12)", "#3478F6")}${coin(x + w - 9, y + h - 9)}</g>`; }).join("");
   const liens = LIENS.map((l, i) => {
     const { d, L } = trace(l.pts, l.rayon || 14), on = !l.controle && estActif(etatDe(l.de)) && estActif(etatDe(l.vers));
