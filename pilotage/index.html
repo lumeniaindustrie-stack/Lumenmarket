@@ -6,7 +6,7 @@
 <meta name="robots" content="noindex,nofollow">
 <title>Pilotage – Lumen</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&display=swap">
 <link rel="stylesheet" href="admin.css">
 </head>
 <body>
@@ -232,8 +232,8 @@ const fleche = ([x, y], s) => { const k = 4.5; const P = { r: [[x, y], [x - k * 
 const inverse = s => ({ r: "l", l: "r", d: "u", u: "d" })[s];
 const etatDe = code => code === "CLIENTS" ? { cle: "ok" } : sante(AGENTS.find(a => a.code === code), D.runs);
 const sansMouvement = matchMedia("(prefers-reduced-motion: reduce)").matches;
-const grip = (x, y) => [0, 4, 8].map(dy => [0, 4].map(dx => `<circle cx="${x + dx}" cy="${y + dy}" r="1.15" fill="#4a5163"/>`).join("")).join("");
-const coin = (x, y) => `<path d="M${x - 8} ${y} L${x} ${y - 8} M${x - 4} ${y} L${x} ${y - 4}" stroke="#4a5163" stroke-width="1.2" stroke-linecap="round"/>`;
+const grip = (x, y) => [0, 4, 8].map(dy => [0, 4].map(dx => `<circle cx="${x + dx}" cy="${y + dy}" r="1.15" fill="#D4DAE8"/>`).join("")).join("");
+const coin = (x, y) => `<path d="M${x - 8} ${y} L${x} ${y - 8} M${x - 4} ${y} L${x} ${y - 4}" stroke="#D4DAE8" stroke-width="1.2" stroke-linecap="round"/>`;
 const pillSvg = (x, y, txt, fond, coul, ancre = "end") => { const w = txt.length * 5.9 + 14, x0 = ancre === "end" ? x - w : x; return `<rect x="${x0}" y="${y}" width="${w}" height="18" rx="5" fill="${fond}"/><text x="${x0 + w / 2}" y="${y + 12.5}" text-anchor="middle" fill="${coul}" font-size="10.5" font-weight="600">${esc(txt)}</text>`; };
 const libEtat = (ag, e) => ag.avenir ? "À construire" : e.txt;
 
@@ -244,8 +244,8 @@ function rendreAgents() {
   $("#ag-pill").textContent = `${nbOn} actif${nbOn > 1 ? "s" : ""} sur ${AGENTS.length}`;
   const defs = `<defs><filter id="lueur" x="-200%" y="-200%" width="500%" height="500%"><feGaussianBlur stdDeviation="2" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>`;
   const cadres = CADRES.map(([k, x, y, w, h]) => { const n = Object.values(POS).filter(p => p[2] === k).length;
-    return `<g><rect x="${x}" y="${y}" width="${w}" height="${h}" rx="14" fill="#0b0d12" stroke="#1c202b"/>${grip(x + 16, y + 17)}
-      <text x="${x + 34}" y="${y + 26}" fill="#eef0f5" font-size="12.5" font-weight="600">${POLES[k].t}</text>${pillSvg(x + w - 14, y + 13, n + " agent" + (n > 1 ? "s" : ""), "rgba(59,130,246,.14)", "#60a5fa")}${coin(x + w - 9, y + h - 9)}</g>`; }).join("");
+    return `<g><rect x="${x}" y="${y}" width="${w}" height="${h}" rx="14" fill="#F7F8FC" stroke="#E5EAF2"/>${grip(x + 16, y + 17)}
+      <text x="${x + 34}" y="${y + 26}" fill="#111827" font-size="12.5" font-weight="600">${POLES[k].t}</text>${pillSvg(x + w - 14, y + 13, n + " agent" + (n > 1 ? "s" : ""), "rgba(52,120,246,.12)", "#3478F6")}${coin(x + w - 9, y + h - 9)}</g>`; }).join("");
   const liens = LIENS.map((l, i) => {
     const { d, L } = trace(l.pts, l.rayon || 14), on = !l.controle && estActif(etatDe(l.de)) && estActif(etatDe(l.vers));
     const larg = l.lib.length * 5.8 + 18, [ex, ey] = l.et || [0, 0], veille = l.controle && estActif(etatDe(l.de));
@@ -260,29 +260,29 @@ function rendreAgents() {
     return `<g class="agent ${on ? "on" : "ko"}" data-agent="${ag.code}" transform="translate(${x} ${y})" tabindex="0" role="button" aria-label="${esc(ag.nom)}, ${esc(ag.titre)} : ${esc(libEtat(ag, e))}">
       <rect class="carte" x="${-DEMI}" y="-36" width="${DEMI * 2}" height="72" rx="12"/>
       ${on ? `<circle class="halo" cx="-42" r="21" fill="none" stroke="${c}" stroke-width="2"/>` : ""}
-      <circle cx="-42" r="21" fill="${on ? pc : "#8a91a2"}" fill-opacity=".14" stroke="${c}" stroke-width="2.2"/>
-      <svg x="-52" y="-10" width="20" height="20" viewBox="0 0 24 24" fill="currentColor" color="${on ? pc : "#8a91a2"}">${ICONES[ag.code]}</svg>
+      <circle cx="-42" r="21" fill="${on ? pc : "#94A3B8"}" fill-opacity=".12" stroke="${c}" stroke-width="2"/>
+      <svg x="-52" y="-10" width="20" height="20" viewBox="0 0 24 24" fill="currentColor" color="${on ? pc : "#94A3B8"}">${ICONES[ag.code]}</svg>
       <text class="titre" x="-12" y="-1">${esc(COURT[ag.code])}</text>
-      <circle cx="-8" cy="13.5" r="3" fill="${c}"/><text class="etat" x="0" y="17.5" fill="${on ? "#4ade80" : "#f87171"}">${esc(libEtat(ag, e))}</text>
-      ${pillSvg(DEMI - 8, -29, ag.nom.replace("Agent ", ""), "#1b1f2a", "#b9bfcc")}</g>`;
+      <circle cx="-8" cy="13.5" r="3" fill="${c}"/><text class="etat" x="0" y="17.5" fill="${on ? "#059669" : "#DC2626"}">${esc(libEtat(ag, e))}</text>
+      ${pillSvg(DEMI - 8, -29, ag.nom.replace("Agent ", ""), "#F1F4F9", "#64748B")}</g>`;
   }).join("");
   const cl = D.profils.filter(p => !p.est_admin), actifs = cl.filter(p => p.actif !== false);
   const ab = actifs.filter(p => p.formule === "abonne" || p.formule === "accompagnement").length, es = actifs.filter(p => (p.formule || "essai") === "essai").length;
-  const H = HUB, cx = H.x + H.w / 2, ligne = (y, a, b) => `<text x="${H.x + 18}" y="${y}" fill="#8a91a2" font-size="12">${a}</text><text x="${H.x + H.w - 18}" y="${y}" fill="#eef0f5" font-size="12.5" font-weight="600" text-anchor="end">${b}</text>`;
+  const H = HUB, cx = H.x + H.w / 2, ligne = (y, a, b) => `<text x="${H.x + 18}" y="${y}" fill="#64748B" font-size="12">${a}</text><text x="${H.x + H.w - 18}" y="${y}" fill="#111827" font-size="12.5" font-weight="600" text-anchor="end">${b}</text>`;
   const hub = `<g class="hub" data-agent="CLIENTS" tabindex="0" role="button" aria-label="Clients : ${actifs.length} actifs">
     <rect class="fond" x="${H.x}" y="${H.y}" width="${H.w}" height="${H.h}" rx="14"/>${grip(H.x + 16, H.y + 17)}
-    <text x="${H.x + 34}" y="${H.y + 26}" fill="#eef0f5" font-size="12.5" font-weight="600">Clients</text>${pillSvg(H.x + H.w - 14, H.y + 13, "en direct", "rgba(59,130,246,.14)", "#60a5fa")}
-    <g transform="translate(${cx} ${H.y + 110})"><circle r="28" fill="#60a5fa" fill-opacity=".14"/><svg x="-13" y="-13" width="26" height="26" viewBox="0 0 24 24" fill="currentColor" color="#60a5fa">${ICONES.CLIENTS}</svg></g>
-    <text x="${cx}" y="${H.y + 222}" text-anchor="middle" fill="#eef0f5" font-size="54" font-weight="600" letter-spacing="-1.5">${actifs.length}</text>
-    <text x="${cx}" y="${H.y + 248}" text-anchor="middle" fill="#8a91a2" font-size="12.5">client${actifs.length > 1 ? "s" : ""} actif${actifs.length > 1 ? "s" : ""}</text>
-    <line x1="${H.x + 18}" x2="${H.x + H.w - 18}" y1="${H.y + 300}" y2="${H.y + 300}" stroke="#1c202b"/>
+    <text x="${H.x + 34}" y="${H.y + 26}" fill="#111827" font-size="12.5" font-weight="600">Clients</text>${pillSvg(H.x + H.w - 14, H.y + 13, "en direct", "rgba(22,185,129,.12)", "#059669")}
+    <g transform="translate(${cx} ${H.y + 110})"><circle r="28" fill="#3478F6" fill-opacity=".10"/><svg x="-13" y="-13" width="26" height="26" viewBox="0 0 24 24" fill="currentColor" color="#3478F6">${ICONES.CLIENTS}</svg></g>
+    <text x="${cx}" y="${H.y + 222}" text-anchor="middle" fill="#111827" font-size="54" font-weight="700" letter-spacing="-2">${actifs.length}</text>
+    <text x="${cx}" y="${H.y + 248}" text-anchor="middle" fill="#64748B" font-size="12.5">client${actifs.length > 1 ? "s" : ""} actif${actifs.length > 1 ? "s" : ""}</text>
+    <line x1="${H.x + 18}" x2="${H.x + H.w - 18}" y1="${H.y + 300}" y2="${H.y + 300}" stroke="#E5EAF2"/>
     ${ligne(H.y + 336, "Abonnés", ab)}${ligne(H.y + 366, "En essai", es)}${ligne(H.y + 396, "Revenu", nf(ab * (CFG.PRIX || 99)) + " €/mois")}
     ${[[cx, H.y], [H.x, 420], [H.x, 570], [H.x, 720], [H.x + H.w, 610]].map(([x, y]) => `<circle class="port" cx="${x}" cy="${y}" r="4"/>`).join("")}${coin(H.x + H.w - 9, H.y + H.h - 9)}</g>`;
   svg.innerHTML = defs + cadres + liens + hub + noeuds;
 
   // colonne de droite : liste des agents et état
   $("#palette").innerHTML = AGENTS.map(ag => { const e = etats[ag.code], on = estActif(e), pc = POLES[POS[ag.code][2]].c;
-    return `<button data-agent="${ag.code}"><span class="ic" style="background:${on ? pc : "#8a91a2"}22;color:${on ? pc : "#8a91a2"}">${icone(ag.code, 16)}<i style="background:${on ? "var(--vert)" : "var(--rouge)"}"></i></span><span><b>${esc(ag.titre)}</b><small>${esc(ag.nom)} · ${esc(libEtat(ag, e))}</small></span></button>`; }).join("");
+    return `<button data-agent="${ag.code}"><span class="ic" style="background:${on ? pc : "#94A3B8"}18;color:${on ? pc : "#94A3B8"}">${icone(ag.code, 16)}<i style="background:${on ? "var(--vert)" : "var(--rouge)"}"></i></span><span><b>${esc(ag.titre)}</b><small>${esc(ag.nom)} · ${esc(libEtat(ag, e))}</small></span></button>`; }).join("");
   const hh = d => d ? new Date(d).toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" }) : null;
   const k = s => `<span class="k">${s}</span>`;
   $("#etat-code").innerHTML = `{\n  ${k("actifs")}: <span class="n">${nbOn}</span>,\n  ${k("arretes")}: <span class="n">${AGENTS.length - nbOn}</span>,\n  ${k("agents")}: {\n` +
