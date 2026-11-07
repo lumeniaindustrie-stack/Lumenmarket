@@ -1,0 +1,542 @@
+{
+  "name": "Lumen – Agent B : tri des offres par client (Ollama)",
+  "nodes": [
+    {
+      "id": "b1",
+      "name": "Chaque matin 6 h 45",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        0
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "45 6 * * 1-5"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "b2",
+      "name": "Réglages",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        200,
+        0
+      ],
+      "parameters": {
+        "jsCode": "// ===== RÉGLAGES =====\nconst OLLAMA_URL = 'http://127.0.0.1:11434';   // Ollama sur ton ordinateur (127.0.0.1 plutôt que localhost)\nconst MODELE = 'qwen2.5:7b';                     // ou 'qwen2.5:14b' (plus fin, plus lent)\nconst JOURS = 3;                                 // offres publiées ces 3 derniers jours\nconst MAX_PAR_CLIENT = 15;                       // offres envoyées à l'IA par client\n// =====================\nconst auj = new Date().toISOString().slice(0, 10);\nreturn [{ json: { OLLAMA_URL, MODELE, JOURS, MAX_PAR_CLIENT, debut: new Date().toISOString(),\n  depuis: new Date(Date.now() - JOURS * 864e5).toISOString().slice(0, 10),\n  il_y_a_30j: new Date(Date.now() - 30 * 864e5).toISOString().slice(0, 10), auj } }];"
+      }
+    },
+    {
+      "id": "b3",
+      "name": "Lire les clients",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        400,
+        0
+      ],
+      "parameters": {
+        "method": "GET",
+        "url": "=https://jsmffmtzoauvqltshiyg.supabase.co/rest/v1/profils?actif=eq.true&select=*",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "supabaseApi",
+        "options": {
+          "timeout": 60000
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        }
+      },
+      "credentials": {
+        "supabaseApi": {
+          "id": "",
+          "name": "Supabase Lumen"
+        }
+      },
+      "alwaysOutputData": true,
+      "continueOnFail": true
+    },
+    {
+      "id": "b4",
+      "name": "Lire les offres récentes",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        600,
+        0
+      ],
+      "parameters": {
+        "method": "GET",
+        "url": "=https://jsmffmtzoauvqltshiyg.supabase.co/rest/v1/offres?parution=gte.{{ $('Réglages').first().json.depuis }}&select=*&order=parution.desc&limit=5000",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "supabaseApi",
+        "options": {
+          "timeout": 60000
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        }
+      },
+      "credentials": {
+        "supabaseApi": {
+          "id": "",
+          "name": "Supabase Lumen"
+        }
+      },
+      "alwaysOutputData": true,
+      "continueOnFail": true,
+      "executeOnce": true
+    },
+    {
+      "id": "b5",
+      "name": "Lire les offres déjà envoyées",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        800,
+        0
+      ],
+      "parameters": {
+        "method": "GET",
+        "url": "=https://jsmffmtzoauvqltshiyg.supabase.co/rest/v1/offres_envoyees?date_envoi=gte.{{ $('Réglages').first().json.il_y_a_30j }}&select=client_id,avis_id&limit=50000",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "supabaseApi",
+        "options": {
+          "timeout": 60000
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        }
+      },
+      "credentials": {
+        "supabaseApi": {
+          "id": "",
+          "name": "Supabase Lumen"
+        }
+      },
+      "alwaysOutputData": true,
+      "continueOnFail": true,
+      "executeOnce": true
+    },
+    {
+      "id": "b6",
+      "name": "Préparer par client",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1000,
+        0
+      ],
+      "parameters": {
+        "jsCode": "// Pour chaque client actif : pré-sélection des offres (zone, type, montant, mots-clés, exclusions), puis demande à l'IA.\nconst R = $('Réglages').first().json;\nconst clients = $('Lire les clients').all().map(i => i.json).filter(c => c && c.id && c.email);\nconst offres = $('Lire les offres récentes').all().map(i => i.json).filter(o => o && o.avis_id);\nconst deja = new Set($('Lire les offres déjà envoyées').all().map(i => i.json).filter(x => x && x.client_id).map(x => x.client_id + '|' + x.avis_id));\nconst sans = s => String(s || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');\nconst liste = s => String(s || '').split(/[,;]+/).map(x => x.trim()).filter(x => x.length > 2);\nconst dansDeuxJours = Date.now() + 2 * 864e5;\nconst out = [];\nlet candidatsTotal = 0;\nfor (const c of clients) {\n  if (c.actif === false) continue;\n  if (String(c.formule || 'essai') === 'essai' && c.fin_essai && new Date(c.fin_essai + 'T23:59:59') < new Date()) continue;\n  const deps = new Set(String(c.departements || '').split(/[,;\\s]+/).filter(Boolean).map(d => /^\\d$/.test(d) ? '0' + d : d));\n  const types = String(c.types || '').toUpperCase().split(/[,;\\s]+/).filter(Boolean);\n  const mots = [...liste(c.mots_cles), ...liste(c.metiers)].map(sans);\n  const excl = liste(c.exclusions).map(sans);\n  const min = Number(c.montant_min) || 0;\n  let cand = offres.filter(o => {\n    if (deja.has(c.id + '|' + o.avis_id)) return false;\n    if (o.limite && new Date(o.limite).getTime() < dansDeuxJours) return false;\n    if (deps.size && !(o.departements || []).some(d => deps.has(d))) return false;\n    if (types.length && types.length < 3 && !types.some(t => sans(o.type_marche).includes(sans(t)))) return false;\n    if (min && o.montant && Number(o.montant) < min) return false;\n    const texte = sans(o.objet + ' ' + (o.descripteurs || ''));\n    if (excl.some(m => texte.includes(m))) return false;\n    if (mots.length && !mots.some(m => texte.includes(m))) return false;\n    return true;\n  }).sort((a, b) => String(b.parution).localeCompare(String(a.parution))).slice(0, R.MAX_PAR_CLIENT);\n  candidatsTotal += cand.length;\n  if (!cand.length) continue;\n  const prompt = `Tu aides une PME à repérer les appels d'offres publics qui lui conviennent.\n\nENTREPRISE\nNom : ${c.entreprise}\nActivité : ${c.metiers || 'non précisée'}\nPrésentation : ${c.description || 'non renseignée'}\nQualifications : ${c.qualifications || 'non renseignées'}\nTaille : ${c.effectif || 'effectif non précisé'}, chiffre d'affaires ${c.ca_annuel || 'non précisé'}\nZone : départements ${c.departements || 'non précisés'}\nMontant minimum souhaité : ${c.montant_min ? c.montant_min + ' €' : 'aucun'}\nMarchés déjà remportés : ${String(c.marches_gagnes || 'inconnus').slice(0, 1200)}\n\nOFFRES À NOTER (JSON)\n${JSON.stringify(cand.map(o => ({ id: o.avis_id, objet: o.objet, acheteur: o.acheteur, lieu: o.lieu, type: o.type_marche, domaines: o.descripteurs, montant: o.montant, duree_mois: o.duree_mois })))}\n\nCONSIGNES (sois ouvert : il vaut mieux proposer une offre de trop qu'en rater une)\n- 5 : en plein dans le métier de l'entreprise et à sa taille.\n- 4 : dans son métier, même si un détail ne colle pas tout à fait (montant, lieu, durée).\n- 3 : en partie dans son métier, par exemple un lot du marché, une prestation proche, ou une sous-traitance possible.\n- 2 : lien faible avec son activité.\n- 1 : un tout autre métier.\n- Un marché découpé en lots mérite au moins 3 si l'un des lots peut correspondre.\n- La présentation de l'entreprise donne des exemples, pas une liste fermée : reste large sur les activités voisines.\n- Résumé : une phrase simple en français. Pourquoi : une phrase qui explique le lien avec l'entreprise.\n- N'invente rien : appuie-toi uniquement sur les informations ci-dessus.\nRéponds UNIQUEMENT avec ce JSON : {\"offres\":[{\"id\":\"...\",\"score\":1,\"resume\":\"...\",\"pourquoi\":\"...\"}]}`;\n  out.push({ json: { vide: false, client: { id: c.id, email: c.email, entreprise: c.entreprise }, candidats: cand,\n    ollama: { model: R.MODELE, stream: false, format: 'json', options: { temperature: 0.1, num_ctx: 16384 },\n      messages: [{ role: 'system', content: \"Tu es un expert des marchés publics français. Tu réponds toujours en JSON valide, en français.\" }, { role: 'user', content: prompt }] } } });\n}\nif (!out.length) return [{ json: { vide: true, clients: clients.length, candidats: 0 } }];\nout[0].json.stats = { clients: clients.length, candidats: candidatsTotal };\nreturn out;"
+      },
+      "executeOnce": true
+    },
+    {
+      "id": "b7",
+      "name": "Des offres à trier ?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        1200,
+        0
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose"
+          },
+          "conditions": [
+            {
+              "id": "c1",
+              "leftValue": "={{ $json.vide }}",
+              "rightValue": false,
+              "operator": {
+                "type": "boolean",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "b8",
+      "name": "L'IA trie (Ollama)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1420,
+        -80
+      ],
+      "continueOnFail": true,
+      "alwaysOutputData": true,
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('Réglages').first().json.OLLAMA_URL }}/api/chat",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify($json.ollama) }}",
+        "options": {
+          "timeout": 900000,
+          "batching": {
+            "batch": {
+              "batchSize": 1,
+              "batchInterval": 0
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "b9",
+      "name": "Lire les réponses",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1640,
+        -80
+      ],
+      "parameters": {
+        "jsCode": "// Lit la réponse de l'IA pour chaque client : garde les offres notées 3 ou plus, prépare l'email et les lignes à enregistrer.\nconst prepares = $('Préparer par client').all();\nconst esc = s => String(s ?? '').replace(/[&<>\"]/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '\"': '&quot;' }[ch]));\nconst fmtL = d => { if (!d) return 'non précisée'; const t = new Date(d); return isNaN(t) ? d : t.toLocaleString('fr-FR', { day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit', timeZone: 'UTC' }); };\nconst fmtM = n => !n ? 'Montant non communiqué' : n >= 1e6 ? '≈ ' + (n / 1e6).toLocaleString('fr-FR', { maximumFractionDigits: 1 }) + ' M€ HT' : '≈ ' + Math.round(n / 1e3) + ' k€ HT';\nconst auj = new Date().toISOString().slice(0, 10);\nconst out = [];\n$input.all().forEach((it, i) => {\n  const p = prepares[i]?.json; if (!p || p.vide) return;\n  let notes = [], erreur = null;\n  if (it.json.error) erreur = 'Ollama injoignable ou trop lent : ' + JSON.stringify(it.json.error).slice(0, 200);\n  else {\n    const txt = it.json.message?.content || it.json.response || '';\n    try { const j = JSON.parse(txt); notes = Array.isArray(j) ? j : (j.offres || []); }\n    catch (e) { const m = String(txt).match(/\\{[\\s\\S]*\\}/); try { notes = JSON.parse(m[0]).offres || []; } catch (e2) { erreur = \"Réponse de l'IA illisible\"; } }\n  }\n  const byId = Object.fromEntries(p.candidats.map(o => [String(o.avis_id), o]));\n  const garde = (Array.isArray(notes) ? notes : []).filter(n => Number(n.score) >= 3 && byId[String(n.id)])\n    .sort((a, b) => b.score - a.score).slice(0, 8);\n  const lignes = garde.map(n => { const o = byId[String(n.id)]; return { client_id: p.client.id, date_envoi: auj, avis_id: o.avis_id, objet: o.objet.slice(0, 500),\n    acheteur: o.acheteur, departement: (o.departements || []).join(', '), lieu: o.lieu, montant: o.montant || null, limite: o.limite || null,\n    score: Math.max(1, Math.min(5, Math.round(Number(n.score)))), resume: String(n.resume || '').slice(0, 500), url: o.url }; });\n  let html = null, sujet = null;\n  if (lignes.length) {\n    sujet = `${lignes.length} appel${lignes.length > 1 ? 's' : ''} d'offres pour vous ce matin`;\n    html = `<div style=\"font-family:Arial,sans-serif;max-width:640px;color:#18222e\"><p>Bonjour,</p><p>Voici les appels d'offres sélectionnés pour ${esc(p.client.entreprise)} ce matin.</p>` +\n      garde.map((n, k) => { const o = byId[String(n.id)]; return `<div style=\"padding:14px 0;border-bottom:1px solid #d5dbe2\">\n        <div style=\"font-weight:700;font-size:16px\">${esc(o.objet)}</div>\n        <div style=\"font-size:13px;color:#5a6676;margin:4px 0\">${esc(o.acheteur)}${o.lieu ? ', ' + esc(o.lieu) : ''}. Réponse avant le ${esc(fmtL(o.limite))}. Pertinence ${esc(lignes[k].score)}/5</div>\n        <div style=\"font-size:13px;color:#8a5a00;font-weight:bold;margin-bottom:4px\">${esc(fmtM(o.montant))}</div>\n        <div style=\"font-size:14px\">${esc(n.resume)}</div>\n        <div style=\"font-size:14px;color:#24476b;margin-top:4px\"><b>Pourquoi pour vous :</b> ${esc(n.pourquoi)}</div>\n        <div style=\"margin-top:6px\"><a href=\"${esc(o.url)}\" style=\"color:#24476b\">Voir l'avis officiel</a></div></div>`; }).join('') +\n      `<p style=\"margin-top:16px\">Retrouvez ces offres, le calendrier des dates limites et l'analyse des dossiers dans votre espace Lumen Marchés.</p><p>L'équipe Lumen</p>\n      <p style=\"font-size:12px;color:#5a6676\">Source : BOAMP. Sélection faite par une IA : vérifiez toujours les dates sur l'avis officiel.</p></div>`;\n  }\n  out.push({ json: { client_id: p.client.id, email: p.client.email, lignes, sujet, html, candidats: p.candidats.length, gardees: lignes.length, erreur } });\n});\nreturn out;"
+      }
+    },
+    {
+      "id": "b10",
+      "name": "Regrouper les offres",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1860,
+        -200
+      ],
+      "parameters": {
+        "jsCode": "// Toutes les offres retenues, pour un seul enregistrement dans Supabase.\nconst lignes = $input.all().flatMap(i => i.json.lignes || []);\nreturn [{ json: { lignes } }];"
+      }
+    },
+    {
+      "id": "b11",
+      "name": "Enregistrer les offres du client",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2080,
+        -200
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "=https://jsmffmtzoauvqltshiyg.supabase.co/rest/v1/offres_envoyees?on_conflict=client_id,avis_id",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "supabaseApi",
+        "options": {
+          "timeout": 60000
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Prefer",
+              "value": "resolution=merge-duplicates,return=minimal"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify($json.lignes) }}"
+      },
+      "credentials": {
+        "supabaseApi": {
+          "id": "",
+          "name": "Supabase Lumen"
+        }
+      },
+      "alwaysOutputData": true,
+      "continueOnFail": true
+    },
+    {
+      "id": "b12",
+      "name": "Préparer les emails",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1860,
+        -80
+      ],
+      "parameters": {
+        "jsCode": "// Un email par client qui a au moins une offre.\nreturn $input.all().filter(i => i.json.html && i.json.email).map(i => ({ json: { to: i.json.email, subject: i.json.sujet, html: i.json.html } }));"
+      }
+    },
+    {
+      "id": "b13",
+      "name": "Envoyer la veille",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [
+        2080,
+        -80
+      ],
+      "continueOnFail": true,
+      "credentials": {
+        "smtp": {
+          "id": "",
+          "name": "Brevo SMTP"
+        }
+      },
+      "parameters": {
+        "fromEmail": "Lumen Marchés <lumeniaindustrie@gmail.com>",
+        "toEmail": "={{ $json.to }}",
+        "subject": "={{ $json.subject }}",
+        "emailFormat": "html",
+        "html": "={{ $json.html }}",
+        "options": {
+          "appendAttribution": false
+        }
+      }
+    },
+    {
+      "id": "b14",
+      "name": "Préparer le journal",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1860,
+        80
+      ],
+      "parameters": {
+        "jsCode": "const R = $('Réglages').first().json;\nconst items = $input.all().map(i => i.json);\nlet statut = 'ok', message = null, entrees = 0, sorties = 0;\nconst details = { modele: R.MODELE };\nif (items.length === 1 && items[0].vide) { statut = 'vide'; entrees = items[0].clients || 0; details.raison = 'aucune offre pré-sélectionnée'; }\nelse {\n  entrees = items.length; sorties = items.reduce((s, x) => s + (x.gardees || 0), 0);\n  details.candidats = items.reduce((s, x) => s + (x.candidats || 0), 0);\n  details.clients_servis = items.filter(x => x.gardees > 0).length;\n  const err = items.filter(x => x.erreur);\n  if (err.length) { details.erreurs = err.length; message = err[0].erreur; if (err.length === items.length) statut = 'erreur'; }\n  if (statut === 'ok' && !sorties) statut = 'vide';\n}\nreturn [{ json: { agent: 'B-tri', debut: R.debut, fin: new Date().toISOString(), statut, entrees, sorties, details, message } }];"
+      }
+    },
+    {
+      "id": "b15",
+      "name": "Écrire le journal",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2080,
+        80
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "=https://jsmffmtzoauvqltshiyg.supabase.co/rest/v1/agent_runs",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "supabaseApi",
+        "options": {
+          "timeout": 60000
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Prefer",
+              "value": "return=minimal"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify($json) }}"
+      },
+      "credentials": {
+        "supabaseApi": {
+          "id": "",
+          "name": "Supabase Lumen"
+        }
+      },
+      "alwaysOutputData": true,
+      "continueOnFail": true
+    }
+  ],
+  "connections": {
+    "Chaque matin 6 h 45": {
+      "main": [
+        [
+          {
+            "node": "Réglages",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Réglages": {
+      "main": [
+        [
+          {
+            "node": "Lire les clients",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Lire les clients": {
+      "main": [
+        [
+          {
+            "node": "Lire les offres récentes",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Lire les offres récentes": {
+      "main": [
+        [
+          {
+            "node": "Lire les offres déjà envoyées",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Lire les offres déjà envoyées": {
+      "main": [
+        [
+          {
+            "node": "Préparer par client",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Préparer par client": {
+      "main": [
+        [
+          {
+            "node": "Des offres à trier ?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Des offres à trier ?": {
+      "main": [
+        [
+          {
+            "node": "L'IA trie (Ollama)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Préparer le journal",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "L'IA trie (Ollama)": {
+      "main": [
+        [
+          {
+            "node": "Lire les réponses",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Lire les réponses": {
+      "main": [
+        [
+          {
+            "node": "Regrouper les offres",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Préparer les emails",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Préparer le journal",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Regrouper les offres": {
+      "main": [
+        [
+          {
+            "node": "Enregistrer les offres du client",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Préparer les emails": {
+      "main": [
+        [
+          {
+            "node": "Envoyer la veille",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Préparer le journal": {
+      "main": [
+        [
+          {
+            "node": "Écrire le journal",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "pinData": {}
+}

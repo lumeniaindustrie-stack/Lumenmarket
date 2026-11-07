@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Nouveau mot de passe – Lumen Marchés</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;700;800&family=Public+Sans:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="style.css">
+<style>
+body{min-height:100vh;display:grid;place-items:center;padding:24px;background:radial-gradient(ellipse at top,rgba(36,71,107,.45),transparent 60%),var(--paper)}
+.card{width:min(440px,100%);background:var(--sheet);border:1px solid var(--line);border-radius:12px;padding:32px;display:grid;gap:16px}
+</style>
+</head>
+<body>
+<form class="card" id="f-nouveau" novalidate>
+  <a class="brand" href="index.html"><i aria-hidden="true"></i>Lumen Marchés</a>
+  <h1 style="font-size:1.8rem;font-weight:800">Choisissez un nouveau mot de passe</h1>
+  <p class="muted" id="intro">Vérification du lien…</p>
+  <input type="email" autocomplete="username" id="user" hidden>
+  <div class="field"><label for="mdp">Nouveau mot de passe</label><input id="mdp" type="password" autocomplete="new-password" disabled><small>Au moins 10 caractères, avec des lettres et des chiffres.</small></div>
+  <div class="field"><label for="mdp2">Confirmez</label><input id="mdp2" type="password" autocomplete="new-password" disabled></div>
+  <p class="status" id="status" role="status"></p>
+  <button class="btn yellow" type="submit" id="go" disabled>Enregistrer et me connecter</button>
+</form>
+<script src="config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<script src="commun.js"></script>
+<script>
+function pret(email) {
+  $("#intro").textContent = email ? `Compte : ${email}` : "Saisissez votre nouveau mot de passe.";
+  $("#user").value = email || "";
+  ["#mdp", "#mdp2", "#go"].forEach(s => $(s).disabled = false); $("#mdp").focus();
+}
+function invalide() {
+  $("#intro").innerHTML = `Ce lien n'est plus valable (il expire au bout d'une heure, ou a déjà servi). <a href="tableau.html">Demandez un nouveau lien</a> depuis la page de connexion.`;
+}
+(async () => {
+  if (!SB) { if (DEMO) pret("démonstration"); else invalide(); return; }
+  // Supabase lit le lien de réinitialisation dans l'adresse et ouvre une session temporaire.
+  SB.auth.onAuthStateChange((ev, session) => { if (ev === "PASSWORD_RECOVERY" || (ev === "SIGNED_IN" && session)) pret(session?.user?.email); });
+  setTimeout(async () => { const s = await Compte.session(); if (s) pret(s.user.email); else if ($("#go").disabled) invalide(); }, 1500);
+})();
+$("#f-nouveau").addEventListener("submit", async ev => {
+  ev.preventDefault();
+  const st = $("#status"); st.className = "status";
+  const p = $("#mdp").value;
+  const err = verifierMdp(p) || (p !== $("#mdp2").value ? "Les deux mots de passe ne sont pas identiques." : null);
+  if (err) { st.classList.add("err"); st.textContent = err; return; }
+  $("#go").disabled = true; st.textContent = "Enregistrement…";
+  try { await Compte.changerMotDePasse(p); st.classList.add("ok"); st.textContent = "Mot de passe modifié. Redirection vers votre espace…"; setTimeout(() => location.href = "tableau.html", 1200); }
+  catch (e) { st.classList.add("err"); st.textContent = traduireErreur(e); $("#go").disabled = false; }
+});
+</script>
+</body>
+</html>

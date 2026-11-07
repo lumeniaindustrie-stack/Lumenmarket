@@ -1,0 +1,697 @@
+{
+  "name": "Lumen – Agent D : analyse des dossiers (Ollama)",
+  "nodes": [
+    {
+      "id": "d1",
+      "name": "Toutes les 20 secondes",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        0
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "seconds",
+              "secondsInterval": 20
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "d2",
+      "name": "Lire la file",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        220,
+        0
+      ],
+      "parameters": {
+        "method": "GET",
+        "url": "=https://jsmffmtzoauvqltshiyg.supabase.co/rest/v1/analyses?statut=eq.en_attente&order=cree_le.asc&limit=1&select=id,client_id,texte,tentatives",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "supabaseApi",
+        "options": {
+          "timeout": 60000
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        }
+      },
+      "credentials": {
+        "supabaseApi": {
+          "id": "",
+          "name": "Supabase Lumen"
+        }
+      },
+      "alwaysOutputData": true,
+      "continueOnFail": true
+    },
+    {
+      "id": "d3",
+      "name": "Un dossier ?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        440,
+        0
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose"
+          },
+          "conditions": [
+            {
+              "id": "c1",
+              "leftValue": "={{ !!$json.id }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "d3b",
+      "name": "Battement",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        660,
+        220
+      ],
+      "parameters": {
+        "jsCode": "// Une fois par heure, l'agent signale qu'il est en marche (pour le tableau de pilotage).\nconst d = new Date();\nif (d.getMinutes() !== 0 || d.getSeconds() >= 20) return [];\nreturn [{ json: { agent: 'D-analyse', debut: d.toISOString(), fin: d.toISOString(), statut: 'vide', entrees: 0, sorties: 0, details: { battement: true } } }];"
+      }
+    },
+    {
+      "id": "d3c",
+      "name": "Signaler l'activité",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        880,
+        220
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "=https://jsmffmtzoauvqltshiyg.supabase.co/rest/v1/agent_runs",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "supabaseApi",
+        "options": {
+          "timeout": 60000
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Prefer",
+              "value": "return=minimal"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify($json) }}"
+      },
+      "credentials": {
+        "supabaseApi": {
+          "id": "",
+          "name": "Supabase Lumen"
+        }
+      },
+      "alwaysOutputData": true,
+      "continueOnFail": true
+    },
+    {
+      "id": "d4",
+      "name": "Marquer en cours",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        660,
+        -60
+      ],
+      "parameters": {
+        "method": "PATCH",
+        "url": "=https://jsmffmtzoauvqltshiyg.supabase.co/rest/v1/analyses?id=eq.{{ $('Lire la file').first().json.id }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "supabaseApi",
+        "options": {
+          "timeout": 60000
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Prefer",
+              "value": "return=minimal"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\"statut\":\"en_cours\"}"
+      },
+      "credentials": {
+        "supabaseApi": {
+          "id": "",
+          "name": "Supabase Lumen"
+        }
+      },
+      "alwaysOutputData": true,
+      "continueOnFail": true,
+      "executeOnce": true
+    },
+    {
+      "id": "d5",
+      "name": "Lire le profil",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        880,
+        -60
+      ],
+      "parameters": {
+        "method": "GET",
+        "url": "=https://jsmffmtzoauvqltshiyg.supabase.co/rest/v1/profils?id=eq.{{ $('Lire la file').first().json.client_id }}&select=*",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "supabaseApi",
+        "options": {
+          "timeout": 60000
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        }
+      },
+      "credentials": {
+        "supabaseApi": {
+          "id": "",
+          "name": "Supabase Lumen"
+        }
+      },
+      "alwaysOutputData": true,
+      "continueOnFail": true,
+      "executeOnce": true
+    },
+    {
+      "id": "d6",
+      "name": "Préparer l'analyse",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1100,
+        -60
+      ],
+      "parameters": {
+        "jsCode": "const OLLAMA_URL = 'http://127.0.0.1:11434';\nconst MODELE = 'qwen2.5:7b';\n\nconst MAX = 50000;   // caractères de dossier lus par l'IA (le règlement de consultation passe en premier)\nconst a = $('Lire la file').first().json;\nconst c = $('Lire le profil').all().map(i => i.json).find(x => x && x.id) || {};\n// On remet les pièces dans l'ordre utile : règlement, CCAP, acte d'engagement, CCTP, le reste.\nconst morceaux = String(a.texte || '').split(/(?=\\n*===== FICHIER : )/).filter(s => s.trim());\nconst rang = s => { const t = (s.match(/FICHIER : ([^\\n]*)/) || [, ''])[1].toLowerCase();\n  return /r[eè]glement|\\brc\\b|_rc|rc[_ .-]/.test(t) ? 0 : /ccap/.test(t) ? 1 : /\\bae\\b|acte|engagement/.test(t) ? 2 : /cctp/.test(t) ? 3 : 4; };\nlet texte = morceaux.sort((x, y) => rang(x) - rang(y)).join('\\n').replace(/[ \\t]+/g, ' ');\nconst coupe = texte.length > MAX; if (coupe) texte = texte.slice(0, MAX);\nconst consignes = `Tu es un expert des marchés publics en France (travaux, services, fournitures). Analyse ce dossier de consultation (DCE) pour une PME.\nEntreprise : ${c.entreprise || '?'}. Activité : ${c.metiers || '?'}. Départements d'intervention : ${c.departements || '?'}.\nPrésentation : ${String(c.description || 'non renseignée').slice(0, 600)}. Qualifications : ${c.qualifications || 'non renseignées'}. Effectif : ${c.effectif || '?'}. Chiffre d'affaires : ${c.ca_annuel || '?'}.\nMarchés déjà remportés : ${String(c.marches_gagnes || 'aucun connu').slice(0, 800)}\nPour l'avis final, vérifie si l'entreprise a les qualifications, la taille et les références demandées.\nRègles : réponds en français ; n'invente rien ; si une information est absente, écris \"Non précisé dans le dossier\" ; cite l'article (ex. \"RC art. 6.1\") quand il est identifiable.\nRéponds uniquement avec un objet JSON de cette forme :\n{\"acheteur\":\"\",\"objet\":\"\",\"procedure\":\"\",\"lots\":[\"\"],\"date_limite\":\"\",\"visite\":\"\",\"duree\":\"\",\"montant\":\"\",\"criteres\":[{\"critere\":\"\",\"poids\":0}],\"pieces\":[{\"piece\":\"\",\"ref\":\"\"}],\"risques\":[{\"niveau\":\"élevé|moyen|faible\",\"point\":\"\",\"explication\":\"\"}],\"avis\":{\"decision\":\"On y va|À étudier|On passe\",\"raison\":\"\"}}\n\"poids\" est un nombre (pourcentage). Liste toutes les pièces demandées.`;\nreturn [{ json: { OLLAMA_URL, debut: new Date().toISOString(), coupe, taille: texte.length,\n  ollama: { model: MODELE, stream: false, format: 'json', options: { num_ctx: 20480, temperature: 0.1 },\n    messages: [{ role: 'system', content: consignes }, { role: 'user', content: 'DOSSIER DE CONSULTATION :\\n' + texte }] } } }];"
+      },
+      "executeOnce": true
+    },
+    {
+      "id": "d7",
+      "name": "L'IA analyse (Ollama)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1320,
+        -60
+      ],
+      "continueOnFail": true,
+      "alwaysOutputData": true,
+      "executeOnce": true,
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $json.OLLAMA_URL }}/api/chat",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify($json.ollama) }}",
+        "options": {
+          "timeout": 1800000
+        }
+      }
+    },
+    {
+      "id": "d8",
+      "name": "Lire l'analyse",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1540,
+        -60
+      ],
+      "parameters": {
+        "jsCode": "const a = $('Lire la file').first().json;\nconst c = $('Lire le profil').all().map(i => i.json).find(x => x && x.id) || {};\nconst prep = $('Préparer l\\'analyse').first().json;\nconst r = $input.first().json || {};\nconst brut = String(r.message?.content || '');\nlet analyse = null;\ntry { analyse = JSON.parse(brut.replace(/```json|```/g, '').trim()); } catch (e) { const m = brut.match(/\\{[\\s\\S]*\\}/); if (m) { try { analyse = JSON.parse(m[0]); } catch (e2) {} } }\nconst ok = !!(analyse && analyse.objet);\nconst fin = new Date().toISOString();\nconst tentatives = Number(a.tentatives || 0);\nconst reessai = !ok && tentatives < 1;          // premier échec : on relance une fois automatiquement\nconst maj = reessai ? { statut: 'en_attente', tentatives: tentatives + 1, message: null }\n  : ok\n  ? { statut: 'terminee', resultat: analyse, objet: String(analyse.objet).slice(0, 300), decision: String(analyse.avis?.decision || '').slice(0, 50), texte: null, message: prep.coupe ? 'Dossier très long : seules les premières pièces (règlement en priorité) ont été lues.' : null, termine_le: fin }\n  : { statut: 'erreur', texte: null, termine_le: fin, message: r.error ? \"L'agent d'analyse ne répond pas pour le moment. Relancez l'analyse dans quelques minutes.\" : \"L'analyse n'a pas pu être mise en forme. Relancez-la, ou envoyez le dossier par email.\" };\nconst raison = String(r.error?.message || r.error || (brut ? 'réponse illisible : ' + brut.slice(0, 200) : 'réponse vide')).slice(0, 400);\nreturn [{ json: { ok, reessai, prevenir: !ok && !reessai, id: a.id, maj, email: c.email, entreprise: c.entreprise, analyse, raison,\n  journal: { agent: 'D-analyse', debut: prep.debut, fin, statut: ok ? 'ok' : 'erreur', entrees: 1, sorties: ok ? 1 : 0,\n             details: { caracteres: prep.taille, coupe: prep.coupe, modele: prep.ollama.model, decision: ok ? analyse.avis?.decision : null },\n             message: ok ? null : (reessai ? 'Échec, nouvel essai automatique : ' : 'Échec définitif : ') + raison.slice(0, 250) } } }];"
+      },
+      "executeOnce": true
+    },
+    {
+      "id": "d9",
+      "name": "Enregistrer l'analyse",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1760,
+        -160
+      ],
+      "parameters": {
+        "method": "PATCH",
+        "url": "=https://jsmffmtzoauvqltshiyg.supabase.co/rest/v1/analyses?id=eq.{{ $('Lire l\\'analyse').first().json.id }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "supabaseApi",
+        "options": {
+          "timeout": 60000
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Prefer",
+              "value": "return=minimal"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify($('Lire l\\'analyse').first().json.maj) }}"
+      },
+      "credentials": {
+        "supabaseApi": {
+          "id": "",
+          "name": "Supabase Lumen"
+        }
+      },
+      "alwaysOutputData": true,
+      "continueOnFail": true,
+      "executeOnce": true
+    },
+    {
+      "id": "d10",
+      "name": "Écrire le journal",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1980,
+        -160
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "=https://jsmffmtzoauvqltshiyg.supabase.co/rest/v1/agent_runs",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "supabaseApi",
+        "options": {
+          "timeout": 60000
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Prefer",
+              "value": "return=minimal"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify($('Lire l\\'analyse').first().json.journal) }}"
+      },
+      "credentials": {
+        "supabaseApi": {
+          "id": "",
+          "name": "Supabase Lumen"
+        }
+      },
+      "alwaysOutputData": true,
+      "continueOnFail": true,
+      "executeOnce": true
+    },
+    {
+      "id": "d11",
+      "name": "Analyse réussie ?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        1760,
+        40
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose"
+          },
+          "conditions": [
+            {
+              "id": "c1",
+              "leftValue": "={{ $json.ok }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "d12",
+      "name": "Préparer l'email",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1980,
+        20
+      ],
+      "parameters": {
+        "jsCode": "const j = $('Lire l\\'analyse').first().json;\nconst a = j.analyse;\nconst esc = s => String(s ?? '').replace(/[&<>\"]/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '\"': '&quot;' }[ch]));\nconst li = arr => (arr || []).map(x => `<li>${x}</li>`).join('');\nconst html = `<div style=\"font-family:Arial,sans-serif;max-width:640px;color:#1a2433\">\n<p>Bonjour,</p>\n<p>Voici l'analyse du dossier <b>${esc(a.objet)}</b> (${esc(a.acheteur)}).</p>\n<p style=\"background:#14335a;color:#fff;padding:10px 14px;border-radius:4px\"><b>Avis : ${esc(a.avis?.decision)}</b><br>${esc(a.avis?.raison)}</p>\n<p><b>Date limite :</b> ${esc(a.date_limite)}<br><b>Visite :</b> ${esc(a.visite)}<br><b>Procédure :</b> ${esc(a.procedure)}<br><b>Durée :</b> ${esc(a.duree)}<br><b>Montant :</b> ${esc(a.montant)}</p>\n<p><b>Critères de notation</b></p><ul>${li((a.criteres || []).map(c => esc(c.critere) + ' : ' + esc(c.poids) + ' %'))}</ul>\n<p><b>Pièces à fournir</b></p><ul>${li((a.pieces || []).map(p => esc(p.piece) + (p.ref ? ' <span style=\"color:#566275\">(' + esc(p.ref) + ')</span>' : '')))}</ul>\n<p><b>Points à risque</b></p><ul>${li((a.risques || []).map(r => '<b>' + esc(r.point) + '</b> (risque ' + esc(r.niveau) + ') : ' + esc(r.explication)))}</ul>\n<p>Retrouvez cette analyse dans votre espace, menu « Analyser un dossier ».</p>\n<p>L'équipe Lumen<br>lumeniaindustrie@gmail.com, 06 50 93 85 52</p>\n<p style=\"font-size:12px;color:#566275\">Analyse produite par une IA : vérifiez les dates et les pièces dans le règlement de consultation avant de déposer votre offre.</p>\n</div>`;\nreturn [{ json: { to: j.email, subject: 'Analyse du dossier : ' + String(a.objet || '').slice(0, 90), html } }];"
+      },
+      "executeOnce": true
+    },
+    {
+      "id": "d14",
+      "name": "Échec définitif ?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        1980,
+        220
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose"
+          },
+          "conditions": [
+            {
+              "id": "c1",
+              "leftValue": "={{ $('Lire l\\'analyse').first().json.prevenir }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "d15",
+      "name": "Préparer les emails d'échec",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2200,
+        200
+      ],
+      "parameters": {
+        "jsCode": "const EMAIL_ADMIN = 'marinsauzay991@gmail.com';   // qui est prévenu quand une analyse échoue\nconst j = $('Lire l\\'analyse').first().json;\nconst esc = s => String(s ?? '').replace(/[&<>\"]/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '\"': '&quot;' }[ch]));\nconst sortie = [{ json: { to: EMAIL_ADMIN, subject: `⚠️ Analyse échouée pour ${j.entreprise || 'un client'}`,\n  html: `<div style=\"font-family:Arial,sans-serif;font-size:15px\"><p>L'agent D n'a pas réussi à analyser le dossier n° ${j.id} de <b>${esc(j.entreprise)}</b> (${esc(j.email)}), même après un nouvel essai.</p><p>Raison : ${esc(j.raison)}</p><p>Le client voit un message d'échec dans son espace et a reçu un email. Pense à le recontacter.</p></div>` } }];\nif (j.email) sortie.push({ json: { to: j.email, subject: \"Votre analyse de dossier n'a pas abouti\",\n  html: `<div style=\"font-family:Arial,sans-serif;font-size:15px;color:#1a2433\"><p>Bonjour,</p><p>Notre agent n'a pas réussi à analyser le dossier que vous avez déposé. Nous sommes prévenus et revenons vers vous rapidement.</p><p>En attendant, vous pouvez relancer l'analyse depuis votre espace, ou nous envoyer le dossier à lumeniaindustrie@gmail.com.</p><p>L'équipe Lumen<br>06 50 93 85 52</p></div>` } });\nreturn sortie;"
+      },
+      "executeOnce": true
+    },
+    {
+      "id": "d16",
+      "name": "Prévenir de l'échec",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [
+        2420,
+        200
+      ],
+      "continueOnFail": true,
+      "credentials": {
+        "smtp": {
+          "id": "",
+          "name": "Brevo SMTP"
+        }
+      },
+      "parameters": {
+        "fromEmail": "Lumen Marchés <lumeniaindustrie@gmail.com>",
+        "toEmail": "={{ $json.to }}",
+        "subject": "={{ $json.subject }}",
+        "emailFormat": "html",
+        "html": "={{ $json.html }}",
+        "options": {
+          "appendAttribution": false
+        }
+      }
+    },
+    {
+      "id": "d13",
+      "name": "Envoyer l'analyse au client",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [
+        2200,
+        20
+      ],
+      "continueOnFail": true,
+      "credentials": {
+        "smtp": {
+          "id": "",
+          "name": "Brevo SMTP"
+        }
+      },
+      "parameters": {
+        "fromEmail": "Lumen Marchés <lumeniaindustrie@gmail.com>",
+        "toEmail": "={{ $json.to }}",
+        "subject": "={{ $json.subject }}",
+        "emailFormat": "html",
+        "html": "={{ $json.html }}",
+        "options": {
+          "appendAttribution": false
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Toutes les 20 secondes": {
+      "main": [
+        [
+          {
+            "node": "Lire la file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Lire la file": {
+      "main": [
+        [
+          {
+            "node": "Un dossier ?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Un dossier ?": {
+      "main": [
+        [
+          {
+            "node": "Marquer en cours",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Battement",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Battement": {
+      "main": [
+        [
+          {
+            "node": "Signaler l'activité",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Marquer en cours": {
+      "main": [
+        [
+          {
+            "node": "Lire le profil",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Lire le profil": {
+      "main": [
+        [
+          {
+            "node": "Préparer l'analyse",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Préparer l'analyse": {
+      "main": [
+        [
+          {
+            "node": "L'IA analyse (Ollama)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "L'IA analyse (Ollama)": {
+      "main": [
+        [
+          {
+            "node": "Lire l'analyse",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Lire l'analyse": {
+      "main": [
+        [
+          {
+            "node": "Enregistrer l'analyse",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Analyse réussie ?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Enregistrer l'analyse": {
+      "main": [
+        [
+          {
+            "node": "Écrire le journal",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Analyse réussie ?": {
+      "main": [
+        [
+          {
+            "node": "Préparer l'email",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Échec définitif ?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Échec définitif ?": {
+      "main": [
+        [
+          {
+            "node": "Préparer les emails d'échec",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "Préparer les emails d'échec": {
+      "main": [
+        [
+          {
+            "node": "Prévenir de l'échec",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Préparer l'email": {
+      "main": [
+        [
+          {
+            "node": "Envoyer l'analyse au client",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "saveDataSuccessExecution": "none",
+    "saveManualExecutions": true
+  },
+  "pinData": {}
+}

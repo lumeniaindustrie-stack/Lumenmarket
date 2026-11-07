@@ -1,0 +1,94 @@
+/* Lumen Marchés : styles communs */
+:root{
+  --paper:#0f151c; --sheet:#16202a; --sheet-2:#1c2835; --ink:#f1f4f7; --muted:#d0d7de; --line:#2c3a48;
+  --accent:#f0b51c; --accent-ink:#1b1500; --blue:#ffffff; --blue-deep:#13294a; --blue-mid:#24476b;
+  --ok:#86c995; --warn:#f3b25f; --bad:#ff8a80;
+  --f-display:"Archivo","Arial Narrow",Arial,sans-serif;
+  --f-body:"Public Sans","Segoe UI",Helvetica,Arial,sans-serif;
+  --f-mono:var(--f-body);
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+[hidden]{display:none !important}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--f-body);font-size:16px;line-height:1.55;-webkit-font-smoothing:antialiased}
+.wrap{max-width:1180px;margin:0 auto;padding-left:max(20px,env(safe-area-inset-left,0px));padding-right:max(20px,env(safe-area-inset-right,0px))}
+h1,h2,h3{font-family:var(--f-display);line-height:1.08;text-wrap:balance;margin:0}
+h2{font-size:clamp(1.8rem,3.4vw,2.6rem);font-weight:800;letter-spacing:-.015em}
+h3{font-size:1.12rem;font-weight:700}
+p{margin:0}
+a{color:var(--ink);text-underline-offset:3px}
+button{font:inherit;cursor:pointer;color:inherit}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.label{font-size:1rem;font-weight:600;color:var(--accent)}
+.muted{color:var(--muted)}
+.hl{background:linear-gradient(transparent 62%,var(--accent) 62%);color:inherit;font-style:normal;padding:0 .02em}
+
+/* boutons */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:12px 20px;border-radius:6px;border:1px solid var(--ink);background:var(--ink);color:var(--paper);font-weight:600;text-decoration:none;line-height:1.2;white-space:nowrap}
+.btn.yellow{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.btn.yellow:hover{background:#ffc534;border-color:#ffc534}
+.btn.alt{background:transparent;color:var(--ink);border-color:rgba(231,236,241,.7)}
+.btn.alt:hover{background:rgba(231,236,241,.08)}
+.btn.blue{background:var(--blue-mid);border-color:var(--blue-mid);color:#fff}
+.btn.small{padding:8px 14px;font-size:.92rem}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.link-btn{background:none;border:0;padding:0;color:var(--ink);text-decoration:underline;text-underline-offset:3px;font-weight:500}
+
+/* en-tête */
+.top{position:sticky;top:0;z-index:20;background:rgba(15,21,28,.92);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+.top .wrap{display:flex;align-items:center;justify-content:space-between;gap:16px;height:68px}
+.brand{font-family:var(--f-display);font-weight:800;font-size:1.2rem;display:flex;gap:11px;align-items:center;color:var(--ink);text-decoration:none}
+.brand i{display:inline-block;width:14px;height:14px;background:var(--accent);transform:rotate(45deg)}
+.top nav{display:flex;gap:24px;align-items:center}
+.top nav a:not(.btn){color:var(--ink);text-decoration:none;font-weight:500;font-size:.96rem}
+.top nav a:not(.btn):hover{color:var(--accent)}
+
+/* formulaires */
+.field{display:flex;flex-direction:column;gap:6px;min-width:0}
+.field > label,.field .lbl{font-size:.9rem;font-weight:600}
+.field small,.hint{color:var(--muted);font-size:.84rem;font-weight:400}
+.field input,.field select,.field textarea,.input{font:inherit;padding:11px 12px;border:1px solid var(--line);border-radius:6px;background:var(--paper);color:var(--ink);width:100%}
+.field input:focus,.field select:focus,.input:focus{border-color:var(--accent);outline:none;box-shadow:0 0 0 3px rgba(240,181,28,.2)}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chips label{display:flex;gap:8px;align-items:center;font-weight:500;font-size:.94rem;border:1px solid var(--line);border-radius:999px;padding:7px 14px;background:var(--paper);cursor:pointer;white-space:nowrap;flex:none;user-select:none}
+.chips label:has(input:checked){border-color:var(--accent);background:rgba(240,181,28,.12);color:#fff}
+.chips input{accent-color:var(--accent)}
+.status{font-size:.94rem;min-height:1.4em}
+.status.err{color:var(--bad)} .status.ok{color:var(--ok)}
+
+/* pied de page */
+.foot{border-top:1px solid var(--line);padding-block:28px;color:var(--muted);font-size:.86rem}
+.foot .wrap{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap}
+.foot a{color:var(--muted)}
+
+/* carte d'offre (accueil, tableau de bord) */
+.offre{display:grid;gap:6px;padding:16px 18px;border-bottom:1px solid var(--line)}
+.offre:last-child{border-bottom:0}
+.offre-top{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}
+.offre h3{font-family:var(--f-body);font-size:1rem;font-weight:600;line-height:1.35}
+.offre .resume{color:var(--muted);font-size:.92rem}
+.offre .faits{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:.86rem}
+.offre .faits span{display:inline-flex;gap:6px;align-items:baseline}
+.offre .faits b{font-weight:600;color:var(--ink)}
+.offre .actions{display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center;margin-top:2px;font-size:.9rem}
+.offre .actions a{font-weight:600}
+.prix{color:var(--accent);font-weight:600}
+.badge{flex:none;font-size:.8rem;font-weight:600;padding:3px 8px;border-radius:4px;background:var(--sheet-2);color:var(--muted);white-space:nowrap}
+.badge.urgent{background:rgba(255,138,128,.15);color:var(--bad)}
+.badge.score{background:rgba(240,181,28,.15);color:var(--accent)}
+
+@media (max-width:860px){
+  .top nav a:not(.btn){display:none}
+  .top nav{gap:10px}
+}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+
+/* barre de montant */
+.curseur{display:grid;gap:10px}
+.curseur-valeur{font-family:var(--f-display);font-weight:700;font-size:1.35rem;color:var(--accent)}
+.curseur input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:8px;border-radius:4px;background:linear-gradient(to right,var(--accent) var(--p,0%),var(--sheet-2) var(--p,0%));outline:none;cursor:pointer;padding:0;border:0}
+.curseur input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:24px;height:24px;border-radius:50%;background:var(--accent);border:3px solid var(--paper);box-shadow:0 0 0 1px var(--accent)}
+.curseur input[type=range]::-moz-range-thumb{width:20px;height:20px;border-radius:50%;background:var(--accent);border:3px solid var(--paper)}
+.curseur input[type=range]:focus-visible{box-shadow:0 0 0 3px rgba(240,181,28,.35)}
+.curseur-reperes{display:flex;justify-content:space-between;font-size:.82rem;color:var(--muted)}

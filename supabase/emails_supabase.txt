@@ -1,0 +1,43 @@
+MODÈLES D'EMAILS EN FRANÇAIS POUR SUPABASE
+À coller dans Supabase > Authentication > Emails > Templates
+(garder {{ .ConfirmationURL }} tel quel : Supabase le remplace par le vrai lien)
+
+------------------------------------------------------------
+1. « Confirm signup »
+------------------------------------------------------------
+Sujet :
+Confirmez votre adresse email – Lumen Marchés
+
+Message :
+<h2>Bienvenue sur Lumen Marchés</h2>
+<p>Bonjour,</p>
+<p>Pour activer votre compte et recevoir vos premiers appels d'offres, confirmez votre adresse email :</p>
+<p><a href="{{ .ConfirmationURL }}" style="background:#f0b51c;color:#1b1500;padding:12px 20px;border-radius:6px;text-decoration:none;font-weight:bold">Confirmer mon adresse</a></p>
+<p>Si vous n'êtes pas à l'origine de cette inscription, ignorez simplement cet email.</p>
+<p>L'équipe Lumen</p>
+
+------------------------------------------------------------
+2. « Reset password »
+------------------------------------------------------------
+Sujet :
+Choisissez un nouveau mot de passe – Lumen Marchés
+
+Message :
+<h2>Nouveau mot de passe</h2>
+<p>Bonjour,</p>
+<p>Vous avez demandé à changer votre mot de passe. Cliquez sur le bouton ci-dessous (le lien est valable une heure) :</p>
+<p><a href="{{ .ConfirmationURL }}" style="background:#f0b51c;color:#1b1500;padding:12px 20px;border-radius:6px;text-decoration:none;font-weight:bold">Choisir un nouveau mot de passe</a></p>
+<p>Si vous n'avez rien demandé, ignorez cet email : votre mot de passe actuel reste valable.</p>
+<p>L'équipe Lumen</p>
+
+------------------------------------------------------------
+3. « Change email address »
+------------------------------------------------------------
+Sujet :
+Confirmez votre nouvelle adresse – Lumen Marchés
+
+Message :
+<p>Bonjour,</p>
+<p>Confirmez le changement d'adresse email de votre compte Lumen Marchés :</p>
+<p><a href="{{ .ConfirmationURL }}">Confirmer la nouvelle adresse</a></p>
+<p>L'équipe Lumen</p>

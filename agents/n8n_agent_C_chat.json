@@ -1,0 +1,766 @@
+{
+  "name": "Lumen – Agent C : chat client (Ollama)",
+  "nodes": [
+    {
+      "id": "c1",
+      "name": "Toutes les 15 secondes",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        0
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "seconds",
+              "secondsInterval": 15
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "c2",
+      "name": "Lire la file",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        220,
+        0
+      ],
+      "parameters": {
+        "method": "GET",
+        "url": "=https://jsmffmtzoauvqltshiyg.supabase.co/rest/v1/messages_chat?statut=eq.en_attente&role=eq.client&order=cree_le.asc&limit=1&select=*",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "supabaseApi",
+        "options": {
+          "timeout": 60000
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        }
+      },
+      "credentials": {
+        "supabaseApi": {
+          "id": "",
+          "name": "Supabase Lumen"
+        }
+      },
+      "alwaysOutputData": true,
+      "continueOnFail": true
+    },
+    {
+      "id": "c3",
+      "name": "Une question ?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        440,
+        0
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose"
+          },
+          "conditions": [
+            {
+              "id": "c1",
+              "leftValue": "={{ !!$json.id }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "c3b",
+      "name": "Battement",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        660,
+        220
+      ],
+      "parameters": {
+        "jsCode": "// Une fois par heure, l'agent signale qu'il est en marche (pour le tableau de pilotage).\nconst d = new Date();\nif (d.getMinutes() !== 0 || d.getSeconds() >= 15) return [];\nreturn [{ json: { agent: 'C-chat', debut: d.toISOString(), fin: d.toISOString(), statut: 'vide', entrees: 0, sorties: 0, details: { battement: true } } }];"
+      }
+    },
+    {
+      "id": "c3c",
+      "name": "Signaler l'activité",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        880,
+        220
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "=https://jsmffmtzoauvqltshiyg.supabase.co/rest/v1/agent_runs",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "supabaseApi",
+        "options": {
+          "timeout": 60000
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Prefer",
+              "value": "return=minimal"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify($json) }}"
+      },
+      "credentials": {
+        "supabaseApi": {
+          "id": "",
+          "name": "Supabase Lumen"
+        }
+      },
+      "alwaysOutputData": true,
+      "continueOnFail": true
+    },
+    {
+      "id": "c4",
+      "name": "Marquer en cours",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        660,
+        -60
+      ],
+      "parameters": {
+        "method": "PATCH",
+        "url": "=https://jsmffmtzoauvqltshiyg.supabase.co/rest/v1/messages_chat?id=eq.{{ $('Lire la file').first().json.id }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "supabaseApi",
+        "options": {
+          "timeout": 60000
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Prefer",
+              "value": "return=minimal"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\"statut\":\"en_cours\"}"
+      },
+      "credentials": {
+        "supabaseApi": {
+          "id": "",
+          "name": "Supabase Lumen"
+        }
+      },
+      "alwaysOutputData": true,
+      "continueOnFail": true,
+      "executeOnce": true
+    },
+    {
+      "id": "c5",
+      "name": "Lire le profil",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        880,
+        -60
+      ],
+      "parameters": {
+        "method": "GET",
+        "url": "=https://jsmffmtzoauvqltshiyg.supabase.co/rest/v1/profils?id=eq.{{ $('Lire la file').first().json.client_id }}&select=*",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "supabaseApi",
+        "options": {
+          "timeout": 60000
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        }
+      },
+      "credentials": {
+        "supabaseApi": {
+          "id": "",
+          "name": "Supabase Lumen"
+        }
+      },
+      "alwaysOutputData": true,
+      "continueOnFail": true,
+      "executeOnce": true
+    },
+    {
+      "id": "c6",
+      "name": "Lire l'historique",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1100,
+        -60
+      ],
+      "parameters": {
+        "method": "GET",
+        "url": "=https://jsmffmtzoauvqltshiyg.supabase.co/rest/v1/messages_chat?client_id=eq.{{ $('Lire la file').first().json.client_id }}&id=lt.{{ $('Lire la file').first().json.id }}&order=cree_le.desc&limit=8&select=role,contenu",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "supabaseApi",
+        "options": {
+          "timeout": 60000
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        }
+      },
+      "credentials": {
+        "supabaseApi": {
+          "id": "",
+          "name": "Supabase Lumen"
+        }
+      },
+      "alwaysOutputData": true,
+      "continueOnFail": true,
+      "executeOnce": true
+    },
+    {
+      "id": "c7",
+      "name": "Lire les offres proposées",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1320,
+        -60
+      ],
+      "parameters": {
+        "method": "GET",
+        "url": "=https://jsmffmtzoauvqltshiyg.supabase.co/rest/v1/offres_envoyees?client_id=eq.{{ $('Lire la file').first().json.client_id }}&order=date_envoi.desc&limit=20&select=avis_id,objet,acheteur,lieu,montant,limite,score,resume,url",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "supabaseApi",
+        "options": {
+          "timeout": 60000
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        }
+      },
+      "credentials": {
+        "supabaseApi": {
+          "id": "",
+          "name": "Supabase Lumen"
+        }
+      },
+      "alwaysOutputData": true,
+      "continueOnFail": true,
+      "executeOnce": true
+    },
+    {
+      "id": "c8",
+      "name": "Préparer la recherche",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1540,
+        -60
+      ],
+      "parameters": {
+        "jsCode": "const m = $('Lire la file').first().json;\nconst p = $('Lire le profil').all().map(i => i.json).find(x => x && x.id) || {};\nconst VIDES = new Set('avec dans pour mais plus moins sont nous vous elle elles leur leurs cette ceci cela comme quoi quel quelle quels quelles offre offres marché marchés marche marches appel appels public publics avez avoir être faire peux peut pouvez bonjour merci autre autres entre depuis sans chez tout tous toute toutes très aussi donc alors encore combien quand comment pourquoi celle celui ceux semaine mois jour jours demain dossier dossiers réponse répondre'.split(' '));\nconst sansAccent = s => s.normalize('NFD').replace(/[̀-ͯ]/g, '');\nlet mots = (String(m.contenu).toLowerCase().match(/[a-zàâäçéèêëîïôöùûüœ]{4,}/g) || []).filter(w => !VIDES.has(w) && !VIDES.has(sansAccent(w)));\nif (!mots.length) mots = String((p.mots_cles || '') + ',' + (p.metiers || '')).toLowerCase().split(/[,;]+/).map(s => s.trim()).filter(s => s.length > 3);\nconst formes = [...new Set(mots.slice(0, 5).flatMap(w => { const r = w.slice(0, Math.max(4, Math.min(w.length, 7))); return [r, sansAccent(r)]; }))];\nconst deps = String(p.departements || '').split(/[^0-9AB]+/i).map(s => s.trim()).filter(Boolean).map(d => d.length === 1 ? '0' + d : d);\nlet chemin = 'offres?select=avis_id,objet,acheteur,lieu,montant,limite,url,departements&order=limite.asc&limit=12'\n  + '&limite=gt.' + encodeURIComponent(new Date().toISOString());\nif (formes.length) chemin += '&or=(' + formes.map(f => 'objet.ilike.*' + encodeURIComponent(f.replace(/[,()*]/g, '')) + '*').join(',') + ')';\nif (deps.length) chemin += '&departements=ov.' + encodeURIComponent('{' + deps.join(',') + '}');\nreturn [{ json: { chemin, avis: encodeURIComponent(m.avis_id || 'aucun') } }];"
+      },
+      "executeOnce": true
+    },
+    {
+      "id": "c9",
+      "name": "Chercher dans les offres",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1760,
+        -60
+      ],
+      "parameters": {
+        "method": "GET",
+        "url": "=https://jsmffmtzoauvqltshiyg.supabase.co/rest/v1/{{ $('Préparer la recherche').first().json.chemin }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "supabaseApi",
+        "options": {
+          "timeout": 60000
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        }
+      },
+      "credentials": {
+        "supabaseApi": {
+          "id": "",
+          "name": "Supabase Lumen"
+        }
+      },
+      "alwaysOutputData": true,
+      "continueOnFail": true,
+      "executeOnce": true
+    },
+    {
+      "id": "c10",
+      "name": "Lire l'offre citée",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1980,
+        -60
+      ],
+      "parameters": {
+        "method": "GET",
+        "url": "=https://jsmffmtzoauvqltshiyg.supabase.co/rest/v1/offres?avis_id=eq.{{ $('Préparer la recherche').first().json.avis }}&select=avis_id,objet,acheteur,lieu,montant,limite,url,departements",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "supabaseApi",
+        "options": {
+          "timeout": 60000
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        }
+      },
+      "credentials": {
+        "supabaseApi": {
+          "id": "",
+          "name": "Supabase Lumen"
+        }
+      },
+      "alwaysOutputData": true,
+      "continueOnFail": true,
+      "executeOnce": true
+    },
+    {
+      "id": "c11",
+      "name": "Préparer la question",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2200,
+        -60
+      ],
+      "parameters": {
+        "jsCode": "const OLLAMA_URL = 'http://127.0.0.1:11434';\nconst MODELE = 'qwen2.5:7b';\n\nconst m = $('Lire la file').first().json;\nconst p = $('Lire le profil').all().map(i => i.json).find(x => x && x.id) || {};\nconst histo = $('Lire l\\'historique').all().map(i => i.json).filter(x => x && x.contenu).reverse();\nconst envoyees = $('Lire les offres proposées').all().map(i => i.json).filter(x => x && x.avis_id);\nconst trouvees = $('Chercher dans les offres').all().map(i => i.json).filter(x => x && x.avis_id);\nconst citee = $('Lire l\\'offre citée').all().map(i => i.json).find(x => x && x.avis_id);\nconst jj = d => d ? new Date(d).toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric', timeZone: 'UTC' }) : 'non précisée';\nconst eur = n => n ? Math.round(Number(n)).toLocaleString('fr-FR') + ' €' : 'montant non communiqué';\nconst ligne = o => `- ${o.objet} | ${o.acheteur || 'acheteur ?'} | ${o.lieu || (o.departements || []).join(', ') || 'lieu ?'} | ${eur(o.montant)} | limite ${jj(o.limite)}${o.score ? ' | note ' + o.score + '/5' : ''}${o.resume ? ' | ' + o.resume : ''} | ${o.url}`;\nconst systeme = `Tu es l'assistant de Lumen Marchés, un service de veille des marchés publics. Tu aides l'entreprise \"${p.entreprise || 'cliente'}\" à trouver et choisir ses appels d'offres.\nAujourd'hui : ${new Date().toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}.\nProfil : activité ${p.metiers || 'non précisée'} ; mots-clés ${p.mots_cles || 'aucun'} ; départements ${p.departements || 'non précisés'} ; présentation : ${String(p.description || 'non renseignée').slice(0, 600)} ; qualifications : ${p.qualifications || 'non renseignées'} ; effectif : ${p.effectif || '?'} ; exclusions : ${p.exclusions || 'aucune'}.\nRègles :\n- Réponds en français, simplement et brièvement (6 phrases au plus, ou une courte liste).\n- Appuie-toi UNIQUEMENT sur les offres listées ci-dessous et sur le profil. N'invente jamais d'offre, de date, de montant ou de lien.\n- Quand tu cites une offre, donne son objet, sa date limite et son lien.\n- Si la réponse n'est pas dans ces informations, dis-le franchement et conseille d'ouvrir l'avis ou d'analyser le dossier dans l'espace (menu \"Analyser un dossier\").\n- Tu ne peux pas déposer d'offre ni contacter l'acheteur à la place du client.\n${citee ? '\\nOFFRE DONT PARLE LE CLIENT :\\n' + ligne(citee) + '\\n' : ''}\nOFFRES DÉJÀ PROPOSÉES AU CLIENT (récentes) :\n${envoyees.map(ligne).join('\\n') || 'aucune pour le moment'}\n\nOFFRES OUVERTES TROUVÉES POUR SA QUESTION (dans sa zone) :\n${trouvees.map(ligne).join('\\n') || 'aucune trouvée avec ces mots'}`;\nconst messages = [{ role: 'system', content: systeme }]\n  .concat(histo.slice(-8).map(h => ({ role: h.role === 'agent' ? 'assistant' : 'user', content: String(h.contenu).slice(0, 1200) })))\n  .concat([{ role: 'user', content: String(m.contenu) }]);\nreturn [{ json: { ollama: { model: MODELE, messages, stream: false, options: { num_ctx: 8192, temperature: 0.3 } }, OLLAMA_URL, debut: new Date().toISOString(), nb_offres: envoyees.length + trouvees.length } }];"
+      },
+      "executeOnce": true
+    },
+    {
+      "id": "c12",
+      "name": "L'IA répond (Ollama)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2420,
+        -60
+      ],
+      "continueOnFail": true,
+      "alwaysOutputData": true,
+      "executeOnce": true,
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $json.OLLAMA_URL }}/api/chat",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify($json.ollama) }}",
+        "options": {
+          "timeout": 300000
+        }
+      }
+    },
+    {
+      "id": "c13",
+      "name": "Lire la réponse",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2640,
+        -60
+      ],
+      "parameters": {
+        "jsCode": "const m = $('Lire la file').first().json;\nconst prep = $('Préparer la question').first().json;\nconst r = $input.first().json || {};\nlet texte = String(r.message?.content || '').trim();\nconst ok = !!texte && !r.error;\nif (!ok) texte = \"Désolé, je n'arrive pas à répondre pour le moment. Réessayez dans quelques minutes : votre question est bien enregistrée.\";\nreturn [{ json: {\n  reponse: { client_id: m.client_id, role: 'agent', contenu: texte.slice(0, 4000), avis_id: m.avis_id || null, statut: 'repondu' },\n  statut_question: ok ? 'repondu' : 'erreur', id: m.id,\n  journal: { agent: 'C-chat', debut: prep.debut, fin: new Date().toISOString(), statut: ok ? 'ok' : 'erreur', entrees: 1, sorties: ok ? 1 : 0,\n             details: { offres_en_contexte: prep.nb_offres, modele: prep.ollama.model }, message: ok ? null : String(r.error?.message || r.error || 'Ollama ne répond pas').slice(0, 300) }\n} }];"
+      },
+      "executeOnce": true
+    },
+    {
+      "id": "c14",
+      "name": "Écrire la réponse",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2860,
+        -60
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "=https://jsmffmtzoauvqltshiyg.supabase.co/rest/v1/messages_chat",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "supabaseApi",
+        "options": {
+          "timeout": 60000
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Prefer",
+              "value": "return=minimal"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify($('Lire la réponse').first().json.reponse) }}"
+      },
+      "credentials": {
+        "supabaseApi": {
+          "id": "",
+          "name": "Supabase Lumen"
+        }
+      },
+      "alwaysOutputData": true,
+      "continueOnFail": true,
+      "executeOnce": true
+    },
+    {
+      "id": "c15",
+      "name": "Clore la question",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        3080,
+        -60
+      ],
+      "parameters": {
+        "method": "PATCH",
+        "url": "=https://jsmffmtzoauvqltshiyg.supabase.co/rest/v1/messages_chat?id=eq.{{ $('Lire la réponse').first().json.id }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "supabaseApi",
+        "options": {
+          "timeout": 60000
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Prefer",
+              "value": "return=minimal"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ statut: $('Lire la réponse').first().json.statut_question }) }}"
+      },
+      "credentials": {
+        "supabaseApi": {
+          "id": "",
+          "name": "Supabase Lumen"
+        }
+      },
+      "alwaysOutputData": true,
+      "continueOnFail": true,
+      "executeOnce": true
+    },
+    {
+      "id": "c16",
+      "name": "Écrire le journal",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        3300,
+        -60
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "=https://jsmffmtzoauvqltshiyg.supabase.co/rest/v1/agent_runs",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "supabaseApi",
+        "options": {
+          "timeout": 60000
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Prefer",
+              "value": "return=minimal"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify($('Lire la réponse').first().json.journal) }}"
+      },
+      "credentials": {
+        "supabaseApi": {
+          "id": "",
+          "name": "Supabase Lumen"
+        }
+      },
+      "alwaysOutputData": true,
+      "continueOnFail": true,
+      "executeOnce": true
+    }
+  ],
+  "connections": {
+    "Toutes les 15 secondes": {
+      "main": [
+        [
+          {
+            "node": "Lire la file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Lire la file": {
+      "main": [
+        [
+          {
+            "node": "Une question ?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Une question ?": {
+      "main": [
+        [
+          {
+            "node": "Marquer en cours",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Battement",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Battement": {
+      "main": [
+        [
+          {
+            "node": "Signaler l'activité",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Marquer en cours": {
+      "main": [
+        [
+          {
+            "node": "Lire le profil",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Lire le profil": {
+      "main": [
+        [
+          {
+            "node": "Lire l'historique",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Lire l'historique": {
+      "main": [
+        [
+          {
+            "node": "Lire les offres proposées",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Lire les offres proposées": {
+      "main": [
+        [
+          {
+            "node": "Préparer la recherche",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Préparer la recherche": {
+      "main": [
+        [
+          {
+            "node": "Chercher dans les offres",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Chercher dans les offres": {
+      "main": [
+        [
+          {
+            "node": "Lire l'offre citée",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Lire l'offre citée": {
+      "main": [
+        [
+          {
+            "node": "Préparer la question",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Préparer la question": {
+      "main": [
+        [
+          {
+            "node": "L'IA répond (Ollama)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "L'IA répond (Ollama)": {
+      "main": [
+        [
+          {
+            "node": "Lire la réponse",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Lire la réponse": {
+      "main": [
+        [
+          {
+            "node": "Écrire la réponse",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Écrire la réponse": {
+      "main": [
+        [
+          {
+            "node": "Clore la question",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Clore la question": {
+      "main": [
+        [
+          {
+            "node": "Écrire le journal",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "saveDataSuccessExecution": "none",
+    "saveManualExecutions": true
+  },
+  "pinData": {}
+}

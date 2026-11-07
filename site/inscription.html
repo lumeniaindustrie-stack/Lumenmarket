@@ -1,0 +1,291 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Créer mon compte – Lumen Marchés</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;700;800&family=Public+Sans:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="style.css">
+<style>
+body{min-height:100vh;display:flex;flex-direction:column}
+.page{flex:1;display:grid;grid-template-columns:minmax(0,.75fr) minmax(0,1.25fr)}
+.side{position:relative;overflow:hidden;background:var(--blue-deep);padding:56px 48px;display:flex;flex-direction:column;gap:28px;isolation:isolate}
+.side::before{content:"";position:absolute;inset:0;z-index:-1;background:linear-gradient(180deg,rgba(19,41,74,.9),rgba(15,21,28,.96)),url("https://images.unsplash.com/photo-1631771819642-90cee9a2ccac?auto=format&fit=crop&w=900&q=50") center/cover}
+.side h1{font-size:clamp(1.9rem,3vw,2.6rem);font-weight:800}
+.side p{color:#c3ccd6}
+.steps-list{list-style:none;margin:0;padding:0;display:grid;gap:4px}
+.steps-list li{display:flex;gap:14px;align-items:center;padding:10px 0;color:var(--muted)}
+.steps-list li span{display:grid;place-items:center;width:30px;height:30px;border-radius:50%;border:2px solid var(--line);font-family:var(--f-mono);font-size:.82rem;flex:none}
+.steps-list li.on{color:var(--ink);font-weight:600}
+.steps-list li.on span{border-color:var(--accent);color:var(--accent)}
+.steps-list li.done span{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.side .perks{margin-top:auto;display:grid;gap:8px;font-size:.92rem;color:#c3ccd6}
+.side .perks span::before{content:"✓";color:var(--accent);margin-right:8px;font-weight:700}
+
+.main{padding:56px clamp(20px,5vw,72px);display:flex;flex-direction:column}
+.progress{height:6px;background:var(--sheet-2);border-radius:3px;overflow:hidden;max-width:620px}
+.progress span{display:block;height:100%;width:20%;background:var(--accent);transition:width .3s}
+.count{margin:14px 0 6px;color:var(--muted);font-size:.95rem}
+form{max-width:620px;display:flex;flex-direction:column;flex:1}
+.step{display:none;flex-direction:column;gap:20px}
+.step.on{display:flex}
+.step h2{font-size:clamp(1.6rem,3vw,2.2rem)}
+.step > p{color:var(--muted);margin-top:-8px}
+.grid2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+.presets{display:flex;flex-wrap:wrap;gap:8px}
+.presets button{background:none;border:1px dashed var(--line);color:var(--accent);border-radius:6px;padding:6px 12px;font-size:.88rem}
+.presets button:hover{border-color:var(--accent)}
+.recap{border:1px solid var(--line);border-radius:8px;background:var(--sheet)}
+.recap div{display:grid;grid-template-columns:150px 1fr auto;gap:12px;padding:12px 16px;border-bottom:1px solid var(--line);align-items:baseline}
+.recap div:last-child{border-bottom:0}
+.recap dt{color:var(--muted);font-size:.88rem}
+.recap dd{margin:0;font-weight:500;overflow-wrap:anywhere}
+.consent{display:flex;gap:10px;align-items:flex-start;font-size:.9rem;color:var(--muted)}
+.consent input{margin-top:4px;accent-color:var(--accent)}
+.nav-steps{display:flex;justify-content:space-between;gap:12px;align-items:center;margin-top:32px;padding-top:20px;border-top:1px solid var(--line)}
+.mdp-wrap{position:relative}
+.mdp-wrap input{padding-right:84px}
+.voir{position:absolute;right:6px;top:50%;transform:translateY(-50%);background:none;border:0;color:var(--muted);font-size:.85rem;padding:6px 8px;text-decoration:underline}
+.done-box{display:none;flex-direction:column;gap:18px;max-width:560px}
+.done-box.on{display:flex}
+.done-box .big{width:64px;height:64px;border-radius:50%;background:var(--accent);color:var(--accent-ink);display:grid;place-items:center;font-size:2rem;font-weight:800}
+@media (max-width:900px){
+  .page{grid-template-columns:1fr}
+  .side{padding:32px 20px;gap:16px}
+  .steps-list,.side .perks{display:none}
+  .main{padding:28px 20px 40px}
+}
+@media (max-width:560px){ .grid2{grid-template-columns:1fr} .recap div{grid-template-columns:1fr auto} .recap dt{grid-column:1/-1} }
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="index.html"><i aria-hidden="true"></i>Lumen Marchés</a>
+    <nav aria-label="Menu"><a href="tableau.html">Déjà un compte ? Se connecter</a></nav>
+  </div>
+</header>
+
+<div class="page">
+  <aside class="side">
+    <div>
+      <h1>Créez votre compte en deux minutes</h1>
+      <p style="margin-top:12px">Un mois d'essai offert. Vos premières offres arrivent le prochain matin de semaine.</p>
+    </div>
+    <ol class="steps-list" id="steps-list">
+      <li><span>1</span>Votre entreprise</li>
+      <li><span>2</span>Vos identifiants</li>
+      <li><span>3</span>Votre activité</li>
+      <li><span>4</span>Votre zone</li>
+      <li><span>5</span>Vérification</li>
+    </ol>
+    <div class="perks"><span>Sans carte bancaire</span><span>Sans engagement</span><span>Toutes les fonctions incluses</span></div>
+  </aside>
+
+  <main class="main">
+    <div class="progress" aria-hidden="true"><span id="bar"></span></div>
+    <p class="count" id="count">Étape 1 sur 5</p>
+
+    <form id="wizard" novalidate>
+      <!-- 1 -->
+      <section class="step on" data-step="1">
+        <h2>Votre entreprise</h2>
+        <p>Le nom qui apparaîtra dans vos emails et votre espace.</p>
+        <div class="field"><label for="entreprise">Nom de l'entreprise</label><input id="entreprise" autocomplete="organization" required></div>
+        <div class="field"><label for="siren">SIREN <small>(facultatif)</small></label><input id="siren" inputmode="numeric" maxlength="11" placeholder="123 456 789"></div>
+      </section>
+
+      <!-- 2 -->
+      <section class="step" data-step="2">
+        <h2>Vos identifiants</h2>
+        <p>Votre email sert à recevoir la veille et à vous connecter. Choisissez un mot de passe que vous n'utilisez nulle part ailleurs.</p>
+        <div class="field"><label for="email">Email professionnel</label><input id="email" type="email" autocomplete="username" required></div>
+        <div class="field"><label for="mdp">Mot de passe</label>
+          <div class="mdp-wrap"><input id="mdp" type="password" autocomplete="new-password" minlength="10" required aria-describedby="mdp-aide"><button type="button" class="voir" data-voir="mdp">Afficher</button></div>
+          <small id="mdp-aide">Au moins 10 caractères, avec des lettres et des chiffres.</small></div>
+        <div class="field"><label for="mdp2">Confirmez le mot de passe</label><input id="mdp2" type="password" autocomplete="new-password" required></div>
+        <div class="field"><label for="telephone">Téléphone <small>(facultatif)</small></label><input id="telephone" type="tel" autocomplete="tel"></div>
+      </section>
+
+      <!-- 3 -->
+      <section class="step" data-step="3">
+        <h2>Votre activité</h2>
+        <p>Cochez tout ce que vous faites. Les agents s'en servent pour trier les offres.</p>
+        <div class="field"><span class="lbl" id="l-act">Activités</span>
+          <div class="chips" id="metiers" role="group" aria-labelledby="l-act">
+            <label><input type="checkbox" value="électricité">Électricité</label>
+            <label><input type="checkbox" value="génie climatique">Génie climatique</label>
+            <label><input type="checkbox" value="plomberie">Plomberie</label>
+            <label><input type="checkbox" value="maçonnerie">Maçonnerie, gros œuvre</label>
+            <label><input type="checkbox" value="menuiserie">Menuiserie, serrurerie</label>
+            <label><input type="checkbox" value="peinture">Peinture, façade</label>
+            <label><input type="checkbox" value="plâtrerie">Plâtrerie</label>
+            <label><input type="checkbox" value="couverture">Couverture, étanchéité</label>
+            <label><input type="checkbox" value="terrassement">Terrassement, VRD</label>
+            <label><input type="checkbox" value="nettoyage">Nettoyage, propreté</label>
+            <label><input type="checkbox" value="espaces verts">Espaces verts</label>
+            <label><input type="checkbox" value="informatique">Informatique, numérique</label>
+            <label><input type="checkbox" value="sécurité">Sécurité, gardiennage</label>
+            <label><input type="checkbox" value="transport">Transport, logistique</label>
+            <label><input type="checkbox" value="restauration">Restauration</label>
+            <label><input type="checkbox" value="formation">Formation</label>
+            <label><input type="checkbox" value="études">Études, conseil</label>
+            <label><input type="checkbox" value="fournitures">Fournitures, équipement</label>
+            <label><input type="checkbox" value="communication">Communication, impression</label>
+          </div>
+        </div>
+        <div class="field"><label for="mots">Mots-clés en plus <small>(facultatif)</small></label><input id="mots" placeholder="éclairage public, borne de recharge, groupe scolaire"><small>Séparés par des virgules. Utile si votre activité n'est pas dans la liste.</small></div>
+      </section>
+
+      <!-- 4 -->
+      <section class="step" data-step="4">
+        <h2>Votre zone et vos marchés</h2>
+        <p>Où intervenez-vous, et quels marchés vous intéressent ?</p>
+        <div class="field"><label for="deps">Départements</label><input id="deps" placeholder="13, 83, 84"><small id="deps-noms">Numéros séparés par des virgules.</small>
+          <div class="presets" aria-label="Raccourcis">
+            <button type="button" data-deps="04, 05, 06, 13, 83, 84">Région Sud (6 départements)</button>
+            <button type="button" data-deps="13, 83, 84">Bouches-du-Rhône, Var, Vaucluse</button>
+            <button type="button" data-deps="13">Bouches-du-Rhône seul</button>
+          </div>
+        </div>
+        <div class="field"><span class="lbl" id="l-types">Types de marchés</span>
+          <div class="chips" id="types" role="group" aria-labelledby="l-types">
+            <label><input type="checkbox" value="TRAVAUX" checked>Travaux</label>
+            <label><input type="checkbox" value="SERVICES" checked>Services</label>
+            <label><input type="checkbox" value="FOURNITURES" checked>Fournitures</label>
+          </div>
+        </div>
+        <div class="field curseur"><label for="m-curseur">Montant minimum des marchés</label>
+          <output class="curseur-valeur" id="m-sortie" for="m-curseur">Pas de minimum</output>
+          <input type="range" id="m-curseur" value="0">
+          <input type="hidden" id="montant" value="">
+          <div class="curseur-reperes" aria-hidden="true"><span>Aucun</span><span>100 k€</span><span>1 M€</span></div>
+          <small>Les marchés sans montant publié restent affichés.</small></div>
+      </section>
+
+      <!-- 5 -->
+      <section class="step" data-step="5">
+        <h2>Vérifiez vos informations</h2>
+        <p>Vous pourrez les modifier plus tard depuis votre espace.</p>
+        <dl class="recap" id="recap"></dl>
+        <label class="consent"><input type="checkbox" id="rgpd"><span>J'accepte que Lumen Marchés utilise ces informations pour m'envoyer la veille et me contacter au sujet de mon essai (voir les <a href="index.html#mentions">mentions légales</a>).</span></label>
+      </section>
+
+      <p class="status" id="status" role="status" style="margin-top:14px"></p>
+      <div class="nav-steps" id="nav-steps">
+        <button type="button" class="btn alt" id="prev">Retour</button>
+        <button type="submit" class="btn yellow" id="next">Continuer</button>
+      </div>
+    </form>
+
+    <div class="done-box" id="done">
+      <div class="big" aria-hidden="true">✓</div>
+      <h2 id="done-titre">Votre compte est créé</h2>
+      <p class="muted" id="done-txt">Vous recevrez votre première sélection d'offres le prochain matin de semaine, vers 7 h. Un email de bienvenue vient de partir.</p>
+      <div><a class="btn yellow" id="done-btn" href="tableau.html">Accéder à mon tableau de bord</a></div>
+    </div>
+  </main>
+</div>
+
+<script src="config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<script src="commun.js"></script>
+<script>
+const TOTAL = 5; let etape = 1;
+const NOMS = ["Votre entreprise", "Vos identifiants", "Votre activité", "Votre zone", "Vérification"];
+const coches = sel => $$(sel + " input:checked").map(i => i.value);
+const libelles = sel => $$(sel + " input:checked").map(i => i.parentElement.textContent.trim());
+
+function afficher() {
+  $$(".step").forEach(s => s.classList.toggle("on", +s.dataset.step === etape));
+  $("#bar").style.width = (etape / TOTAL * 100) + "%";
+  $("#count").textContent = `Étape ${etape} sur ${TOTAL} : ${NOMS[etape - 1]}`;
+  $$("#steps-list li").forEach((li, i) => { li.classList.toggle("on", i + 1 === etape); li.classList.toggle("done", i + 1 < etape); });
+  $("#prev").style.visibility = etape === 1 ? "hidden" : "visible";
+  $("#next").textContent = etape === TOTAL ? "Créer mon compte" : "Continuer";
+  $("#status").textContent = ""; $("#status").className = "status";
+  if (etape === TOTAL) recap();
+  const first = $(`.step[data-step="${etape}"] input, .step[data-step="${etape}"] select`);
+  if (first && window.innerWidth > 900) first.focus({ preventScroll: true });
+  window.scrollTo({ top: 0 });
+}
+function donnees() {
+  return {
+    entreprise: $("#entreprise").value.trim(), siren: $("#siren").value.replace(/\s/g, ""),
+    email: $("#email").value.trim().toLowerCase(), telephone: $("#telephone").value.trim(),
+    metiers: coches("#metiers").join(", "), mots_cles: $("#mots").value.trim(),
+    departements: parseDeps($("#deps").value).join(", "), types: coches("#types").join(", "),
+    montant_min: $("#montant").value
+  };
+}
+function erreur(etapeN) {
+  const d = donnees();
+  if (etapeN === 1 && !d.entreprise) return ["#entreprise", "Indiquez le nom de votre entreprise."];
+  if (etapeN === 1 && d.siren && !/^\d{9}$/.test(d.siren)) return ["#siren", "Le SIREN compte 9 chiffres, ou laissez le champ vide."];
+  if (etapeN === 2 && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(d.email)) return ["#email", "Indiquez une adresse email valide."];
+  if (etapeN === 2 && verifierMdp($("#mdp").value)) return ["#mdp", verifierMdp($("#mdp").value)];
+  if (etapeN === 2 && $("#mdp").value !== $("#mdp2").value) return ["#mdp2", "Les deux mots de passe ne sont pas identiques."];
+  if (etapeN === 3 && !d.metiers && !d.mots_cles) return ["#mots", "Cochez au moins une activité, ou indiquez des mots-clés."];
+  if (etapeN === 4 && !d.departements) return ["#deps", "Indiquez au moins un département, ou choisissez un raccourci."];
+  if (etapeN === 4 && parseDeps($("#deps").value).some(c => !DEPTS[c])) return ["#deps", "Un des numéros de département n'existe pas."];
+  if (etapeN === 4 && !d.types) return ["#types input", "Cochez au moins un type de marché."];
+  if (etapeN === 5 && !$("#rgpd").checked) return ["#rgpd", "Cochez la case de consentement pour créer votre compte."];
+  return null;
+}
+function recap() {
+  const d = donnees();
+  const lignes = [
+    ["Entreprise", d.entreprise + (d.siren ? ` (SIREN ${d.siren})` : ""), 1],
+    ["Email", d.email, 2], ["Téléphone", d.telephone || "Non indiqué", 2],
+    ["Activité", libelles("#metiers").join(", ") || "Aucune case cochée", 3],
+    ["Mots-clés", d.mots_cles || "Aucun", 3],
+    ["Départements", parseDeps(d.departements).map(nomDep).join(", "), 4],
+    ["Marchés", libelles("#types").join(", ") + ", " + libelleMontant(Number(d.montant_min)).toLowerCase(), 4]
+  ];
+  $("#recap").innerHTML = lignes.map(([k, v, e]) => `<div><dt>${k}</dt><dd>${esc(v)}</dd><button type="button" class="link-btn" data-go="${e}">Modifier</button></div>`).join("");
+  $$("#recap [data-go]").forEach(b => b.onclick = () => { etape = +b.dataset.go; afficher(); });
+}
+$("#deps").addEventListener("input", () => {
+  const c = parseDeps($("#deps").value);
+  $("#deps-noms").textContent = c.length ? c.map(nomDep).join(", ") : "Numéros séparés par des virgules.";
+});
+$$(".presets button").forEach(b => b.onclick = () => { $("#deps").value = b.dataset.deps; $("#deps").dispatchEvent(new Event("input")); });
+$$("[data-voir]").forEach(b => b.onclick = () => { const i = $("#" + b.dataset.voir); const v = i.type === "password"; i.type = v ? "text" : "password"; $("#mdp2").type = i.type; b.textContent = v ? "Masquer" : "Afficher"; });
+$("#prev").onclick = () => { if (etape > 1) { etape--; afficher(); } };
+
+$("#wizard").addEventListener("submit", async ev => {
+  ev.preventDefault();
+  const st = $("#status"); st.className = "status";
+  const err = erreur(etape);
+  if (err) { st.classList.add("err"); st.textContent = err[1]; $(err[0])?.focus(); return; }
+  if (etape < TOTAL) { etape++; afficher(); return; }
+
+  const d = donnees();
+  if (!COMPTES_PRETS) { st.classList.add("err"); st.textContent = "Les inscriptions ouvrent très bientôt. En attendant, écrivez-nous à " + CFG.EMAIL + "."; return; }
+  const meta = { ...d, mots_cles: [d.mots_cles, motsAuto(d.metiers)].filter(Boolean).join(", ") };
+  delete meta.email;
+  $("#next").disabled = true; st.textContent = "Création de votre compte…";
+  try {
+    const r = await Compte.inscrire(d.email, $("#mdp").value, meta);
+    $("#mdp").value = ""; $("#mdp2").value = "";
+    if (r.confirmer) {
+      $("#done-titre").textContent = "Confirmez votre adresse email";
+      $("#done-txt").innerHTML = `Nous venons d'envoyer un lien de confirmation à <strong>${esc(d.email)}</strong>. Cliquez dessus pour activer votre compte : vous arriverez directement dans votre tableau de bord. Pensez à regarder dans les courriers indésirables.`;
+      $("#done-btn").textContent = "J'ai confirmé, me connecter";
+    } else if (DEMO) {
+      $("#done-txt").textContent = "Mode démonstration : le compte n'existe que dans ce navigateur, aucun email n'a été envoyé.";
+    }
+    $("#wizard").style.display = "none"; $(".progress").style.display = "none"; $("#count").style.display = "none";
+    $$("#steps-list li").forEach(li => { li.classList.remove("on"); li.classList.add("done"); });
+    $("#done").classList.add("on");
+  } catch (e) {
+    st.classList.add("err"); st.textContent = traduireErreur(e);
+    if (/existe déjà/.test(st.textContent)) { etape = 2; afficher(); st.classList.add("err"); st.textContent = traduireErreur(e); }
+  } finally { $("#next").disabled = false; }
+});
+brancherCurseur("m-curseur", "montant", "m-sortie");
+afficher();
+</script>
+</body>
+</html>

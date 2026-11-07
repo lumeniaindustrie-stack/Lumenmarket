@@ -1,0 +1,6 @@
+.DS_Store
+Thumbs.db
+*.zip
+_chk_*.js
+__pycache__/
+.env

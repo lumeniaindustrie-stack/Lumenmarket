@@ -1,0 +1,399 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Lumen Marchés – Les appels d'offres qui vous concernent, chaque matin</title>
+<meta name="description" content="Chaque matin, les appels d'offres publics qui correspondent à votre activité et à votre zone, triés et résumés par des agents IA. Analyse des dossiers en quelques minutes.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;700;800&family=Public+Sans:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="style.css">
+<style>
+/* ---------- haut de page ---------- */
+.hero{position:relative;overflow:hidden;border-bottom:1px solid var(--line);isolation:isolate}
+.slices{position:absolute;inset:0;z-index:-2;display:flex;gap:16px;width:128%;margin-left:-14%}
+.slice{flex:1;overflow:hidden;transform:skewX(-14deg);background:var(--sheet)}
+.slice img{display:block;height:100%;width:150%;margin-left:-25%;object-fit:cover;transform:skewX(14deg);filter:saturate(.85)}
+.slice:nth-child(3){outline:2px solid var(--accent);outline-offset:6px}
+.hero::before{content:"";position:absolute;inset:0;z-index:-1;background:
+  linear-gradient(90deg,rgba(15,21,28,.97) 0%,rgba(15,21,28,.9) 38%,rgba(15,21,28,.62) 66%,rgba(15,21,28,.8) 100%),
+  linear-gradient(0deg,rgba(15,21,28,1) 0%,rgba(15,21,28,0) 28%)}
+.hero .wrap{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,.9fr);gap:48px;padding-block:72px 64px;align-items:center}
+.hero h1{font-size:clamp(2.4rem,5.2vw,4.1rem);font-weight:800;letter-spacing:-.025em}
+.lead{font-size:1.15rem;color:#c3ccd6;margin-top:22px;max-width:56ch}
+.ctas{display:flex;gap:12px;flex-wrap:wrap;margin-top:30px}
+.ctas .btn{padding:15px 24px;font-size:1.05rem}
+.reassure{display:flex;flex-wrap:wrap;gap:8px 22px;margin-top:22px;color:#c3ccd6;font-size:.92rem}
+.reassure span::before{content:"✓";color:var(--accent);margin-right:7px;font-weight:700}
+
+/* panneau des offres */
+.live{background:rgba(15,21,28,.94);border:1px solid var(--line);border-radius:8px;overflow:hidden}
+.live-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;padding:18px 20px 14px;border-bottom:1px solid var(--line)}
+.live-head h2{font-size:1.25rem;font-weight:700}
+.live-head p{font-size:.9rem;color:var(--muted);margin-top:4px}
+.live-head select{font:inherit;font-size:.88rem;background:var(--sheet);color:var(--ink);border:1px solid var(--line);border-radius:5px;padding:6px 8px}
+.live-view{height:430px;overflow:hidden;position:relative}
+.live-view::after{content:"";position:absolute;left:0;right:0;bottom:0;height:60px;background:linear-gradient(transparent,rgba(15,21,28,.95));pointer-events:none}
+.live-track{animation:defile var(--duree,120s) linear infinite}
+.live-view:hover .live-track,.live-view:focus-within .live-track{animation-play-state:paused}
+@keyframes defile{from{transform:translateY(0)}to{transform:translateY(-50%)}}
+.ligne{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:3px 16px;padding:14px 20px;border-bottom:1px solid var(--line)}
+.ligne h3{font-family:var(--f-body);font-size:.98rem;font-weight:600;line-height:1.35;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.ligne .montant{font-weight:600;color:var(--accent);white-space:nowrap;text-align:right;font-size:.95rem}
+.ligne .montant.nc{color:var(--muted);font-weight:400;font-size:.85rem}
+.ligne .qui{font-size:.88rem;color:var(--muted)}
+.ligne .limite{font-size:.85rem;color:var(--muted);text-align:right;white-space:nowrap}
+.ligne .res{grid-column:1/-1;font-size:.88rem;color:var(--muted);display:-webkit-box;-webkit-line-clamp:1;-webkit-box-orient:vertical;overflow:hidden}
+.ligne a{grid-column:1/-1;font-size:.88rem;font-weight:600;width:fit-content}
+.live-foot{padding:10px 20px;border-top:1px solid var(--line);font-size:.85rem;color:var(--muted)}
+.live-empty{padding:40px 20px;color:var(--muted);text-align:center}
+@media (prefers-reduced-motion:reduce){.live-track{animation:none}.live-view{overflow:auto}}
+
+/* sections */
+section{padding-block:88px}
+.band{background:var(--sheet);border-block:1px solid var(--line)}
+.sec-head{display:flex;flex-direction:column;gap:10px;margin-bottom:40px;max-width:70ch}
+.sec-head p:not(.label){color:var(--muted);font-size:1.08rem}
+
+/* étapes des agents */
+.etapes{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:0;counter-reset:e;position:relative}
+.etapes li{counter-increment:e;position:relative;padding:0 18px 0 0;display:flex;flex-direction:column;gap:10px}
+.etapes li::before{content:counter(e);display:grid;place-items:center;width:46px;height:46px;border-radius:50%;background:var(--paper);border:2px solid var(--accent);color:var(--accent);font-family:var(--f-display);font-weight:800;font-size:1.2rem;position:relative;z-index:1}
+.etapes li::after{content:"";position:absolute;left:46px;right:0;top:23px;height:2px;background:repeating-linear-gradient(90deg,var(--line) 0 8px,transparent 8px 14px)}
+.etapes li:last-child::after{display:none}
+.etapes .agent{font-size:.92rem;font-weight:600;color:var(--accent);margin-top:6px}
+.etapes p{color:var(--muted);font-size:.95rem}
+
+/* email d'exemple */
+.mail{max-width:780px;border:1px solid var(--line);border-radius:8px;background:var(--paper);overflow:hidden}
+.mail-head{padding:14px 18px;border-bottom:1px solid var(--line);display:grid;gap:4px;font-size:.95rem}
+
+.mail-body{padding:4px 0 6px}
+.why{font-size:.92rem}
+.why b{color:var(--accent)}
+
+/* tarifs */
+.tarif{display:grid;grid-template-columns:minmax(0,.8fr) minmax(0,1.6fr);gap:28px;align-items:start}
+.plan{background:var(--paper);border:2px solid var(--accent);border-radius:10px;padding:30px;display:flex;flex-direction:column;gap:16px;position:sticky;top:96px}
+.plan .amount{font-family:var(--f-display);font-weight:800;font-size:3.6rem;line-height:1;font-variant-numeric:tabular-nums}
+.plan .amount small{font-family:var(--f-body);font-size:1rem;font-weight:500;color:var(--muted)}
+.plan .offert{background:rgba(240,181,28,.12);color:var(--accent);padding:10px 12px;border-radius:6px;font-weight:600}
+.plan ul{margin:0;padding-left:18px;color:var(--muted);display:grid;gap:4px;font-size:.94rem}
+.fonctions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+.fonction{background:var(--paper);border:1px solid var(--line);border-radius:8px;padding:20px 22px;display:flex;flex-direction:column;gap:10px}
+.fonction ul{list-style:none;margin:0;padding:0;display:grid;gap:7px}
+.fonction li{padding-left:22px;position:relative;color:#c3ccd6;font-size:.95rem}
+.fonction li::before{content:"";position:absolute;left:0;top:.55em;width:10px;height:6px;border-left:2px solid var(--accent);border-bottom:2px solid var(--accent);transform:rotate(-45deg)}
+.option{margin-top:16px;color:var(--muted);font-size:.92rem}
+
+/* accompagnement et sur mesure */
+.offre2{display:grid;grid-template-columns:280px minmax(0,1fr);gap:32px;align-items:start;background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:30px}
+.offre2-prix{display:flex;flex-direction:column;gap:10px;align-items:flex-start}
+.offre2 .amount{font-family:var(--f-display);font-weight:800;font-size:3rem;line-height:1}
+.offre2 .amount small{font-family:var(--f-body);font-size:1rem;font-weight:500;color:var(--muted)}
+.liste-ok{list-style:none;margin:0;padding:0;display:grid;gap:12px}
+.liste-ok li{padding-left:26px;position:relative;color:var(--muted)}
+.liste-ok li strong{color:var(--ink)}
+.liste-ok li::before{content:"";position:absolute;left:0;top:.5em;width:11px;height:6px;border-left:2px solid var(--accent);border-bottom:2px solid var(--accent);transform:rotate(-45deg)}
+.mesure{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,.8fr);gap:56px;align-items:center}
+.mesure-etapes{display:grid;gap:0;border-left:2px solid var(--accent)}
+.mesure-etapes p{display:grid;gap:4px;padding:16px 0 16px 24px}
+.mesure-etapes span{color:var(--muted)}
+
+/* questions, contact */
+.faq details{border-bottom:1px solid var(--line);padding:16px 0}
+.faq summary{font-weight:600;cursor:pointer;font-size:1.05rem}
+.faq p{color:var(--muted);margin-top:8px;max-width:75ch}
+.about{display:grid;grid-template-columns:1fr 1fr;gap:40px}
+.about p+p{margin-top:12px}
+.contact{background:var(--blue-deep);border-radius:10px;padding:28px;display:flex;flex-direction:column;gap:12px}
+.contact a{color:#fff;font-size:1.15rem;font-weight:600}
+.legal{font-size:.88rem;color:var(--muted)}
+.legal h3{color:var(--ink);margin:18px 0 6px;font-size:1rem}
+
+@media (max-width:1000px){
+  .etapes{grid-template-columns:1fr;gap:26px}
+  .etapes li{display:block;padding:0 0 0 64px;min-height:46px}
+  .etapes li::before{position:absolute;left:0;top:0}
+  .etapes li::after{display:none}
+  .etapes .agent{display:block;margin:0 0 4px}
+  .etapes h3{margin-bottom:6px}
+}
+@media (max-width:900px){
+  .hero .wrap,.tarif,.about,.offre2,.mesure{grid-template-columns:1fr}
+  .offre2{padding:22px}
+  .hero .wrap{padding-block:48px}
+  .slices{width:200%;margin-left:-50%}
+  .live-view{height:380px}
+  .plan{position:static}
+  section{padding-block:64px}
+}
+@media (max-width:620px){ .fonctions{grid-template-columns:1fr} }
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="index.html"><i aria-hidden="true"></i>Lumen Marchés</a>
+    <nav aria-label="Menu">
+      <a href="#fonctionnement">Fonctionnement</a>
+      <a href="#tarifs">Tarifs</a>
+      <a href="#sur-mesure">Agents sur mesure</a>
+      <a href="tableau.html" id="nav-compte">Se connecter</a>
+      <a class="btn yellow small" href="inscription.html">Commencer gratuitement</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="hero">
+    <div class="slices" aria-hidden="true">
+      <div class="slice"><img src="https://images.unsplash.com/photo-1653280662710-1cac52cde6d7?auto=format&fit=crop&w=900&h=1200&q=60" alt=""></div>
+      <div class="slice"><img src="https://images.unsplash.com/photo-1631771819642-90cee9a2ccac?auto=format&fit=crop&w=900&h=1200&q=60" alt=""></div>
+      <div class="slice"><img src="https://images.unsplash.com/photo-1770625467384-304e461ef1be?auto=format&fit=crop&w=900&h=1200&q=60" alt=""></div>
+      <div class="slice"><img src="https://images.unsplash.com/photo-1623088098214-ce82ffa8f251?auto=format&fit=crop&w=900&h=1200&q=60" alt=""></div>
+      <div class="slice"><img src="https://images.unsplash.com/photo-1676210134188-4c05dd172f89?auto=format&fit=crop&w=900&h=1200&q=60" alt=""></div>
+    </div>
+    <div class="wrap">
+      <div>
+        <h1>Les appels d'offres qui vous concernent, <span class="hl">résumés chaque matin</span>.</h1>
+        <p class="lead">Chaque jour, nos agents lisent tous les nouveaux marchés publics (travaux, services, fournitures), gardent ceux qui correspondent à votre activité et à votre zone, et vous les envoient résumés. Quand un marché vous intéresse, ils analysent le dossier complet en quelques minutes.</p>
+        <div class="ctas">
+          <a class="btn yellow" href="inscription.html">Commencer gratuitement</a>
+          <a class="btn alt" href="#fonctionnement">Voir comment ça marche</a>
+        </div>
+        <div class="reassure"><span>1 mois offert</span><span>Sans carte bancaire</span><span>Sans engagement</span></div>
+      </div>
+
+      <aside class="live" aria-label="Derniers appels d'offres publiés">
+        <div class="live-head">
+          <div><h2>Derniers appels d'offres</h2><p id="live-count">Chargement…</p></div>
+          <select id="live-zone" aria-label="Zone affichée">
+            <option value="sud">Région Sud</option>
+            <option value="france">Toute la France</option>
+          </select>
+        </div>
+        <div class="live-view" id="live-view" tabindex="0" aria-label="Liste défilante des offres, survolez pour la mettre en pause"><div class="live-track" id="live-track"></div></div>
+        <p class="live-foot" id="live-maj">Source : BOAMP</p>
+      </aside>
+    </div>
+  </div>
+
+  <section id="fonctionnement">
+    <div class="wrap">
+      <div class="sec-head">
+        <h2>De l'avis publié à votre réponse, cinq étapes</h2>
+        <p>Plusieurs agents travaillent pour vous, chacun sur une tâche précise. Vous n'avez rien à installer.</p>
+      </div>
+      <ol class="etapes">
+        <li><span class="agent">Vous, 2 minutes</span><h3>Vous créez votre profil</h3><p>Votre activité, vos départements, la taille des marchés qui vous intéressent et vos mots-clés.</p></li>
+        <li><span class="agent">Agent de veille</span><h3>Il lit tous les nouveaux avis</h3><p>Chaque matin, il récupère les marchés publiés au BOAMP, la source officielle, et écarte ceux hors de votre zone.</p></li>
+        <li><span class="agent">Agent de tri</span><h3>Il note et résume</h3><p>Chaque offre reçoit une note de 1 à 5 selon votre activité, un résumé en deux phrases et la raison pour laquelle elle vous concerne.</p></li>
+        <li><span class="agent">Email et tableau de bord</span><h3>Vous recevez la sélection</h3><p>À 7 h, un email avec les meilleures offres. Tout est rangé dans votre tableau de bord, avec le calendrier des dates limites.</p></li>
+        <li><span class="agent">Agent d'analyse</span><h3>Il lit le dossier pour vous</h3><p>Déposez le dossier de consultation : pièces à fournir, critères de notation, points à risque et avis, en quelques minutes.</p></li>
+      </ol>
+    </div>
+  </section>
+
+  <section id="exemple" class="band">
+    <div class="wrap">
+      <div class="sec-head">
+        <h2>Ce que vous recevez chaque matin</h2>
+        <p>Exemple d'email pour une entreprise d'électricité des Bouches-du-Rhône et du Var. Les avis ci-dessous sont fictifs.</p>
+      </div>
+      <div class="mail">
+        <div class="mail-head">
+          <div><span class="muted">De :</span> Lumen Marchés</div>
+          <div><span class="muted">Objet :</span> 3 appels d'offres pour vous ce matin</div>
+        </div>
+        <div class="mail-body" id="mail-list"></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="tarifs">
+    <div class="wrap">
+      <div class="sec-head">
+        <h2>Un seul abonnement, tout compris</h2>
+        <p>Toutes les fonctions sont incluses. Vous testez gratuitement pendant un mois, puis vous décidez.</p>
+      </div>
+      <div class="tarif">
+        <div class="plan">
+          <h3>Abonnement Lumen Marchés</h3>
+          <div class="amount"><span id="prix">99</span> € <small>HT par mois</small></div>
+          <p class="offert">Le premier mois est offert</p>
+          <ul><li>Sans carte bancaire pour l'essai</li><li>Sans engagement : un email suffit pour arrêter</li><li>Toutes les fonctions ci-contre</li></ul>
+          <a class="btn yellow" href="inscription.html">Commencer gratuitement</a>
+        </div>
+        <div>
+          <div class="fonctions">
+            <div class="fonction"><h3>Veille quotidienne</h3><ul>
+              <li>Tous les nouveaux marchés publics lus chaque matin : travaux, services et fournitures</li>
+              <li>Filtrés selon votre activité, vos départements et vos montants</li>
+              <li>Envoyés par email à 7 h, chaque jour de semaine</li></ul></div>
+            <div class="fonction"><h3>Tri et résumé par l'IA</h3><ul>
+              <li>Chaque offre notée de 1 à 5 selon votre entreprise</li>
+              <li>Un résumé clair en deux phrases</li>
+              <li>La raison pour laquelle elle vous concerne</li></ul></div>
+            <div class="fonction"><h3>Analyse des dossiers</h3><ul>
+              <li>Déposez le dossier de consultation en PDF</li>
+              <li>Pièces à fournir, critères de notation, points à risque et avis</li>
+              <li>Résultat en quelques minutes, aussi envoyé par email (jusqu'à 30 dossiers par mois)</li></ul></div>
+            <div class="fonction"><h3>Tableau de bord et recherche</h3><ul>
+              <li>Toutes les offres proposées, rangées au même endroit</li>
+              <li>Recherche par mot-clé dans toutes les offres publiques ouvertes</li>
+              <li>Lien direct vers chaque avis officiel</li></ul></div>
+            <div class="fonction"><h3>Calendrier des échéances</h3><ul>
+              <li>Les dates limites de vos offres sur un calendrier</li>
+              <li>Ajout en un clic à votre agenda (Outlook, Google, iPhone)</li>
+              <li>Les échéances proches mises en avant</li></ul></div>
+            <div class="fonction"><h3>Assistance</h3><ul>
+              <li>Réponse à vos questions par email</li>
+              <li>Réglage de votre profil de veille à la demande</li>
+              <li>Améliorations des agents incluses, sans frais</li></ul></div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="accompagnement" class="band">
+    <div class="wrap">
+      <div class="sec-head">
+        <h2>Accompagnement personnalisé</h2>
+        <p>En plus de l'abonnement, pour les entreprises qui veulent un outil réglé sur mesure et un développeur joignable.</p>
+      </div>
+      <div class="offre2">
+        <div class="offre2-prix"><div class="amount">500 € <small>HT</small></div><p class="muted">une fois, en plus de l'abonnement</p>
+          <a class="btn yellow" href="sur-mesure.html?offre=accompagnement">Demander l'accompagnement</a></div>
+        <ul class="liste-ok">
+          <li><strong>Un développeur Lumen disponible par message et par téléphone</strong>, qui connaît votre entreprise.</li>
+          <li><strong>Votre tableau de bord modifié sur demande</strong> : colonnes, filtres, vues adaptées à votre façon de travailler.</li>
+          <li><strong>Vos agents ajustés sur demande</strong> : critères de tri, mots-clés, format des emails, nouvelles sources.</li>
+          <li><strong>Mise en place avec vous</strong>, sur place ou en visio, et prise en main par la personne qui répond aux marchés.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section id="sur-mesure">
+    <div class="wrap mesure">
+      <div>
+        <h2>Automatisez votre entreprise avec des agents IA</h2>
+        <p class="muted" style="margin-top:14px;font-size:1.08rem;max-width:58ch">Les appels d'offres ne sont qu'un exemple. Nous concevons des agents IA pour les tâches qui vous prennent du temps chaque semaine, branchés sur vos outils.</p>
+        <ul class="liste-ok" style="margin-top:22px">
+          <li>Préparer des devis à partir d'une demande client ou d'un plan</li>
+          <li>Relancer les factures impayées et les devis sans réponse</li>
+          <li>Trier les emails et les documents entrants, remplir vos tableaux</li>
+          <li>Retrouver une information dans vos documents techniques en quelques secondes</li>
+        </ul>
+        <a class="btn yellow" style="margin-top:28px" href="sur-mesure.html">Décrire ce que je veux automatiser</a>
+      </div>
+      <div class="mesure-etapes">
+        <p><strong>1. Vous décrivez votre besoin</strong><span>Un formulaire de quelques lignes, sans jargon.</span></p>
+        <p><strong>2. Nous en parlons</strong><span>Un appel pour comprendre votre façon de travailler et chiffrer le projet.</span></p>
+        <p><strong>3. Nous construisons l'agent</strong><span>Installé, testé avec vous, puis suivi dans le temps.</span></p>
+      </div>
+    </div>
+  </section>
+
+  <section class="band" id="faq">
+    <div class="wrap faq">
+      <div class="sec-head"><h2>Questions fréquentes</h2></div>
+      <details><summary>D'où viennent les appels d'offres ?</summary><p>Du BOAMP, le Bulletin officiel des annonces des marchés publics, mis à jour deux fois par jour. Certains petits marchés publiés uniquement sur la plateforme d'un acheteur peuvent ne pas y figurer.</p></details>
+      <details><summary>Ça marche pour mon activité ?</summary><p>Oui si vous répondez à des marchés publics : bâtiment, travaux publics, nettoyage, espaces verts, informatique, transport, restauration, formation, conseil, fournitures… Vous choisissez votre activité et vos mots-clés à l'inscription.</p></details>
+      <details><summary>Pourquoi le montant n'est-il pas toujours indiqué ?</summary><p>Beaucoup d'acheteurs ne publient pas d'estimation dans l'avis. Quand elle existe, nous l'affichons ; sinon nous l'indiquons clairement plutôt que d'inventer un chiffre.</p></details>
+      <details><summary>Que deviennent mes documents ?</summary><p>Le texte des dossiers déposés sert uniquement à produire l'analyse et n'est pas conservé ensuite. Aucune donnée n'est revendue.</p></details>
+      <details><summary>L'IA peut-elle se tromper ?</summary><p>Oui, c'est une aide : elle vous fait gagner le temps de lecture, mais vérifiez toujours la date limite et les pièces dans le règlement de consultation avant de déposer votre offre.</p></details>
+      <details><summary>Comment arrêter ?</summary><p>L'abonnement est sans engagement : un email suffit pour l'arrêter à la fin du mois en cours.</p></details>
+    </div>
+  </section>
+
+  <section id="contact">
+    <div class="wrap about">
+      <div>
+        <h2>Une question ?</h2>
+        <p style="margin-top:16px;color:var(--muted);font-size:1.08rem;max-width:56ch">Lumen est conçu et suivi par un ingénieur en informatique et en intelligence artificielle. Écrivez ou appelez : vous parlez directement à la personne qui construit vos agents.</p>
+      </div>
+      <div class="contact">
+        <p><a id="c-mail" href="#"></a></p>
+        <p><a id="c-tel" href="#"></a></p>
+        <p style="color:var(--muted);font-size:.95rem">Une démonstration, une question sur votre compte ou un projet d'automatisation.</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="mentions" class="band">
+    <div class="wrap legal">
+      <h2 style="font-size:1.4rem;color:var(--ink)">Mentions légales et confidentialité</h2>
+      <h3>Éditeur</h3>
+      <p>Lumen IA, entreprise individuelle de Marin Sauzay, SIRET 985 215 474 00018. Hébergement : Netlify, Inc., 512 2nd Street, Suite 200, San Francisco, CA 94107, États-Unis.</p>
+      <h3>Données personnelles</h3>
+      <p>Les informations saisies à l'inscription (entreprise, email, téléphone, activité, départements) servent uniquement à envoyer la veille et à vous contacter au sujet de votre abonnement. Elles sont conservées pendant la durée de l'abonnement puis supprimées. Vous pouvez demander leur consultation, leur modification ou leur suppression à tout moment par email. Les dossiers déposés pour analyse sont traités par un service d'intelligence artificielle et ne sont pas conservés après l'analyse.</p>
+      <h3>Sources et crédits</h3>
+      <p>Données des marchés : BOAMP (DILA), licence ouverte. Photos : Unsplash.</p>
+      <h3>Conditions</h3>
+      <p>Les analyses sont fournies à titre d'aide et ne remplacent pas la lecture des documents officiels. Conditions générales de vente : [à compléter].</p>
+    </div>
+  </section>
+</main>
+
+<footer class="foot">
+  <div class="wrap"><span>Lumen IA, SIRET 985 215 474 00018</span><span>Données des marchés : BOAMP. <a href="#mentions">Mentions légales</a></span></div>
+</footer>
+
+<script src="config.js"></script>
+<script src="commun.js"></script>
+<script>
+$("#c-mail").textContent = CFG.EMAIL; $("#c-mail").href = "mailto:" + CFG.EMAIL;
+$("#c-tel").textContent = CFG.TEL; $("#c-tel").href = "tel:" + String(CFG.TEL).replace(/\s/g, "");
+$("#prix").textContent = CFG.PRIX || 99;
+if (Compte.semblerConnecte()) $("#nav-compte").textContent = "Mon espace";
+
+/* --- Offres en direct --- */
+function carteOffre(o, copie) {
+  const nc = !o.montant;
+  return `<article class="ligne"${copie ? ' aria-hidden="true"' : ""}>
+    <h3>${esc(o.objet)}</h3><span class="montant${nc ? " nc" : ""}">${nc ? "Montant non publié" : esc(o.montantTxt)}</span>
+    <span class="qui">${esc(o.acheteur)}${o.lieu ? ", " + esc(o.lieu) : ""}</span><span class="limite">${toDate(o.limite) ? "Avant le " + esc(fmtJour(o.limite)) : ""}</span>
+    <p class="res">${esc(o.resume)}</p>
+    <a href="${esc(o.url)}" target="_blank" rel="noopener"${copie ? ' tabindex="-1"' : ""}>Voir l'offre</a>
+  </article>`;
+}
+async function chargerDirect() {
+  const zone = $("#live-zone").value;
+  const deps = zone === "sud" ? (CFG.DEPARTEMENTS_ACCUEIL || []) : [];
+  let offres, total, exemple = false;
+  try { const r = await chercherOffres({ deps, limit: 30 }); offres = r.offres; total = r.total; }
+  catch (e) { offres = EXEMPLES; total = null; exemple = true; }
+  if (!offres.length) { $("#live-track").innerHTML = `<p class="live-empty">Aucune offre ouverte pour cette zone.</p>`; return; }
+  $("#live-track").innerHTML = offres.map(o => carteOffre(o)).join("") + offres.map(o => carteOffre(o, true)).join("");
+  $("#live-track").style.setProperty("--duree", Math.max(40, offres.length * 7) + "s");
+  $("#live-count").textContent = exemple
+    ? "Exemples : la liste en direct n'a pas pu être chargée"
+    : `${total.toLocaleString("fr-FR")} offres ouvertes ${zone === "sud" ? "en Région Sud" : "en France"}`;
+  $("#live-maj").textContent = exemple ? "Source : BOAMP" : "Source : BOAMP, mis à jour à " + new Date().toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" }) + ". Survolez la liste pour la mettre en pause.";
+}
+$("#live-zone").addEventListener("change", chargerDirect);
+chargerDirect();
+setInterval(chargerDirect, 5 * 60000);
+
+/* --- Email d'exemple --- */
+const VEILLE = [
+  { objet: "Rénovation de l'éclairage public, quartier des Aubes", acheteur: "Commune (exemple fictif)", lieu: "Bouches-du-Rhône", limite: "27 novembre, 12 h", montant: "≈ 180 k€ HT", score: 5, resume: "Remplacement de 240 points lumineux par des LED avec pilotage à distance. Procédure adaptée, lot unique.", pourquoi: "Électricité extérieure dans votre département, montant dans votre fourchette." },
+  { objet: "Remplacement de la production de chaleur d'un collège", acheteur: "Département (exemple fictif)", lieu: "Var", limite: "3 décembre, 17 h", montant: "Montant non communiqué", score: 4, resume: "Dépose de deux chaudières fioul et pose d'une pompe à chaleur air/eau avec régulation. Visite obligatoire.", pourquoi: "Génie climatique dans votre zone ; la visite obligatoire est à caler rapidement." },
+  { objet: "Mise en conformité électrique de trois bâtiments communaux", acheteur: "Communauté de communes (exemple fictif)", lieu: "Bouches-du-Rhône", limite: "10 décembre, 12 h", montant: "≈ 95 k€ HT", score: 4, resume: "Remplacement de tableaux, mise à la terre et éclairage de sécurité dans une mairie, une école et une salle des fêtes.", pourquoi: "Travaux d'électricité courants, délai de réponse confortable." }
+];
+$("#mail-list").innerHTML = VEILLE.map(a => `
+  <article class="offre">
+    <div class="offre-top"><h3>${esc(a.objet)}</h3><span class="badge score">Pertinence ${a.score}/5</span></div>
+    <p class="resume">${esc(a.resume)}</p>
+    <div class="faits"><span><b>Prix</b><span class="prix">${esc(a.montant)}</span></span><span><b>Lieu</b>${esc(a.lieu)}</span><span><b>Limite</b>${esc(a.limite)}</span></div>
+    <p class="why"><b>Pourquoi pour vous :</b> ${esc(a.pourquoi)}</p>
+    <div class="actions"><a href="#exemple">Voir l'offre</a><span class="muted">${esc(a.acheteur)}</span></div>
+  </article>`).join("");
+</script>
+</body>
+</html>

@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Demande envoyée – Lumen</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;700;800&family=Public+Sans:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="style.css">
+<style>
+body{min-height:100vh;display:flex;flex-direction:column}
+main{flex:1;display:grid;place-items:center;padding:48px 20px}
+.box{max-width:620px;display:grid;gap:20px}
+.ok{width:64px;height:64px;border-radius:50%;background:var(--accent);color:var(--accent-ink);display:grid;place-items:center;font-size:2rem;font-weight:800}
+h1{font-size:clamp(2rem,4.5vw,3rem);font-weight:800;letter-spacing:-.02em}
+.box > p{color:var(--muted);font-size:1.1rem}
+.suite{border-left:2px solid var(--accent);display:grid}
+.suite p{padding:10px 0 10px 20px;color:var(--muted)}
+.suite strong{color:var(--ink);display:block}
+.actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:8px}
+</style>
+</head>
+<body>
+<header class="top"><div class="wrap"><a class="brand" href="index.html"><i aria-hidden="true"></i>Lumen</a><nav></nav></div></header>
+<main>
+  <div class="box">
+    <div class="ok" aria-hidden="true">✓</div>
+    <h1 id="titre">Merci, votre demande est bien arrivée</h1>
+    <p>Nous allons l'étudier et revenir vers vous très prochainement pour en discuter ensemble, par téléphone ou par email selon votre préférence.</p>
+    <div class="suite">
+      <p><strong>Un email de confirmation vous a été envoyé</strong>Il reprend votre demande. Vous pouvez y répondre pour ajouter des précisions.</p>
+      <p><strong>Nous vous appelons pour en parler</strong>Un échange d'une vingtaine de minutes pour comprendre votre besoin.</p>
+      <p><strong>Vous recevez une proposition chiffrée</strong>Sans engagement de votre part.</p>
+    </div>
+    <div class="actions"><a class="btn yellow" href="index.html">Retour à l'accueil</a><a class="btn alt" id="contact" href="#">Nous écrire</a></div>
+  </div>
+</main>
+<footer class="foot"><div class="wrap"><span>Lumen IA, SIRET 985 215 474 00018</span><span><a href="index.html#mentions">Mentions légales</a></span></div></footer>
+<script src="config.js"></script>
+<script src="commun.js"></script>
+<script>
+const d = local.get("lumen_demande");
+if (d?.prenom) $("#titre").textContent = `Merci ${d.prenom}, votre demande est bien arrivée`;
+if (DEMO && !CFG.WEBHOOK_DEMANDE) $(".suite p").innerHTML = "<strong>Mode démonstration</strong>Sur le vrai site, un email de confirmation reprenant la demande est envoyé.";
+$("#contact").href = "mailto:" + CFG.EMAIL;
+</script>
+</body>
+</html>

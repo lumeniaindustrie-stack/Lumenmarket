@@ -1,0 +1,353 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<title>Pilotage – Lumen</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="admin.css">
+</head>
+<body>
+<div id="porte" hidden>
+  <form class="porte" id="f-porte" novalidate>
+    <a class="logo" href="https://lumen-marches.netlify.app/"><span class="tuile-ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><rect x="3" y="3" width="8" height="8" rx="2.2"/><rect x="13" y="3" width="8" height="8" rx="2.2"/><rect x="3" y="13" width="8" height="8" rx="2.2"/><rect x="13" y="13" width="8" height="8" rx="2.2" fill-opacity=".45"/></svg></span>Lumen Pilotage</a>
+    <h1>Connexion administrateur</h1>
+    <p class="muted" id="porte-txt">Espace réservé à l'administrateur.</p>
+    <div class="champ"><label for="a-email">Email</label><input class="input" id="a-email" type="email" autocomplete="username"></div>
+    <div class="champ"><label for="a-mdp">Mot de passe</label><input class="input" id="a-mdp" type="password" autocomplete="current-password"></div>
+    <p class="statut" id="a-st" role="status"></p>
+    <button class="btn prim" id="a-go">Se connecter</button>
+  </form>
+</div>
+
+<div class="app" id="app" hidden>
+  <aside class="cote">
+    <a class="logo" href="index.html"><span class="tuile-ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><rect x="3" y="3" width="8" height="8" rx="2.2"/><rect x="13" y="3" width="8" height="8" rx="2.2"/><rect x="3" y="13" width="8" height="8" rx="2.2"/><rect x="13" y="13" width="8" height="8" rx="2.2" fill-opacity=".45"/></svg></span>Lumen Pilotage</a>
+    <p class="nav-titre">Pilotage</p>
+    <nav class="nav" aria-label="Menu">
+      <button data-v="ensemble"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="3" y="3" width="8" height="8" rx="2.2"/><rect x="13" y="3" width="8" height="8" rx="2.2"/><rect x="3" y="13" width="8" height="8" rx="2.2"/><rect x="13" y="13" width="8" height="8" rx="2.2"/></svg>Vue d'ensemble</button>
+      <button data-v="agents"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="5.5" cy="12" r="3.2"/><circle cx="18.5" cy="5.5" r="3.2"/><circle cx="18.5" cy="18.5" r="3.2"/><path d="M8 11.2 16 6.6M8 12.8l8 4.6" fill="none" stroke="currentColor" stroke-width="1.9"/></svg>Agents</button>
+      <button data-v="clients"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="9" cy="7.9" r="3.7"/><path d="M2.4 19.2c0-3.35 2.95-5.7 6.6-5.7s6.6 2.35 6.6 5.7c0 .72-.56 1.3-1.25 1.3H3.65c-.69 0-1.25-.58-1.25-1.3z"/><circle cx="17" cy="8.5" r="2.9"/><path d="M16.9 13.4c2.85.12 4.8 2.05 4.8 4.75 0 .7-.55 1.25-1.22 1.25h-3.1c.18-.38.27-.8.27-1.24 0-1.86-.8-3.5-2.18-4.62.45-.1.92-.15 1.43-.14z"/></svg>Clients</button>
+      <button data-v="demandes"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M5.3 3.5h13.4c.9 0 1.7.6 2 1.45L23 12v6a2.5 2.5 0 0 1-2.5 2.5h-17A2.5 2.5 0 0 1 1 18v-6l2.3-7.05c.3-.85 1.1-1.45 2-1.45zm-1.6 8h4.1c.45 0 .85.3.96.74.37 1.4 1.64 2.36 3.24 2.36s2.87-.96 3.24-2.36c.11-.44.51-.74.96-.74h4.1L18.4 5.6H5.6z" fill-rule="evenodd"/></svg>Demandes <span class="compteur zero" id="n-demandes">0</span></button>
+    </nav>
+    <div class="bas"><span id="qui"></span><button id="sortir">Se déconnecter</button></div>
+  </aside>
+
+  <div class="principal">
+    <header class="barre">
+      <h1 id="titre">Vue d'ensemble <small id="maj"></small></h1>
+      <div class="actions"><button class="btn" id="rafraichir"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M20 11a8 8 0 1 0-2.3 5.7M20 4v7h-7"/></svg>Actualiser</button></div>
+    </header>
+
+    <section class="vue" id="v-ensemble" data-titre="Vue d'ensemble">
+      <div class="page">
+        <div class="entete"><span class="tuile-ic"><svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor"><rect x="3" y="3" width="8" height="8" rx="2.2"/><rect x="13" y="3" width="8" height="8" rx="2.2"/><rect x="3" y="13" width="8" height="8" rx="2.2"/><rect x="13" y="13" width="8" height="8" rx="2.2"/></svg></span><div><h1>Vue d'ensemble</h1><p><span class="maj"></span></p></div><div class="actions"><button class="btn js-rafraichir"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M20 11a8 8 0 1 0-2.3 5.7M20 4v7h-7"/></svg>Actualiser</button><button class="btn prim" data-aller="agents">Carte des agents</button></div></div>
+        <div class="chiffres">
+          <div class="chiffre mis"><span>Revenu mensuel récurrent</span><strong id="k-mrr">0 €</strong><small id="k-mrr-d"></small></div>
+          <div class="chiffre"><span>Clients abonnés</span><strong id="k-abonnes">0</strong><small id="k-abonnes-d"></small></div>
+          <div class="chiffre"><span>En essai gratuit</span><strong id="k-essai">0</strong><small id="k-essai-d"></small></div>
+          <div class="chiffre"><span>Inscriptions sur 7 jours</span><strong id="k-inscr">0</strong><small id="k-inscr-d"></small></div>
+          <div class="chiffre"><span>Offres collectées (24 h)</span><strong id="k-collect">0</strong><small id="k-collect-d"></small></div>
+          <div class="chiffre"><span>Offres envoyées (7 jours)</span><strong id="k-envoi">0</strong><small id="k-envoi-d"></small></div>
+          <div class="chiffre"><span>Dossiers analysés (30 jours)</span><strong id="k-analyses">0</strong><small>par les clients</small></div>
+          <div class="chiffre"><span>Agents actifs</span><strong id="k-agents">0</strong><small id="k-agents-d"></small></div>
+        </div>
+        <div class="grille">
+          <div class="panneau"><h2>Inscriptions par semaine <span class="pill" style="margin-left:auto">8 semaines</span></h2><div class="barres" id="g-inscr"></div></div>
+          <div class="panneau"><h2>Points d'attention <span class="pill gris" style="margin-left:auto">à traiter</span></h2><div id="alertes"></div></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="vue" id="v-agents" data-titre="Agents">
+      <div class="page">
+        <div class="entete"><span class="tuile-ic"><svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor"><circle cx="5.5" cy="12" r="3.2"/><circle cx="18.5" cy="5.5" r="3.2"/><circle cx="18.5" cy="18.5" r="3.2"/><path d="M8 11.2 16 6.6M8 12.8l8 4.6" fill="none" stroke="currentColor" stroke-width="1.9"/></svg></span><div><h1>Carte des agents</h1><p>Cliquez sur un agent pour son résumé, double-cliquez pour ses analytics.</p></div><div class="actions"><button class="btn js-rafraichir"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M20 11a8 8 0 1 0-2.3 5.7M20 4v7h-7"/></svg>Actualiser</button><a class="btn prim" href="agent.html?a=A-collecteur">Analytics de l'agent A</a></div></div>
+        <div class="disposition">
+          <div class="w carte-w">
+            <div class="w-tete"><span class="grip"></span><h2>Pôles et liaisons</h2><span class="pill" id="ag-pill"></span></div>
+            <div class="defile"><svg id="schema" viewBox="0 0 1330 872" role="group" aria-label="Carte des agents et de leurs liaisons"></svg></div>
+            <div class="aide"><span><i style="background:var(--vert)"></i>Actif</span><span><i style="background:var(--rouge)"></i>Arrêté, en erreur ou à construire</span><span><i style="background:var(--bleu)"></i>Les points bleus montrent les informations qui circulent</span><span class="glisser">Faites glisser la carte pour tout voir</span></div>
+          </div>
+          <div class="dessous">
+            <div class="w"><div class="w-tete"><span class="grip"></span><h2>Agents</h2><span class="pill gris">8</span></div><div class="palette" id="palette"></div><span class="coin"></span></div>
+            <div class="w"><div class="w-tete"><span class="grip"></span><h2>État</h2><span class="pill ok">en direct</span></div><pre class="code" id="etat-code"></pre><span class="coin"></span></div>
+          </div>
+        </div>
+      </div>
+      <dialog class="ndv" id="fiche" aria-labelledby="fa-titre"></dialog>
+    </section>
+
+    <section class="vue" id="v-clients" data-titre="Clients">
+      <div class="page">
+        <div class="entete"><span class="tuile-ic"><svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor"><circle cx="9" cy="7.9" r="3.7"/><path d="M2.4 19.2c0-3.35 2.95-5.7 6.6-5.7s6.6 2.35 6.6 5.7c0 .72-.56 1.3-1.25 1.3H3.65c-.69 0-1.25-.58-1.25-1.3z"/><circle cx="17" cy="8.5" r="2.9"/></svg></span><div><h1>Clients</h1><p>Pour modifier une formule ou couper un accès : Supabase, Table Editor, table profils.</p></div><div class="actions"><button class="btn js-rafraichir"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M20 11a8 8 0 1 0-2.3 5.7M20 4v7h-7"/></svg>Actualiser</button></div></div>
+        <div class="panneau">
+          <div class="filtre"><input class="input" id="c-filtre" placeholder="Rechercher une entreprise ou un email" aria-label="Rechercher un client"></div>
+          <div class="tableau"><table><thead><tr><th>Entreprise</th><th>Formule</th><th>Inscription</th><th>Fin d'essai</th><th>Offres reçues</th><th>Dernière offre</th><th>Questionnaire</th></tr></thead><tbody id="c-liste"></tbody></table></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="vue" id="v-demandes" data-titre="Demandes sur mesure">
+      <div class="page">
+        <div class="entete"><span class="tuile-ic"><svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor"><path d="M5.3 3.5h13.4c.9 0 1.7.6 2 1.45L23 12v6a2.5 2.5 0 0 1-2.5 2.5h-17A2.5 2.5 0 0 1 1 18v-6l2.3-7.05c.3-.85 1.1-1.45 2-1.45zm-1.6 8h4.1c.45 0 .85.3.96.74.37 1.4 1.64 2.36 3.24 2.36s2.87-.96 3.24-2.36c.11-.44.51-.74.96-.74h4.1L18.4 5.6H5.6z" fill-rule="evenodd"/></svg></span><div><h1>Demandes sur mesure</h1><p>Pour changer le statut d'une demande : Supabase, Table Editor, table demandes.</p></div><div class="actions"><button class="btn js-rafraichir"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M20 11a8 8 0 1 0-2.3 5.7M20 4v7h-7"/></svg>Actualiser</button></div></div>
+        <div class="panneau"><div class="tableau"><table><thead><tr><th>Date</th><th>Offre</th><th>Entreprise</th><th>Contact</th><th>Besoin</th><th>Statut</th></tr></thead><tbody id="d-liste"></tbody></table></div></div>
+      </div>
+    </section>
+  </div>
+</div>
+
+<script src="config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<script src="commun.js"></script>
+<script src="agents.js"></script>
+<script>
+let D = { profils: [], envoyees: [], analyses: [], demandes: [], runs: [], collecte24: 0, offresTotal: 0 };
+
+/* ---------- Accès ---------- */
+function porte(msg) { $("#app").hidden = true; $("#porte").hidden = false; if (msg) { $("#a-st").className = "statut err"; $("#a-st").textContent = msg; } }
+$("#f-porte").addEventListener("submit", async e => {
+  e.preventDefault(); const st = $("#a-st"); st.className = "statut"; st.textContent = "Connexion…";
+  try { await Compte.connecter($("#a-email").value.trim().toLowerCase(), $("#a-mdp").value); $("#a-mdp").value = ""; await entrer(); }
+  catch (er) { st.className = "statut err"; st.textContent = traduireErreur(er); }
+});
+$("#sortir").onclick = async () => { await Compte.deconnecter(); porte(); };
+$$(".js-rafraichir").forEach(b => b.onclick = () => charger().then(rendre));
+$$("[data-aller]").forEach(b => b.onclick = () => aller(b.dataset.aller));
+
+async function entrer() {
+  const { moi, erreur } = await verifierAdmin();
+  if (!moi) return porte(erreur);
+  $("#qui").textContent = moi.email; $("#porte").hidden = true; $("#app").hidden = false;
+  await charger(); rendre(); aller(location.hash.slice(1) || "ensemble");
+}
+
+/* ---------- Données ---------- */
+async function charger() {
+  const [p, e, a, d, r, c24, tot] = await Promise.all([
+    SB.from("profils").select("*").order("cree_le", { ascending: false }).limit(2000),
+    SB.from("offres_envoyees").select("client_id,date_envoi,score").gte("date_envoi", ilYa(90).slice(0, 10)).limit(50000),
+    SB.from("analyses").select("client_id,cree_le").gte("cree_le", ilYa(90)).limit(10000),
+    SB.from("demandes").select("*").order("cree_le", { ascending: false }).limit(500),
+    SB.from("agent_runs").select("*").gte("debut", ilYa(30)).order("debut", { ascending: false }).limit(3000),
+    SB.from("offres").select("avis_id", { count: "exact", head: true }).gte("collecte_le", ilYa(1)),
+    SB.from("offres").select("avis_id", { count: "exact", head: true })
+  ]);
+  D = { profils: p.data || [], envoyees: e.data || [], analyses: a.data || [], demandes: d.data || [], runs: r.data || [], collecte24: c24.count || 0, offresTotal: tot.count || 0 };
+  $$(".maj").forEach(m => m.textContent = "Mis à jour le " + heure(new Date()));
+}
+
+/* ---------- Vue d'ensemble ---------- */
+function rendre() {
+  const P = CFG.PRIX || 99, auj = new Date();
+  const clientsSeuls = D.profils.filter(p => !p.est_admin);
+  const actifs = clientsSeuls.filter(p => p.actif !== false);
+  const abonnes = actifs.filter(p => p.formule === "abonne" || p.formule === "accompagnement");
+  const essais = actifs.filter(p => (p.formule || "essai") === "essai" && (!p.fin_essai || new Date(p.fin_essai + "T23:59:59") >= auj));
+  const finSemaine = essais.filter(p => p.fin_essai && (new Date(p.fin_essai) - auj) / 864e5 <= 7);
+  const inscr7 = clientsSeuls.filter(p => new Date(p.cree_le) >= new Date(ilYa(7)));
+  const inscr30 = clientsSeuls.filter(p => new Date(p.cree_le) >= new Date(ilYa(30)));
+  const env7 = D.envoyees.filter(x => x.date_envoi >= ilYa(7).slice(0, 10));
+  const an30 = D.analyses.filter(x => new Date(x.cree_le) >= new Date(ilYa(30)));
+  const enService = AGENTS.filter(a => !a.avenir), etats = enService.map(a => sante(a, D.runs));
+  $("#k-mrr").textContent = nf(abonnes.length * P) + " €"; $("#k-mrr-d").textContent = `${abonnes.length} × ${P} € HT par mois`;
+  $("#k-abonnes").textContent = nf(abonnes.length); $("#k-abonnes-d").textContent = `${clientsSeuls.filter(p => p.actif === false).length} compte(s) en pause`;
+  $("#k-essai").textContent = nf(essais.length); $("#k-essai-d").textContent = `${finSemaine.length} se termine(nt) dans 7 jours`;
+  $("#k-inscr").textContent = nf(inscr7.length); $("#k-inscr-d").textContent = `${inscr30.length} sur 30 jours`;
+  $("#k-collect").textContent = nf(D.collecte24); $("#k-collect-d").textContent = `${nf(D.offresTotal)} offres en base`;
+  $("#k-envoi").textContent = nf(env7.length); $("#k-envoi-d").textContent = `à ${new Set(env7.map(x => x.client_id)).size} client(s)`;
+  $("#k-analyses").textContent = nf(an30.length);
+  $("#k-agents").textContent = `${etats.filter(estActif).length} / ${etats.length}`; $("#k-agents-d").textContent = `${AGENTS.filter(a => a.avenir).length} agents à construire`;
+  const sem = [...Array(8)].map((_, i) => { const fin = new Date(Date.now() - (7 - i) * 7 * 864e5); const debut = new Date(fin - 7 * 864e5); return { debut, n: clientsSeuls.filter(p => { const t = new Date(p.cree_le); return t > debut && t <= fin; }).length }; });
+  const max = Math.max(1, ...sem.map(s => s.n));
+  $("#g-inscr").innerHTML = sem.map(s => `<div title="Semaine du ${jour(s.debut)} : ${s.n} inscription(s)"><b>${s.n}</b><i style="height:${s.n / max * 100}%"></i><small>${jour(s.debut)}</small></div>`).join("");
+  const al = [];
+  etats.forEach((e, i) => { const ag = enService[i]; if (e.cle === "erreur") al.push(`<b>${esc(ag.nom)} (${esc(ag.titre)})</b> : ${esc(e.der?.message || e.txt)}`); if (e.cle === "retard") al.push(`<b>${esc(ag.nom)}</b> n'a pas tourné depuis ${heure(e.der.debut)}. Ton ordinateur, n8n ou Ollama sont-ils allumés ?`); });
+  finSemaine.forEach(p => al.push(`L'essai de <b>${esc(p.entreprise)}</b> se termine le ${jour(p.fin_essai)} : un appel peut le convertir (${esc(p.telephone || p.email)}).`));
+  const aRappeler = D.demandes.filter(d => d.statut === "à rappeler");
+  if (aRappeler.length) al.push(`<b>${aRappeler.length} demande(s) sur mesure</b> à rappeler.`);
+  const sansQ = actifs.filter(p => !p.onboarding_fait).length;
+  if (sansQ) al.push(`${sansQ} client(s) n'ont pas rempli le questionnaire : leurs offres seront moins précises.`);
+  $("#alertes").innerHTML = al.length ? `<ul class="alertes">${al.map(x => `<li><span>${x}</span></li>`).join("")}</ul>` : `<p class="vide">Rien à signaler.</p>`;
+  $("#n-demandes").textContent = aRappeler.length; $("#n-demandes").classList.toggle("zero", !aRappeler.length);
+  rendreClients(); rendreAgents(); rendreDemandes();
+}
+
+function rendreClients() {
+  const f = $("#c-filtre").value.toLowerCase();
+  const parClient = {}; D.envoyees.forEach(x => { const c = parClient[x.client_id] = parClient[x.client_id] || { n: 0, der: "" }; c.n++; if (x.date_envoi > c.der) c.der = x.date_envoi; });
+  const lignes = D.profils.filter(p => !f || (p.entreprise + " " + p.email).toLowerCase().includes(f));
+  const libF = p => p.actif === false ? ["En pause", "ko"] : p.formule === "abonne" ? ["Abonné", "ok"] : p.formule === "accompagnement" ? ["Accompagnement", "ok"] : (p.fin_essai && new Date(p.fin_essai + "T23:59:59") < new Date() ? ["Essai terminé", "ko"] : ["Essai", "att"]);
+  $("#c-liste").innerHTML = lignes.length ? lignes.map(p => { const [l, c] = libF(p); return `<tr><td><strong>${esc(p.entreprise)}</strong><br><span class="muted">${esc(p.email)}${p.telephone ? ", " + esc(p.telephone) : ""}</span></td>
+    <td><span class="tag ${c}">${esc(l)}</span>${p.est_admin ? ' <span class="tag">admin</span>' : ""}</td><td>${jour(p.cree_le)}</td><td>${p.formule === "essai" ? jour(p.fin_essai) : ""}</td>
+    <td>${nf(parClient[p.id]?.n)}</td><td>${parClient[p.id]?.der ? jour(parClient[p.id].der) : "Aucune"}</td><td>${p.onboarding_fait ? '<span class="tag ok">Rempli</span>' : '<span class="tag">Non</span>'}</td></tr>`; }).join("")
+    : `<tr><td colspan="7" class="vide">Aucun client.</td></tr>`;
+}
+$("#c-filtre").addEventListener("input", rendreClients);
+
+function rendreDemandes() {
+  $("#d-liste").innerHTML = D.demandes.length ? D.demandes.map(d => `<tr><td>${jour(d.cree_le)}</td><td>${esc(d.offre)}</td><td>${esc(d.entreprise)}<br><span class="muted">${esc(d.taille || "")}</span></td>
+    <td>${esc(d.nom)}<br><a href="mailto:${esc(d.email)}">${esc(d.email)}</a><br>${esc(d.telephone || "")}${d.rappel ? `<br><span class="muted">${esc(d.rappel)}</span>` : ""}</td>
+    <td style="max-width:420px">${esc(d.besoin)}${d.outils ? `<br><span class="muted">Outils : ${esc(d.outils)}</span>` : ""}</td><td><span class="tag ${d.statut === "à rappeler" ? "att" : ""}">${esc(d.statut)}</span></td></tr>`).join("")
+    : `<tr><td colspan="6" class="vide">Aucune demande pour l'instant.</td></tr>`;
+}
+
+/* ---------- Carte des agents ---------- */
+const COCHE = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg>';
+const CROIX = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg>';
+const POLES = {
+  pros: { t: "Pôle prospection", c: "#a78bfa" }, com: { t: "Pôle commercial", c: "#f472b6" },
+  tech: { t: "Pôle technique", c: "#60a5fa" }, mgt: { t: "Pôle management", c: "#fbbf24" }, cpt: { t: "Pôle comptabilité", c: "#2dd4bf" }
+};
+const COURT = { "A-collecteur": "Collecteur", "B-tri": "Tri par client", "C-chat": "Chat client", "D-analyse": "Analyse DCE", "E-prospection": "Prospection", "F-commercial": "Emails", "G-controle": "Contrôleur", "H-comptable": "Comptable" };
+const CADRES = [["pros", 30, 30, 310, 210], ["com", 370, 30, 310, 210], ["tech", 30, 290, 650, 540], ["mgt", 1050, 30, 250, 340], ["cpt", 1050, 420, 250, 410]];
+const POS = { "E-prospection": [185, 150, "pros"], "F-commercial": [525, 150, "com"], "A-collecteur": [130, 420, "tech"], "B-tri": [350, 420, "tech"], "C-chat": [575, 570, "tech"], "D-analyse": [575, 720, "tech"], "G-controle": [1175, 200, "mgt"], "H-comptable": [1175, 610, "cpt"] };
+const HUB = { x: 790, y: 290, w: 200, h: 540 };
+const LIENS = [
+  { de: "E-prospection", vers: "F-commercial", lib: "prospects", pts: [[271, 150], [437, 150]], fin: "r", et: [355, 150] },
+  { de: "F-commercial", vers: "CLIENTS", lib: "inscriptions", pts: [[611, 150], [890, 150], [890, 284]], fin: "d", et: [745, 150] },
+  { de: "A-collecteur", vers: "B-tri", lib: "offres", pts: [[216, 420], [262, 420]], fin: "r", et: [240, 420] },
+  { de: "B-tri", vers: "CLIENTS", lib: "veille du matin", pts: [[436, 420], [784, 420]], fin: "r", et: [640, 420] },
+  { de: "B-tri", vers: "C-chat", lib: "offres triées", pts: [[436, 420], [470, 420], [470, 570], [487, 570]], fin: "r", et: [470, 505], rayon: 8 },
+  { de: "C-chat", vers: "CLIENTS", lib: "questions / réponses", pts: [[661, 570], [784, 570]], fin: "r", deux: true, et: [722, 570] },
+  { de: "D-analyse", vers: "CLIENTS", lib: "dossiers / analyses", pts: [[661, 720], [784, 720]], fin: "r", deux: true, et: [722, 720] },
+  { de: "CLIENTS", vers: "H-comptable", lib: "abonnements", pts: [[996, 610], [1087, 610]], fin: "r", et: [1042, 610] },
+  { de: "G-controle", vers: "A-collecteur", lib: "", pts: [[1255, 200], [1316, 200], [1316, 852], [130, 852], [130, 462]], fin: "u", controle: true },
+  { de: "G-controle", vers: "B-tri", lib: "surveille A et B", pts: [[1255, 200], [1316, 200], [1316, 852], [350, 852], [350, 462]], fin: "u", controle: true, et: [830, 852] },
+  { de: "G-controle", vers: "H-comptable", lib: "rapports", pts: [[1175, 240], [1175, 414]], fin: "d", controle: true, et: [1175, 395] }
+];
+const DEMI = 80; // demi-largeur d'une carte d'agent
+function trace(pts, r = 14) {
+  let d = `M${pts[0][0]} ${pts[0][1]}`, L = 0;
+  for (let i = 1; i < pts.length; i++) {
+    const [x0, y0] = pts[i - 1], [x1, y1] = pts[i]; L += Math.hypot(x1 - x0, y1 - y0);
+    if (i < pts.length - 1) { const [x2, y2] = pts[i + 1], ux = Math.sign(x1 - x0), uy = Math.sign(y1 - y0), vx = Math.sign(x2 - x1), vy = Math.sign(y2 - y1);
+      d += ` L${x1 - ux * r} ${y1 - uy * r} Q${x1} ${y1} ${x1 + vx * r} ${y1 + vy * r}`; } else d += ` L${x1} ${y1}`;
+  }
+  return { d, L };
+}
+const fleche = ([x, y], s) => { const k = 4.5; const P = { r: [[x, y], [x - k * 1.5, y - k], [x - k * 1.5, y + k]], l: [[x, y], [x + k * 1.5, y - k], [x + k * 1.5, y + k]], d: [[x, y], [x - k, y - k * 1.5], [x + k, y - k * 1.5]], u: [[x, y], [x - k, y + k * 1.5], [x + k, y + k * 1.5]] }[s]; return `<path class="fleche" d="M${P[0]} L${P[1]} L${P[2]}Z"/>`; };
+const inverse = s => ({ r: "l", l: "r", d: "u", u: "d" })[s];
+const etatDe = code => code === "CLIENTS" ? { cle: "ok" } : sante(AGENTS.find(a => a.code === code), D.runs);
+const sansMouvement = matchMedia("(prefers-reduced-motion: reduce)").matches;
+const grip = (x, y) => [0, 4, 8].map(dy => [0, 4].map(dx => `<circle cx="${x + dx}" cy="${y + dy}" r="1.15" fill="#4a5163"/>`).join("")).join("");
+const coin = (x, y) => `<path d="M${x - 8} ${y} L${x} ${y - 8} M${x - 4} ${y} L${x} ${y - 4}" stroke="#4a5163" stroke-width="1.2" stroke-linecap="round"/>`;
+const pillSvg = (x, y, txt, fond, coul, ancre = "end") => { const w = txt.length * 5.9 + 14, x0 = ancre === "end" ? x - w : x; return `<rect x="${x0}" y="${y}" width="${w}" height="18" rx="5" fill="${fond}"/><text x="${x0 + w / 2}" y="${y + 12.5}" text-anchor="middle" fill="${coul}" font-size="10.5" font-weight="600">${esc(txt)}</text>`; };
+const libEtat = (ag, e) => ag.avenir ? "À construire" : e.txt;
+
+function rendreAgents() {
+  const svg = $("#schema"); if (!svg) return;
+  const etats = Object.fromEntries(AGENTS.map(a => [a.code, sante(a, D.runs)]));
+  const nbOn = AGENTS.filter(a => estActif(etats[a.code])).length;
+  $("#ag-pill").textContent = `${nbOn} actif${nbOn > 1 ? "s" : ""} sur ${AGENTS.length}`;
+  const defs = `<defs><filter id="lueur" x="-200%" y="-200%" width="500%" height="500%"><feGaussianBlur stdDeviation="2" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>`;
+  const cadres = CADRES.map(([k, x, y, w, h]) => { const n = Object.values(POS).filter(p => p[2] === k).length;
+    return `<g><rect x="${x}" y="${y}" width="${w}" height="${h}" rx="14" fill="#0b0d12" stroke="#1c202b"/>${grip(x + 16, y + 17)}
+      <text x="${x + 34}" y="${y + 26}" fill="#eef0f5" font-size="12.5" font-weight="600">${POLES[k].t}</text>${pillSvg(x + w - 14, y + 13, n + " agent" + (n > 1 ? "s" : ""), "rgba(59,130,246,.14)", "#60a5fa")}${coin(x + w - 9, y + h - 9)}</g>`; }).join("");
+  const liens = LIENS.map((l, i) => {
+    const { d, L } = trace(l.pts, l.rayon || 14), on = !l.controle && estActif(etatDe(l.de)) && estActif(etatDe(l.vers));
+    const larg = l.lib.length * 5.8 + 18, [ex, ey] = l.et || [0, 0], veille = l.controle && estActif(etatDe(l.de));
+    let flux = "";
+    if (on && !sansMouvement) { const dur = Math.max(1.4, L / 120), n = Math.max(2, Math.round(L / 120));
+      for (let k = 0; k < n; k++) flux += `<circle class="flux" r="2.4"><animateMotion dur="${dur}s" begin="${-k * dur / n}s" repeatCount="indefinite"${l.deux && k % 2 ? ' keyPoints="1;0" keyTimes="0;1" calcMode="linear"' : ""}><mpath href="#lien-${i}"/></animateMotion></circle>`; }
+    return `<g class="lien${on ? " actif" : ""}${l.controle ? " controle" : ""}${veille ? " veille" : ""}" data-de="${l.de}" data-vers="${l.vers}"><path id="lien-${i}" class="trait" d="${d}"/>${fleche(l.pts[l.pts.length - 1], l.fin)}${l.deux ? fleche(l.pts[0], inverse(l.fin)) : ""}${flux}
+      ${l.lib ? `<g class="pastille"><rect x="${ex - larg / 2}" y="${ey - 10}" width="${larg}" height="20" rx="6"/><text x="${ex}" y="${ey + 3.8}" text-anchor="middle">${esc(l.lib)}</text></g>` : ""}</g>`;
+  }).join("");
+  const noeuds = AGENTS.map(ag => {
+    const [x, y, pole] = POS[ag.code], e = etats[ag.code], on = estActif(e), c = on ? "#22c55e" : "#ef4444", pc = POLES[pole].c;
+    return `<g class="agent ${on ? "on" : "ko"}" data-agent="${ag.code}" transform="translate(${x} ${y})" tabindex="0" role="button" aria-label="${esc(ag.nom)}, ${esc(ag.titre)} : ${esc(libEtat(ag, e))}">
+      <rect class="carte" x="${-DEMI}" y="-36" width="${DEMI * 2}" height="72" rx="12"/>
+      ${on ? `<circle class="halo" cx="-42" r="21" fill="none" stroke="${c}" stroke-width="2"/>` : ""}
+      <circle cx="-42" r="21" fill="${on ? pc : "#8a91a2"}" fill-opacity=".14" stroke="${c}" stroke-width="2.2"/>
+      <svg x="-52" y="-10" width="20" height="20" viewBox="0 0 24 24" fill="currentColor" color="${on ? pc : "#8a91a2"}">${ICONES[ag.code]}</svg>
+      <text class="titre" x="-12" y="-1">${esc(COURT[ag.code])}</text>
+      <circle cx="-8" cy="13.5" r="3" fill="${c}"/><text class="etat" x="0" y="17.5" fill="${on ? "#4ade80" : "#f87171"}">${esc(libEtat(ag, e))}</text>
+      ${pillSvg(DEMI - 8, -29, ag.nom.replace("Agent ", ""), "#1b1f2a", "#b9bfcc")}</g>`;
+  }).join("");
+  const cl = D.profils.filter(p => !p.est_admin), actifs = cl.filter(p => p.actif !== false);
+  const ab = actifs.filter(p => p.formule === "abonne" || p.formule === "accompagnement").length, es = actifs.filter(p => (p.formule || "essai") === "essai").length;
+  const H = HUB, cx = H.x + H.w / 2, ligne = (y, a, b) => `<text x="${H.x + 18}" y="${y}" fill="#8a91a2" font-size="12">${a}</text><text x="${H.x + H.w - 18}" y="${y}" fill="#eef0f5" font-size="12.5" font-weight="600" text-anchor="end">${b}</text>`;
+  const hub = `<g class="hub" data-agent="CLIENTS" tabindex="0" role="button" aria-label="Clients : ${actifs.length} actifs">
+    <rect class="fond" x="${H.x}" y="${H.y}" width="${H.w}" height="${H.h}" rx="14"/>${grip(H.x + 16, H.y + 17)}
+    <text x="${H.x + 34}" y="${H.y + 26}" fill="#eef0f5" font-size="12.5" font-weight="600">Clients</text>${pillSvg(H.x + H.w - 14, H.y + 13, "en direct", "rgba(59,130,246,.14)", "#60a5fa")}
+    <g transform="translate(${cx} ${H.y + 110})"><circle r="28" fill="#60a5fa" fill-opacity=".14"/><svg x="-13" y="-13" width="26" height="26" viewBox="0 0 24 24" fill="currentColor" color="#60a5fa">${ICONES.CLIENTS}</svg></g>
+    <text x="${cx}" y="${H.y + 222}" text-anchor="middle" fill="#eef0f5" font-size="54" font-weight="600" letter-spacing="-1.5">${actifs.length}</text>
+    <text x="${cx}" y="${H.y + 248}" text-anchor="middle" fill="#8a91a2" font-size="12.5">client${actifs.length > 1 ? "s" : ""} actif${actifs.length > 1 ? "s" : ""}</text>
+    <line x1="${H.x + 18}" x2="${H.x + H.w - 18}" y1="${H.y + 300}" y2="${H.y + 300}" stroke="#1c202b"/>
+    ${ligne(H.y + 336, "Abonnés", ab)}${ligne(H.y + 366, "En essai", es)}${ligne(H.y + 396, "Revenu", nf(ab * (CFG.PRIX || 99)) + " €/mois")}
+    ${[[cx, H.y], [H.x, 420], [H.x, 570], [H.x, 720], [H.x + H.w, 610]].map(([x, y]) => `<circle class="port" cx="${x}" cy="${y}" r="4"/>`).join("")}${coin(H.x + H.w - 9, H.y + H.h - 9)}</g>`;
+  svg.innerHTML = defs + cadres + liens + hub + noeuds;
+
+  // colonne de droite : liste des agents et état
+  $("#palette").innerHTML = AGENTS.map(ag => { const e = etats[ag.code], on = estActif(e), pc = POLES[POS[ag.code][2]].c;
+    return `<button data-agent="${ag.code}"><span class="ic" style="background:${on ? pc : "#8a91a2"}22;color:${on ? pc : "#8a91a2"}">${icone(ag.code, 16)}<i style="background:${on ? "var(--vert)" : "var(--rouge)"}"></i></span><span><b>${esc(ag.titre)}</b><small>${esc(ag.nom)} · ${esc(libEtat(ag, e))}</small></span></button>`; }).join("");
+  const hh = d => d ? new Date(d).toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" }) : null;
+  const k = s => `<span class="k">${s}</span>`;
+  $("#etat-code").innerHTML = `{\n  ${k("actifs")}: <span class="n">${nbOn}</span>,\n  ${k("arretes")}: <span class="n">${AGENTS.length - nbOn}</span>,\n  ${k("agents")}: {\n` +
+    AGENTS.map(ag => { const e = etats[ag.code]; return `    ${k(ag.nom.replace("Agent ", ""))}: <span class="${estActif(e) ? "v" : "r"}">"${ag.avenir ? "à construire" : estActif(e) ? "actif " + (hh(e.der?.debut) || "") : e.cle}"</span>`; }).join(",\n") +
+    `\n  },\n  ${k("clients")}: <span class="n">${actifs.length}</span>\n}`;
+
+  $$("#schema [data-agent], #palette [data-agent]").forEach(n => {
+    const code = n.dataset.agent;
+    n.addEventListener("click", () => { clearTimeout(minuterie); minuterie = setTimeout(() => ouvrirFiche(code), 230); });
+    n.addEventListener("dblclick", () => { clearTimeout(minuterie); analytics(code); });
+    if (n.tagName.toLowerCase() === "g") n.addEventListener("keydown", ev => { if (ev.key === "Enter" || ev.key === " ") { ev.preventDefault(); ouvrirFiche(code); } });
+    n.addEventListener("pointerenter", () => eclairer(code)); n.addEventListener("pointerleave", () => eclairer(null));
+    n.addEventListener("focus", () => eclairer(code)); n.addEventListener("blur", () => eclairer(null));
+  });
+}
+let minuterie = null;
+function eclairer(code) {
+  const svg = $("#schema"); svg.classList.toggle("focus", !!code);
+  $$(".eclaire", svg).forEach(x => x.classList.remove("eclaire")); if (!code) return;
+  const voisins = new Set([code]);
+  $$(".lien", svg).forEach(l => { if (l.dataset.de === code || l.dataset.vers === code) { l.classList.add("eclaire"); voisins.add(l.dataset.de); voisins.add(l.dataset.vers); } });
+  voisins.forEach(c => $(`[data-agent="${c}"]`, svg)?.classList.add("eclaire"));
+}
+function analytics(code) { if (code === "CLIENTS") aller("clients"); else location.href = "agent.html?a=" + encodeURIComponent(code); }
+
+function ouvrirFiche(code) {
+  const dlg = $("#fiche"), fermer = `<button class="fermer" data-fermer aria-label="Fermer"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg></button>`;
+  if (code === "CLIENTS") {
+    const cl = D.profils.filter(p => !p.est_admin);
+    dlg.innerHTML = `<div class="ndv-tete"><span class="ic" style="--c:#3b82f6;--g:rgba(59,130,246,.14);--pc:#60a5fa">${icone("CLIENTS", 20)}</span><div><h2 id="fa-titre">Clients</h2><p>Les entreprises inscrites sur le site</p></div>${fermer}</div>
+      <div class="ndv-corps"><div class="mini"><div><strong>${cl.filter(p => p.formule === "abonne" || p.formule === "accompagnement").length}</strong><span>abonnés</span></div><div><strong>${cl.filter(p => (p.formule || "essai") === "essai").length}</strong><span>en essai</span></div><div><strong>${cl.filter(p => p.actif === false).length}</strong><span>en pause</span></div></div></div>
+      <div class="ndv-pied"><button class="btn" data-fermer>Fermer</button><button class="btn prim" data-clients>Voir la liste des clients</button></div>`;
+  } else {
+    const ag = AGENTS.find(a => a.code === code), e = sante(ag, D.runs), on = estActif(e), der = e.der, p = prochaine(code);
+    const r7 = e.runs.filter(r => new Date(r.debut) >= new Date(ilYa(7))), prod7 = r7.reduce((s, r) => s + (r.sorties || 0), 0);
+    const c = on ? "var(--vert)" : "var(--rouge)", pc = on ? POLES[POS[code][2]].c : "#8a91a2", gr = pc + "24";
+    const tag = on ? `<span class="pill ok">${esc(e.txt)}</span>` : `<span class="pill ko">${esc(ag.avenir ? "À construire" : e.txt)}</span>`;
+    let corps;
+    if (ag.avenir) corps = `<div class="encart ko">Cet agent n'est pas encore construit : il arrive en ${esc(ag.avenir)}.</div><div><h3>Ce qu'il fera</h3><p class="encart">${esc(ag.role)}</p></div>`;
+    else if (!on) corps = `<div class="encart ko">${esc(e.txt)}${der?.message ? " : " + esc(der.message) : ""}</div>
+      <div><h3>À vérifier</h3><ul class="taches"><li><span style="background:rgba(239,68,68,.14);color:#f87171">${CROIX}</span>Ton ordinateur est allumé et ne s'est pas mis en veille</li><li><span style="background:rgba(239,68,68,.14);color:#f87171">${CROIX}</span>n8n tourne (http://localhost:5678) et l'agent est activé</li>${code === "B-tri" ? `<li><span style="background:rgba(239,68,68,.14);color:#f87171">${CROIX}</span>Ollama est lancé (commande ollama list)</li>` : ""}</ul></div>
+      <div><h3>Dernière exécution</h3><p class="encart">${der ? heure(der.debut) + " : " + nf(der.entrees) + " " + esc(ag.entree) + ", " + nf(der.sorties) + " " + esc(ag.sortie) : "Jamais"}</p></div>`;
+    else corps = `<div><h3>${der.statut === "en_cours" ? "En train de" : "Ce qu'il fait"}</h3><ul class="taches">${(TACHES[code] || [ag.role]).map(t => `<li><span style="background:rgba(34,197,94,.14);color:#4ade80">${COCHE}</span><span>${esc(t)}</span></li>`).join("")}</ul></div>
+      <div class="encart">Dernier passage le ${heure(der.debut)} : ${nf(der.entrees)} ${esc(ag.entree)}, ${nf(der.sorties)} ${esc(ag.sortie)}${der.details?.modele ? " (modèle " + esc(der.details.modele) + ")" : ""}.${p ? "<br>Prochain passage prévu le " + heure(p) + "." : ""}</div>
+      <div class="mini"><div><strong>${nf(r7.length)}</strong><span>passages sur 7 jours</span></div><div><strong>${nf(prod7)}</strong><span>${esc(ag.sortie)}</span></div><div><strong>${r7.length ? Math.round(r7.filter(r => r.statut !== "erreur").length / r7.length * 100) : 0} %</strong><span>de réussite</span></div></div>`;
+    dlg.innerHTML = `<div class="ndv-tete"><span class="ic" style="--c:${c};--g:${gr};--pc:${pc}">${icone(code, 20)}</span><div><h2 id="fa-titre">${esc(ag.titre)}</h2><p>${esc(ag.nom)} · ${esc(ag.pole)}</p><p style="margin-top:6px">${tag}</p></div>${fermer}</div>
+      <div class="ndv-corps">${corps}</div>
+      <div class="ndv-pied"><button class="btn" data-fermer>Fermer</button>${ag.avenir ? "" : `<button class="btn prim" data-analytics>Ouvrir les analytics</button>`}</div>`;
+  }
+  $$("[data-fermer]", dlg).forEach(b => b.onclick = () => dlg.close());
+  dlg.querySelector("[data-analytics]")?.addEventListener("click", () => analytics(code));
+  dlg.querySelector("[data-clients]")?.addEventListener("click", () => { dlg.close(); aller("clients"); });
+  dlg.onclick = ev => { if (ev.target === dlg) dlg.close(); };
+  dlg.showModal();
+}
+
+/* ---------- Navigation ---------- */
+function aller(v) {
+  if (!["ensemble", "clients", "agents", "demandes"].includes(v)) v = "ensemble";
+  $$(".vue").forEach(s => s.classList.toggle("on", s.id === "v-" + v));
+  $$(".nav [data-v]").forEach(b => b.dataset.v === v ? b.setAttribute("aria-current", "page") : b.removeAttribute("aria-current"));
+  $("#titre").firstChild.textContent = $("#v-" + v).dataset.titre + " ";
+  history.replaceState(null, "", "#" + v);
+}
+$$(".nav [data-v]").forEach(b => b.onclick = () => aller(b.dataset.v));
+entrer().catch(() => porte("Connexion à la base impossible. Réessayez."));
+</script>
+</body>
+</html>

@@ -1,0 +1,1038 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Mon espace – Lumen Marchés</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;700;800&family=Public+Sans:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="style.css">
+<style>
+/* connexion */
+#login-view{min-height:100vh;display:grid;place-items:center;padding:24px;background:radial-gradient(ellipse at top,rgba(36,71,107,.45),transparent 60%),var(--paper)}
+.login-card{width:min(440px,100%);background:var(--sheet);border:1px solid var(--line);border-radius:12px;padding:32px;display:grid;gap:16px}
+.login-card .brand{margin-bottom:8px}
+
+/* application */
+.app{display:grid;grid-template-columns:250px minmax(0,1fr);min-height:100vh}
+.menu{background:var(--sheet);border-right:1px solid var(--line);padding:20px 14px;display:flex;flex-direction:column;gap:6px;position:sticky;top:0;height:100vh}
+.menu .brand{padding:6px 10px 18px}
+.menu nav{display:grid;gap:2px}
+.menu nav button{display:flex;align-items:center;gap:12px;width:100%;text-align:left;background:none;border:0;border-radius:6px;padding:10px 12px;color:var(--muted);font-weight:500}
+.menu nav button svg{width:18px;height:18px;flex:none;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.menu nav button:hover{background:var(--sheet-2);color:var(--ink)}
+.menu nav button[aria-current="page"]{background:rgba(240,181,28,.12);color:var(--accent)}
+.menu nav .count{margin-left:auto;font-size:.78rem;background:var(--paper);padding:1px 7px;border-radius:9px;color:var(--muted)}
+.menu .who{margin-top:auto;border-top:1px solid var(--line);padding:14px 10px 0;display:grid;gap:6px;font-size:.9rem}
+.menu .who strong{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.menu .who a,.menu .who button{color:var(--muted);font-size:.86rem;text-align:left}
+.mtop{display:none}
+.content{padding:32px clamp(18px,3.5vw,44px) 60px;min-width:0}
+.view{display:none}
+.view.on{display:block}
+.vhead{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap;margin-bottom:24px}
+.vhead h1{font-size:clamp(1.8rem,3vw,2.4rem);font-weight:800}
+.vhead p{color:var(--muted);margin-top:6px}
+.vhead p a{color:var(--accent)}
+.panel{background:var(--sheet);border:1px solid var(--line);border-radius:10px;min-width:0}
+.panel-head{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:14px 18px;border-bottom:1px solid var(--line)}
+.panel-head h2{font-size:1.1rem;font-weight:700;font-family:var(--f-display)}
+.panel-head a,.panel-head button{font-size:.88rem}
+.empty{padding:28px 18px;color:var(--muted)}
+.cols{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:20px;align-items:start}
+.stack{display:grid;gap:20px}
+.quick{display:flex;gap:10px;margin-bottom:20px}
+.quick .input{flex:1}
+.figs{display:grid;grid-template-columns:repeat(3,1fr);border-top:1px solid var(--line)}
+.figs div{padding:14px 16px;border-right:1px solid var(--line)}
+.figs div:last-child{border-right:0}
+.figs strong{display:block;font-family:var(--f-display);font-size:1.6rem;font-weight:800}
+.figs span{font-size:.82rem;color:var(--muted)}
+.ech{display:grid;grid-template-columns:52px 1fr;gap:12px;padding:12px 18px;border-bottom:1px solid var(--line);align-items:center}
+.ech:last-child{border-bottom:0}
+.ech .d{text-align:center;border:1px solid var(--line);border-radius:6px;padding:4px 0;line-height:1.1}
+.ech .d b{display:block;font-family:var(--f-display);font-size:1.25rem}
+.ech .d small{font-size:.75rem;color:var(--muted)}
+.ech a{color:var(--ink);font-weight:500;font-size:.92rem;text-decoration:none;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.ech a:hover{color:var(--accent)}
+.ech .r{font-size:.8rem;color:var(--muted)}
+.ech .r.urgent{color:var(--bad)}
+
+/* offres : recherche */
+.filters{display:grid;grid-template-columns:minmax(0,1fr) 200px auto;gap:10px;padding:16px 18px;border-bottom:1px solid var(--line);align-items:center}
+.filters .row2{grid-column:1/-1;display:flex;flex-wrap:wrap;gap:8px 18px;align-items:center;font-size:.9rem}
+.filters .row2 label{display:flex;gap:7px;align-items:center;cursor:pointer}
+.filters input[type=checkbox]{accent-color:var(--accent)}
+.tabs{display:flex;gap:4px;padding:0 12px;border-bottom:1px solid var(--line)}
+.tabs button{background:none;border:0;border-bottom:2px solid transparent;padding:12px 10px;color:var(--muted);font-weight:600}
+.tabs button[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--accent)}
+.res-info{padding:10px 18px;font-size:.86rem;color:var(--muted);border-bottom:1px solid var(--line)}
+.offre .actions .suivre{background:none;border:1px solid var(--line);border-radius:5px;padding:4px 10px;font-size:.84rem;color:var(--ink)}
+.offre .actions .suivre[aria-pressed="true"]{border-color:var(--accent);color:var(--accent)}
+.offre .actions button.link-btn{font-size:.86rem}
+
+/* calendrier */
+.cal-head{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:14px 18px;border-bottom:1px solid var(--line)}
+.cal-head h2{font-size:1.25rem;font-family:var(--f-display);text-transform:capitalize}
+.cal-head .nav{display:flex;gap:6px}
+.cal-head .nav button{background:var(--paper);border:1px solid var(--line);border-radius:6px;padding:6px 12px}
+.cal{display:grid;grid-template-columns:repeat(7,minmax(0,1fr))}
+.cal .dn{padding:8px;font-size:.85rem;font-weight:600;color:var(--muted);border-bottom:1px solid var(--line)}
+.cal .day{min-height:104px;border-right:1px solid var(--line);border-bottom:1px solid var(--line);padding:6px;display:flex;flex-direction:column;gap:4px;background:none;border-top:0;border-left:0;text-align:left;color:var(--ink);cursor:pointer;min-width:0}
+.cal .day:nth-child(7n+7){border-right:0}
+.cal .day.out{color:#4f5d6c;background:rgba(0,0,0,.12)}
+.cal .day.today .n{background:var(--accent);color:var(--accent-ink);border-radius:50%;width:24px;height:24px;display:grid;place-items:center}
+.cal .day.sel{outline:2px solid var(--blue);outline-offset:-2px}
+.cal .n{font-size:.85rem;font-weight:600}
+.cal .ev{font-size:.74rem;background:rgba(255,255,255,.1);color:var(--ink);border-radius:3px;padding:2px 5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cal .ev.suivie{background:rgba(240,181,28,.16);color:var(--accent)}
+.cal .more{font-size:.72rem;color:var(--muted)}
+.legend{display:flex;gap:18px;padding:12px 18px;font-size:.84rem;color:var(--muted);border-top:1px solid var(--line);flex-wrap:wrap}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:6px;vertical-align:-1px}
+
+/* analyse */
+.demo-grid{display:grid;grid-template-columns:330px minmax(0,1fr);gap:20px;align-items:start}
+.apanel{padding:18px;display:flex;flex-direction:column;gap:14px}
+.drop{border:2px dashed var(--line);border-radius:8px;padding:22px 14px;text-align:center;display:grid;gap:8px;justify-items:center}
+.drop.over{border-color:var(--accent)}
+.files{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+.files li{font-family:var(--f-mono);font-size:.78rem;background:var(--paper);padding:6px 8px;border-radius:4px;overflow-wrap:anywhere}
+.note{font-size:.85rem;color:var(--muted)}
+.result-head{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;padding:18px 20px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.verdict{font-family:var(--f-display);font-weight:800;font-size:.95rem;padding:6px 12px;border-radius:4px;white-space:nowrap}
+.v-go{background:#2f6b3f;color:#fff} .v-mid{background:var(--accent);color:var(--accent-ink)} .v-no{background:#b3261e;color:#fff}
+.result-body{display:grid;gap:22px;padding:20px}
+.kv{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin:0}
+.kv div{border-left:3px solid var(--line);padding-left:10px;min-width:0}
+.kv dt{font-size:.88rem;color:var(--muted)}
+.kv dd{margin:2px 0 0;font-weight:600;overflow-wrap:anywhere}
+.block h3{margin-bottom:10px}
+.check{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+.check li{display:flex;gap:10px;align-items:flex-start}
+.check input{margin-top:5px;width:16px;height:16px;accent-color:var(--accent);flex:none}
+.ref{color:var(--muted);font-family:var(--f-mono);font-size:.76rem;margin-left:6px}
+.risk{display:grid;grid-template-columns:auto 1fr;gap:10px;border:1px solid var(--line);border-radius:6px;padding:10px 12px;margin-bottom:8px}
+.sev{font-size:.8rem;font-weight:600;padding:2px 6px;border-radius:3px;height:fit-content;border:1px solid currentColor}
+.sev.high{color:var(--bad)} .sev.mid{color:var(--warn)} .sev.low{color:var(--ok)}
+.risk p{color:var(--muted);font-size:.92rem}
+.crit .row{display:grid;grid-template-columns:minmax(0,1fr) 48px;gap:6px 10px;align-items:center;margin-bottom:8px}
+.crit .row span:nth-child(2){text-align:right;font-family:var(--f-mono)}
+.bar{height:8px;background:var(--paper);border-radius:4px;overflow:hidden;grid-column:1/-1}
+.bar span{display:block;height:100%;background:var(--blue)}
+
+
+/* questionnaire de première connexion */
+.onb{position:fixed;inset:0;z-index:50;background:var(--paper);display:flex;flex-direction:column}
+.onb-top{display:flex;justify-content:space-between;align-items:center;gap:16px;padding:18px clamp(18px,4vw,48px);border-bottom:1px solid var(--line)}
+.onb-prog{flex:1;max-width:420px;height:6px;background:var(--sheet-2);border-radius:3px;overflow:hidden}
+.onb-prog span{display:block;height:100%;width:0;background:var(--accent);transition:width .3s}
+.onb-etape{color:var(--muted);font-size:.92rem;white-space:nowrap}
+.onb-corps{flex:1;overflow:auto;display:flex;align-items:center;justify-content:center;padding:32px clamp(18px,4vw,48px)}
+.onb-q{display:none;width:min(720px,100%);flex-direction:column;gap:18px}
+.onb-q.on{display:flex;animation:monte .35s ease}
+@keyframes monte{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:none}}
+.onb-num{color:var(--accent);font-weight:600}
+.onb-q h2{font-size:clamp(1.6rem,3.4vw,2.4rem);font-weight:800}
+.onb-q > p{color:var(--muted);font-size:1.05rem;margin-top:-6px}
+.onb-q .input,.onb-q textarea,.onb-q select{font-size:1.15rem;padding:14px 16px}
+.onb-q textarea{min-height:150px;resize:vertical;line-height:1.5}
+.fiche{border:1px solid var(--line);border-radius:10px;background:var(--sheet);padding:18px 20px;display:grid;gap:10px}
+.fiche h3{font-size:1.2rem}
+.fiche dl{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px 18px;margin:0}
+.fiche dt{font-size:.85rem;color:var(--muted)} .fiche dd{margin:2px 0 0;font-weight:600}
+.fiche .gagnes{border-top:1px solid var(--line);padding-top:12px;display:grid;gap:6px}
+.fiche .gagnes li{font-size:.92rem;color:var(--muted)} .fiche .gagnes ul{margin:0;padding-left:18px;display:grid;gap:4px}
+.onb-bas{display:flex;align-items:center;gap:16px;padding:16px clamp(18px,4vw,48px);padding-right:max(clamp(18px,4vw,48px),230px);border-top:1px solid var(--line);min-height:84px}
+.onb-fleches{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.fleche{width:52px;height:52px;border-radius:50%;display:grid;place-items:center;border:1px solid var(--line);background:var(--sheet);color:var(--ink)}
+.fleche.go{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.fleche svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
+.fleche:disabled{opacity:.35;cursor:not-allowed}
+.onb-astuce{color:var(--muted);font-size:.88rem}
+@media (max-width:600px){ .onb-astuce{display:none} .onb-etape{display:none} .onb-bas{padding-right:18px;padding-bottom:64px} }
+@media (prefers-reduced-motion:reduce){ .onb-q.on{animation:none} .onb-prog span{transition:none} }
+
+/* profil, abonnement */
+.pgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;padding:20px}
+.pgrid .full{grid-column:1/-1}
+.pfoot{display:flex;gap:14px;align-items:center;flex-wrap:wrap;padding:0 20px 20px}
+.login-card .link-btn{font-size:.92rem}
+@media (max-width:640px){ .pgrid{grid-template-columns:1fr} }
+.kv.big{grid-template-columns:repeat(auto-fit,minmax(240px,1fr));padding:20px;gap:20px}
+.kv.big dd{font-weight:500}
+.abo{padding:24px;display:grid;gap:16px;max-width:620px}
+.abo .amount{font-family:var(--f-display);font-size:2.6rem;font-weight:800;line-height:1}
+.abo .amount small{font-family:var(--f-body);font-size:1rem;font-weight:500;color:var(--muted)}
+
+@media (max-width:1100px){ .cols{grid-template-columns:1fr} .demo-grid{grid-template-columns:1fr} }
+@media (max-width:900px){
+  .app{grid-template-columns:1fr}
+  .mtop{display:flex;justify-content:space-between;align-items:center;padding:12px 18px;border-bottom:1px solid var(--line);background:var(--sheet);position:sticky;top:0;z-index:15}
+  .mtop button{background:none;border:1px solid var(--line);border-radius:6px;padding:6px 12px}
+  .menu{position:fixed;inset:0 auto 0 0;width:min(290px,85vw);z-index:30;transform:translateX(-102%);transition:transform .2s}
+  .menu.open{transform:none;box-shadow:0 0 0 100vmax rgba(0,0,0,.5)}
+  .content{padding-top:22px}
+  .filters{grid-template-columns:1fr}
+  .cal .day{min-height:64px;padding:4px}
+  .cal .ev{font-size:0;padding:0;height:6px;border-radius:3px}
+  .figs strong{font-size:1.3rem}
+}
+@media (prefers-reduced-motion:reduce){.menu{transition:none}}
+/* assistant */
+.chat{display:grid;grid-template-rows:minmax(0,1fr) auto;height:min(72vh,760px);min-height:420px}
+.fil{overflow-y:auto;padding:20px;display:flex;flex-direction:column;gap:14px}
+.msg{max-width:min(680px,88%);padding:12px 15px;border-radius:12px;line-height:1.55;white-space:pre-wrap;overflow-wrap:anywhere}
+.msg.client{align-self:flex-end;background:var(--blue-mid);color:#fff;border-bottom-right-radius:4px}
+.msg.agent{align-self:flex-start;background:var(--paper);border:1px solid var(--line);border-bottom-left-radius:4px}
+.msg.agent a{color:var(--accent)}
+.msg small{display:block;font-size:.76rem;opacity:.7;margin-top:6px}
+.msg.attente{color:var(--muted);font-style:italic}
+.msg .sur{display:block;font-size:.8rem;opacity:.8;margin-bottom:4px}
+.chat form{display:flex;gap:10px;padding:14px;border-top:1px solid var(--line);align-items:flex-end}
+.chat textarea{flex:1;font:inherit;resize:none;min-height:46px;max-height:160px;padding:11px 12px;border:1px solid var(--line);border-radius:8px;background:var(--paper);color:var(--ink)}
+.chat textarea:focus{outline:none;border-color:var(--accent)}
+.suggest{display:flex;gap:8px;flex-wrap:wrap;padding:0 20px 4px}
+.suggest button{font-size:.86rem;padding:7px 12px;border-radius:16px;border:1px solid var(--line);background:none;color:var(--ink)}
+.suggest button:hover{border-color:var(--accent)}
+.lien-offre{display:flex;justify-content:space-between;gap:10px;align-items:center;padding:8px 14px 0 20px;font-size:.88rem;color:var(--muted)}
+.histo{list-style:none;margin:0;padding:0}
+.histo li{border-top:1px solid var(--line)}
+.histo button{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 12px;width:100%;text-align:left;background:none;border:0;padding:12px 18px;color:var(--ink)}
+.histo button:hover{background:var(--sheet-2)}
+.histo small{color:var(--muted);font-size:.82rem}
+.histo .etat{font-size:.82rem;font-weight:600;white-space:nowrap}
+.attente-analyse{padding:40px 24px;text-align:center;display:grid;gap:10px;justify-items:center}
+.roue{width:34px;height:34px;border-radius:50%;border:3px solid var(--line);border-top-color:var(--accent);animation:tourne 1s linear infinite}
+@keyframes tourne{to{transform:rotate(360deg)}}
+@media (prefers-reduced-motion:reduce){.roue{animation:none}}
+</style>
+</head>
+<body>
+
+<!-- Connexion -->
+<div id="login-view" hidden>
+  <form class="login-card" id="f-login" novalidate>
+    <a class="brand" href="index.html"><i aria-hidden="true"></i>Lumen Marchés</a>
+    <h1 style="font-size:1.8rem;font-weight:800">Se connecter</h1>
+    <div class="field"><label for="l-email">Email</label><input id="l-email" type="email" autocomplete="username" required></div>
+    <div class="field"><label for="l-mdp">Mot de passe</label><input id="l-mdp" type="password" autocomplete="current-password" required></div>
+    <p class="status" id="l-status" role="status"></p>
+    <button class="btn yellow" type="submit" id="l-go">Se connecter</button>
+    <button class="link-btn" type="button" id="l-oubli" style="justify-self:start">Mot de passe oublié ?</button>
+    <p class="muted" style="font-size:.92rem">Pas encore de compte ? <a href="inscription.html">Commencer gratuitement</a></p>
+  </form>
+  <form class="login-card" id="f-oubli" novalidate hidden>
+    <a class="brand" href="index.html"><i aria-hidden="true"></i>Lumen Marchés</a>
+    <h1 style="font-size:1.8rem;font-weight:800">Mot de passe oublié</h1>
+    <p class="muted">Indiquez votre email : nous vous envoyons un lien pour choisir un nouveau mot de passe.</p>
+    <div class="field"><label for="o-email">Email</label><input id="o-email" type="email" autocomplete="username" required></div>
+    <p class="status" id="o-status" role="status"></p>
+    <button class="btn yellow" type="submit" id="o-go">Recevoir le lien</button>
+    <button class="link-btn" type="button" id="o-retour" style="justify-self:start">Retour à la connexion</button>
+  </form>
+</div>
+
+<!-- Application -->
+<div class="app" id="app" hidden>
+  <aside class="menu" id="menu">
+    <a class="brand" href="index.html"><i aria-hidden="true"></i>Lumen Marchés</a>
+    <nav aria-label="Menu de l'espace">
+      <button data-view="accueil"><svg viewBox="0 0 24 24"><path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg>Tableau de bord</button>
+      <button data-view="offres"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>Rechercher des offres</button>
+      <button data-view="calendrier"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 10h18"/></svg>Calendrier<span class="count" id="c-suivies">0</span></button>
+      <button data-view="analyse"><svg viewBox="0 0 24 24"><path d="M14 3H6a1 1 0 0 0-1 1v16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V8z"/><path d="M14 3v5h5M9 13h6M9 17h4"/></svg>Analyser un dossier</button>
+      <button data-view="assistant"><svg viewBox="0 0 24 24"><path d="M4 5h16v11H9l-5 4z"/><path d="M8 9h8M8 12h5"/></svg>Assistant</button>
+      <button data-view="profil"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/></svg>Mon profil</button>
+      <button data-view="abonnement"><svg viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3 10h18M7 15h4"/></svg>Abonnement</button>
+    </nav>
+    <div class="who">
+      <strong id="m-ent"></strong>
+      <span class="muted" id="m-plan" style="font-size:.84rem"></span>
+      <a href="index.html">Retour au site</a>
+      <button class="link-btn" id="logout" style="color:var(--muted)">Se déconnecter</button>
+    </div>
+  </aside>
+
+  <div>
+    <div class="mtop"><a class="brand" href="index.html"><i aria-hidden="true"></i>Lumen</a><button id="menu-btn" aria-controls="menu" aria-expanded="false">Menu</button></div>
+    <main class="content">
+
+      <!-- Tableau de bord -->
+      <section class="view" id="v-accueil" aria-labelledby="h-accueil">
+        <div class="vhead"><div><h1 id="h-accueil">Bonjour</h1><p id="plan-line"></p></div>
+          <button class="btn yellow" data-goto="analyse">Analyser un dossier</button></div>
+        <form class="quick" id="quick" role="search">
+          <input class="input" id="quick-q" placeholder="Rechercher une offre : nettoyage, éclairage, collège…" aria-label="Rechercher une offre">
+          <button class="btn blue" type="submit">Rechercher</button>
+        </form>
+        <div class="cols">
+          <div class="panel">
+            <div class="panel-head"><h2 id="dern-titre">Dernières offres proposées</h2><button class="link-btn" data-goto="offres">Tout voir</button></div>
+            <p class="res-info" id="dern-info" hidden></p>
+            <div id="dernieres"></div>
+          </div>
+          <div class="stack">
+            <div class="panel">
+              <div class="panel-head"><h2>Prochaines échéances</h2><button class="link-btn" data-goto="calendrier">Calendrier</button></div>
+              <div id="echeances"></div>
+            </div>
+            <div class="panel">
+              <div class="panel-head"><h2>Ce mois-ci</h2></div>
+              <div class="figs"><div><strong id="f-recues">0</strong><span>offres reçues</span></div><div><strong id="f-suivies">0</strong><span>offres suivies</span></div><div><strong id="f-analyses">0</strong><span>dossiers analysés</span></div></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Recherche -->
+      <section class="view" id="v-offres" aria-labelledby="h-offres">
+        <div class="vhead"><div><h1 id="h-offres">Rechercher des offres</h1><p>Toutes les offres publiques ouvertes du BOAMP, ou celles que Lumen vous a déjà proposées.</p></div></div>
+        <div class="panel">
+          <div class="tabs" role="tablist">
+            <button role="tab" aria-selected="true" data-tab="toutes">Toutes les offres publiques</button>
+            <button role="tab" aria-selected="false" data-tab="proposees">Proposées par Lumen</button>
+          </div>
+          <form class="filters" id="f-search" role="search">
+            <input class="input" id="s-q" placeholder="Mots-clés, séparés par des virgules" aria-label="Mots-clés">
+            <select class="input" id="s-zone" aria-label="Zone"><option value="moi">Mes départements</option><option value="france">Toute la France</option></select>
+            <button class="btn yellow" type="submit">Rechercher</button>
+            <div class="row2">
+              <label><input type="checkbox" name="type" value="TRAVAUX" checked>Travaux</label>
+              <label><input type="checkbox" name="type" value="SERVICES" checked>Services</label>
+              <label><input type="checkbox" name="type" value="FOURNITURES" checked>Fournitures</label>
+              <label><input type="checkbox" id="s-ouv" checked>Seulement les offres ouvertes</label>
+              <button type="button" class="link-btn" id="s-profil">Utiliser mes mots-clés</button>
+            </div>
+          </form>
+          <p class="res-info" id="s-info" role="status">Lancez une recherche.</p>
+          <div id="s-res"></div>
+        </div>
+      </section>
+
+      <!-- Calendrier -->
+      <section class="view" id="v-calendrier" aria-labelledby="h-cal">
+        <div class="vhead"><div><h1 id="h-cal">Calendrier des échéances</h1><p>Les dates limites des offres proposées et des offres que vous suivez.</p></div></div>
+        <div class="cols">
+          <div class="panel">
+            <div class="cal-head"><h2 id="cal-mois"></h2><div class="nav"><button id="cal-prev" aria-label="Mois précédent">‹</button><button id="cal-today">Aujourd'hui</button><button id="cal-next" aria-label="Mois suivant">›</button></div></div>
+            <div class="cal" id="cal"></div>
+            <div class="legend"><span><i style="background:var(--accent)"></i>Offres suivies</span><span><i style="background:var(--blue)"></i>Offres proposées</span></div>
+          </div>
+          <div class="panel">
+            <div class="panel-head"><h2 id="cal-jour">Choisissez un jour</h2></div>
+            <div id="cal-liste"><p class="empty">Cliquez sur un jour pour voir ses échéances.</p></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Analyse -->
+      <section class="view" id="v-analyse" aria-labelledby="h-analyse">
+        <div class="vhead"><div><h1 id="h-analyse">Analyser un dossier</h1><p>Téléchargez le dossier de consultation depuis l'avis (lien « Voir l'offre »), puis déposez les PDF ici. L'analyse arrive en quelques minutes, ici et par email.</p></div></div>
+        <div class="demo-grid">
+          <form class="panel apanel" id="f-analyse" novalidate>
+            <div class="drop" id="drop">
+              <strong>Glissez vos PDF ici</strong>
+              <span class="note">règlement de consultation, CCAP, CCTP…</span>
+              <label class="btn alt small" for="pdfs">Choisir des fichiers</label>
+              <input type="file" id="pdfs" accept="application/pdf" multiple hidden>
+            </div>
+            <ul class="files" id="files"></ul>
+            <button class="btn yellow" id="a-go" type="submit" disabled>Analyser le dossier</button>
+            <p class="status" id="a-status" role="status"></p>
+            <p class="note">Le texte des PDF est lu dans votre navigateur puis envoyé pour l'analyse. Les dossiers ne sont pas conservés.</p>
+          </form>
+          <div class="stack">
+            <article class="panel" id="result" aria-live="polite"></article>
+            <div class="panel" id="a-histo-p" hidden><div class="panel-head"><h2>Mes analyses</h2></div><ul class="histo" id="a-histo"></ul></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Assistant -->
+      <section class="view" id="v-assistant" aria-labelledby="h-assistant">
+        <div class="vhead"><div><h1 id="h-assistant">Assistant</h1><p>Posez vos questions sur vos offres : laquelle choisir, ce qu'il faut préparer, s'il y en a d'autres dans votre zone. L'assistant répond en général en moins d'une minute.</p></div></div>
+        <div class="panel chat">
+          <div style="display:flex;flex-direction:column;min-height:0">
+            <div class="fil" id="fil" aria-live="polite"></div>
+            <div class="suggest" id="suggest">
+              <button type="button">Quelles offres me conseilles-tu cette semaine ?</button>
+              <button type="button">Quelles échéances arrivent bientôt ?</button>
+              <button type="button">Y a-t-il de nouvelles offres dans ma zone ?</button>
+            </div>
+          </div>
+          <div>
+            <div class="lien-offre" id="lien-offre" hidden><span id="lien-offre-txt"></span><button class="link-btn" type="button" id="lien-offre-x">Retirer</button></div>
+            <form id="f-chat">
+              <textarea id="chat-q" rows="1" maxlength="1500" placeholder="Votre question…" aria-label="Votre question"></textarea>
+              <button class="btn yellow" id="chat-go" type="submit">Envoyer</button>
+            </form>
+          </div>
+        </div>
+        <p class="note" style="margin-top:10px">Réponses produites par une IA à partir de vos offres : vérifiez toujours dans l'avis avant de répondre à un marché.</p>
+      </section>
+
+      <!-- Profil -->
+      <section class="view" id="v-profil" aria-labelledby="h-profil">
+        <div class="vhead"><div><h1 id="h-profil">Mon profil</h1><p>Ces informations servent aux agents pour choisir vos offres. Les changements comptent dès la prochaine veille.</p></div><button class="btn alt" type="button" id="p-onb">Présentation de l'entreprise</button></div>
+        <div class="stack">
+          <form class="panel pform" id="f-profil" novalidate>
+            <div class="panel-head"><h2>Profil de veille</h2></div>
+            <div class="pgrid">
+              <div class="field"><label for="p-entreprise">Entreprise</label><input id="p-entreprise" required></div>
+              <div class="field"><label for="p-siren">SIREN</label><input id="p-siren" inputmode="numeric" maxlength="11"></div>
+              <div class="field"><label for="p-email">Email de connexion</label><input id="p-email" disabled></div>
+              <div class="field"><label for="p-telephone">Téléphone</label><input id="p-telephone" type="tel"></div>
+              <div class="field full"><label for="p-metiers">Activité</label><input id="p-metiers"><small>Exemple : électricité, génie climatique</small></div>
+              <div class="field full"><label for="p-mots">Mots-clés suivis</label><input id="p-mots"><small>Séparés par des virgules</small></div>
+              <div class="field"><label for="p-deps">Départements</label><input id="p-deps"><small id="p-deps-noms"></small></div>
+              <div class="field curseur"><label for="pm-curseur">Montant minimum des marchés</label>
+          <output class="curseur-valeur" id="pm-sortie" for="pm-curseur">Pas de minimum</output>
+          <input type="range" id="pm-curseur" value="0">
+          <input type="hidden" id="p-montant" value="">
+          <div class="curseur-reperes" aria-hidden="true"><span>Aucun</span><span>100 k€</span><span>1 M€</span></div></div>
+              <div class="field full"><span class="lbl" id="l-ptypes">Types de marchés</span>
+                <div class="chips" id="p-types" role="group" aria-labelledby="l-ptypes"><label><input type="checkbox" value="TRAVAUX">Travaux</label><label><input type="checkbox" value="SERVICES">Services</label><label><input type="checkbox" value="FOURNITURES">Fournitures</label></div></div>
+            </div>
+            <div class="pfoot"><button class="btn yellow" type="submit" id="p-go">Enregistrer</button><p class="status" id="p-status" role="status"></p></div>
+          </form>
+          <form class="panel pform" id="f-mdp" novalidate>
+            <div class="panel-head"><h2>Mot de passe</h2></div>
+            <div class="pgrid">
+              <input type="email" autocomplete="username" id="m-user" hidden>
+              <div class="field"><label for="m-mdp">Nouveau mot de passe</label><input id="m-mdp" type="password" autocomplete="new-password"><small>Au moins 10 caractères, avec des lettres et des chiffres.</small></div>
+              <div class="field"><label for="m-mdp2">Confirmez</label><input id="m-mdp2" type="password" autocomplete="new-password"></div>
+            </div>
+            <div class="pfoot"><button class="btn alt" type="submit" id="m-go">Changer le mot de passe</button><p class="status" id="m-status" role="status"></p></div>
+          </form>
+          <p class="note">Pour supprimer votre compte et vos données, écrivez à <a id="p-suppr" href="#"></a>.</p>
+        </div>
+      </section>
+
+      <!-- Abonnement -->
+      <section class="view" id="v-abonnement" aria-labelledby="h-abo">
+        <div class="vhead"><div><h1 id="h-abo">Abonnement</h1></div></div>
+        <div class="panel abo" id="abo"></div>
+      </section>
+    </main>
+  </div>
+</div>
+
+
+<!-- Questionnaire de première connexion -->
+<div class="onb" id="onb" role="dialog" aria-modal="true" aria-labelledby="onb-titre" hidden>
+  <div class="onb-top">
+    <a class="brand" href="index.html"><i aria-hidden="true"></i>Lumen Marchés</a>
+    <div class="onb-prog" aria-hidden="true"><span id="onb-barre"></span></div>
+    <span class="onb-etape" id="onb-etape"></span>
+    <button class="link-btn" id="onb-plustard">Plus tard</button>
+  </div>
+  <form class="onb-corps" id="f-onb" novalidate>
+    <h1 id="onb-titre" class="sr-only" style="position:absolute;left:-9999px">Présentez votre entreprise</h1>
+    <section class="onb-q" data-q="1">
+      <span class="onb-num">1 sur 7</span>
+      <h2>Quel est le SIRET de votre entreprise ?</h2>
+      <p>Nous retrouvons automatiquement votre fiche et les marchés publics que vous avez déjà remportés. C'est ce qui aide le plus l'agent à vous comprendre.</p>
+      <input class="input" id="o-siret" inputmode="numeric" maxlength="17" placeholder="123 456 789 00012" autocomplete="off">
+      <p class="status" id="o-siret-st" role="status"></p>
+      <div id="o-fiche"></div>
+    </section>
+    <section class="onb-q" data-q="2">
+      <span class="onb-num">2 sur 7</span>
+      <h2>Quel est le site internet de l'entreprise ?</h2>
+      <p>Facultatif. L'agent s'en sert pour mieux connaître vos réalisations.</p>
+      <input class="input" id="o-site" type="url" inputmode="url" placeholder="https://www.mon-entreprise.fr" autocomplete="url">
+    </section>
+    <section class="onb-q" data-q="3">
+      <span class="onb-num">3 sur 7</span>
+      <h2>Décrivez votre entreprise en quelques lignes</h2>
+      <p>Ce que vous faites, pour quels clients, vos spécialités et vos points forts.</p>
+      <textarea class="input" id="o-desc" maxlength="2000" placeholder="Exemple : entreprise d'électricité générale de 15 personnes à Aix-en-Provence. Courants forts et faibles, éclairage public, bornes de recharge. Nous travaillons surtout pour des communes et des bailleurs sociaux, sur des chantiers de 30 000 à 300 000 €."></textarea>
+      <small class="hint" id="o-desc-n">0 / 2000</small>
+    </section>
+    <section class="onb-q" data-q="4">
+      <span class="onb-num">4 sur 7</span>
+      <h2>Quelles qualifications ou certifications avez-vous ?</h2>
+      <p>Beaucoup d'appels d'offres les exigent. Cochez tout ce qui s'applique.</p>
+      <div class="chips" id="o-qualifs">
+        <label><input type="checkbox" value="RGE">RGE</label><label><input type="checkbox" value="Qualibat">Qualibat</label>
+        <label><input type="checkbox" value="Qualifelec">Qualifelec</label><label><input type="checkbox" value="QualiPAC">QualiPAC</label>
+        <label><input type="checkbox" value="Qualit'EnR">Qualit'EnR</label><label><input type="checkbox" value="Qualipaysage">Qualipaysage</label>
+        <label><input type="checkbox" value="ISO 9001">ISO 9001</label><label><input type="checkbox" value="ISO 14001">ISO 14001</label>
+        <label><input type="checkbox" value="MASE">MASE</label><label><input type="checkbox" value="Qualiopi">Qualiopi</label>
+        <label><input type="checkbox" value="Habilitations électriques">Habilitations électriques</label><label><input type="checkbox" value="Amiante SS4">Amiante SS4</label>
+      </div>
+      <input class="input" id="o-qualifs-autre" placeholder="Autres, séparées par des virgules (facultatif)">
+    </section>
+    <section class="onb-q" data-q="5">
+      <span class="onb-num">5 sur 7</span>
+      <h2>Quelle est la taille de votre entreprise ?</h2>
+      <p>Les acheteurs demandent souvent un effectif ou un chiffre d'affaires minimum. L'agent évitera les marchés trop gros pour vous.</p>
+      <div class="field"><label for="o-eff">Effectif</label><select id="o-eff" class="input"><option value="">Choisir</option></select></div>
+      <div class="field"><label for="o-ca">Chiffre d'affaires annuel</label><select id="o-ca" class="input"><option value="">Choisir</option></select></div>
+    </section>
+    <section class="onb-q" data-q="6">
+      <span class="onb-num">6 sur 7</span>
+      <h2>Y a-t-il des marchés que vous ne voulez pas ?</h2>
+      <p>Facultatif. Des mots qui doivent écarter une offre, séparés par des virgules.</p>
+      <input class="input" id="o-excl" placeholder="Exemple : astreinte 24h/24, nettoyage industriel, Corse">
+    </section>
+    <section class="onb-q" data-q="7">
+      <span class="onb-num">7 sur 7</span>
+      <h2>Citez 2 ou 3 chantiers ou clients récents</h2>
+      <p>Facultatif, mais très utile : l'agent proposera des marchés qui leur ressemblent.</p>
+      <textarea class="input" id="o-refs" maxlength="2000" placeholder="Exemple : rénovation électrique du groupe scolaire Jules Ferry (commune de Gardanne, 180 k€, 2025) ; éclairage du stade de Vitrolles (2024)."></textarea>
+    </section>
+  </form>
+  <div class="onb-bas">
+    <div class="onb-fleches">
+      <button type="button" class="fleche" id="onb-prec" aria-label="Question précédente"><svg viewBox="0 0 24 24"><path d="M12 19V5M5 12l7-7 7 7"/></svg></button>
+      <button type="button" class="fleche go" id="onb-suiv" aria-label="Question suivante"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12l7 7 7-7"/></svg></button>
+      <button type="button" class="btn yellow" id="onb-fin" hidden>Terminer</button>
+      <span class="onb-astuce">ou appuyez sur Entrée</span>
+    </div>
+    <p class="status" id="onb-st" role="status" style="flex:1"></p>
+  </div>
+</div>
+
+<script src="config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<script src="commun.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js"></script>
+<script>
+let session = null;              // { compte, marches, analyses }
+let suivies = [];                // offres suivies (enregistrées dans la base)
+let propositionsAuto = [];       // offres trouvées en direct si la veille n'a encore rien envoyé
+let ongletRecherche = "toutes";
+
+/* ---------- Données ---------- */
+const enOffre = m => ({
+  id: m.avis_id || m.id || m.url || m.objet, objet: m.objet, acheteur: m.acheteur || "", dep: m.departement || m.dep || "",
+  lieu: m.lieu || nomDep(m.departement || m.dep), limite: m.limite, url: m.url,
+  montant: m.montant ? Number(m.montant) : null,
+  montantTxt: m.montantTxt || fmtMontant(Number(m.montant)) || "Montant non communiqué",
+  resume: m.resume || "", score: m.score, recu: m.date_envoi || m.date, type: m.type || ""
+});
+const proposees = () => (session?.marches || []).map(enOffre);
+const motsProfil = () => { const c = session.compte; return [...new Set(String((c.mots_cles || "") + "," + (c.metiers || "")).split(/[,;]+/).map(s => s.trim()).filter(s => s.length > 2))].slice(0, 8).join(", "); };
+const typesProfil = () => String(session.compte.types || "").split(/[,\s]+/).filter(Boolean);
+const estSuivie = id => suivies.some(o => String(o.id) === String(id));
+
+/* ---------- Connexion ---------- */
+async function chargerSession() {
+  const d = await Compte.charger();
+  session = { compte: d.profil, marches: d.marches, analyses: d.analyses };
+  suivies = d.suivies || [];
+}
+$("#f-login").addEventListener("submit", async ev => {
+  ev.preventDefault();
+  const st = $("#l-status"); st.className = "status";
+  const email = $("#l-email").value.trim().toLowerCase(), mdp = $("#l-mdp").value;
+  if (!COMPTES_PRETS) { st.classList.add("err"); st.textContent = "Les comptes ouvrent très bientôt. En attendant, écrivez-nous à " + CFG.EMAIL + "."; return; }
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { st.classList.add("err"); st.textContent = "Indiquez une adresse email valide."; $("#l-email").focus(); return; }
+  if (!mdp) { st.classList.add("err"); st.textContent = "Indiquez votre mot de passe."; $("#l-mdp").focus(); return; }
+  $("#l-go").disabled = true; st.textContent = "Connexion…";
+  try { await Compte.connecter(email, mdp); $("#l-mdp").value = ""; await chargerSession(); demarrer(); }
+  catch (e) { st.classList.add("err"); st.textContent = traduireErreur(e); }
+  finally { $("#l-go").disabled = false; }
+});
+$("#l-oubli").onclick = () => { $("#f-login").hidden = true; $("#f-oubli").hidden = false; $("#o-email").value = $("#l-email").value; $("#o-email").focus(); };
+$("#o-retour").onclick = () => { $("#f-oubli").hidden = true; $("#f-login").hidden = false; };
+$("#f-oubli").addEventListener("submit", async ev => {
+  ev.preventDefault();
+  const st = $("#o-status"); st.className = "status";
+  const email = $("#o-email").value.trim().toLowerCase();
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { st.classList.add("err"); st.textContent = "Indiquez une adresse email valide."; return; }
+  $("#o-go").disabled = true;
+  try { await Compte.motDePasseOublie(email); st.classList.add("ok"); st.textContent = "Si un compte existe avec cet email, un lien vient de vous être envoyé. Il est valable une heure."; }
+  catch (e) { st.classList.add("err"); st.textContent = traduireErreur(e); }
+  finally { $("#o-go").disabled = false; }
+});
+$("#logout").onclick = async () => { await Compte.deconnecter(); session = null; suivies = []; history.replaceState(null, "", location.pathname); afficherConnexion(); };
+function afficherConnexion() { $("#app").hidden = true; $("#login-view").hidden = false; $("#f-oubli").hidden = true; $("#f-login").hidden = false; $("#l-email").focus(); }
+
+/* ---------- Navigation ---------- */
+const VUES = ["accueil", "offres", "calendrier", "analyse", "assistant", "profil", "abonnement"];
+function aller(v) {
+  if (!VUES.includes(v)) v = "accueil";
+  $$(".view").forEach(s => s.classList.toggle("on", s.id === "v-" + v));
+  $$(".menu nav button").forEach(b => b.dataset.view === v ? b.setAttribute("aria-current", "page") : b.removeAttribute("aria-current"));
+  $("#menu").classList.remove("open"); $("#menu-btn").setAttribute("aria-expanded", "false");
+  if (location.hash !== "#" + v) history.replaceState(null, "", "#" + v);
+  if (v === "calendrier") rendreCalendrier();
+  if (v === "assistant") ouvrirAssistant();
+  window.scrollTo(0, 0);
+}
+$$(".menu nav button").forEach(b => b.onclick = () => aller(b.dataset.view));
+document.addEventListener("click", e => { const g = e.target.closest("[data-goto]"); if (g) aller(g.dataset.goto); });
+$("#menu-btn").onclick = () => { const o = $("#menu").classList.toggle("open"); $("#menu-btn").setAttribute("aria-expanded", o); };
+window.addEventListener("hashchange", () => session && aller(location.hash.slice(1)));
+
+/* ---------- Carte d'offre ---------- */
+function carte(o) {
+  const j = joursRestants(o.limite), suivie = estSuivie(o.id);
+  const badge = o.score ? `<span class="badge score">${esc(o.score)}/5</span>` : `<span class="badge${j != null && j <= 7 ? " urgent" : ""}">${esc(fmtReste(o.limite) || o.type)}</span>`;
+  return `<article class="offre" data-id="${esc(o.id)}">
+    <div class="offre-top"><h3>${esc(o.objet)}</h3>${badge}</div>
+    ${o.resume ? `<p class="resume">${esc(o.resume)}</p>` : ""}
+    <div class="faits"><span><b>Prix</b><span class="prix">${esc(o.montantTxt)}</span></span><span><b>Lieu</b>${esc(o.lieu)}</span><span><b>Limite</b>${esc(fmtLimite(o.limite))}${j != null && j >= 0 ? ` (${fmtReste(o.limite)})` : ""}</span></div>
+    <div class="actions">
+      <a href="${esc(o.url)}" target="_blank" rel="noopener">Voir l'offre</a>
+      <button class="suivre" data-act="suivre" aria-pressed="${suivie}">${suivie ? "Suivie" : "Suivre"}</button>
+      ${toDate(o.limite) ? `<button class="link-btn" data-act="ics">Ajouter à mon agenda</button>` : ""}
+      <button class="link-btn" data-act="analyser">Analyser le dossier</button>
+      <button class="link-btn" data-act="demander">Demander à l'assistant</button>
+      <span class="muted">${esc(o.acheteur)}</span>
+    </div>
+  </article>`;
+}
+const index = new Map();
+function lister(el, offres, vide) {
+  offres.forEach(o => index.set(String(o.id), o));
+  el.innerHTML = offres.length ? offres.map(carte).join("") : `<p class="empty">${vide}</p>`;
+}
+document.addEventListener("click", e => {
+  const b = e.target.closest("[data-act]"); if (!b) return;
+  const o = index.get(b.closest(".offre")?.dataset.id); if (!o) return;
+  if (b.dataset.act === "suivre") {
+    const on = !estSuivie(o.id);
+    b.disabled = true;
+    (on ? Compte.suivre(o) : Compte.nePlusSuivre(o.id)).then(() => {
+      suivies = on ? [...suivies, o] : suivies.filter(x => String(x.id) !== String(o.id));
+      $$(`.offre[data-id="${CSS.escape(String(o.id))}"] [data-act="suivre"]`).forEach(x => { x.setAttribute("aria-pressed", on); x.textContent = on ? "Suivie" : "Suivre"; });
+      majCompteurs(); rendreEcheances();
+    }).catch(() => alert("L'offre n'a pas pu être enregistrée. Réessayez.")).finally(() => { b.disabled = false; });
+  }
+  if (b.dataset.act === "ics") telechargerIcs(o);
+  if (b.dataset.act === "demander") { aller("assistant"); lierOffre(o); $("#chat-q").value = "Que penses-tu de cette offre pour nous ? Que faut-il préparer ?"; $("#chat-q").focus(); }
+  if (b.dataset.act === "analyser") { window.open(o.url, "_blank", "noopener"); aller("analyse"); $("#a-status").className = "status"; $("#a-status").textContent = "L'avis s'est ouvert dans un nouvel onglet : téléchargez-y le dossier de consultation, puis déposez les PDF ici."; }
+});
+
+/* ---------- Tableau de bord ---------- */
+function rendreAccueil() {
+  const c = session.compte, nom = c.entreprise || c.email;
+  $("#h-accueil").textContent = "Bonjour, " + nom;
+  $("#m-ent").textContent = nom;
+  let plan = "Abonnement actif";
+  if (c.actif === false) { $("#plan-line").innerHTML = `Votre compte est en pause : la veille n'est plus envoyée. <a href="mailto:${esc(CFG.EMAIL)}">Nous écrire pour le réactiver</a>`; $("#m-plan").textContent = "Compte en pause"; }
+  if ((c.formule || "essai") === "essai") {
+    const j = joursRestants(c.fin_essai);
+    plan = j == null ? "Essai gratuit" : j > 0 ? `Essai gratuit : ${j} jour${j > 1 ? "s" : ""} restant${j > 1 ? "s" : ""}` : "Essai terminé";
+    $("#plan-line").innerHTML = esc(plan) + (c.fin_essai ? ` (jusqu'au ${esc(fmtJour(c.fin_essai))}). ` : ". ") + `<a href="#abonnement">S'abonner</a>`;
+  } else $("#plan-line").textContent = "Abonnement Lumen Marchés actif.";
+  $("#m-plan").textContent = plan;
+  const p = proposees().sort((a, b) => String(b.recu || "").localeCompare(String(a.recu || "")));
+  if (p.length) {
+    $("#dern-titre").textContent = "Dernières offres proposées"; $("#dern-info").hidden = true;
+    lister($("#dernieres"), p.slice(0, 8), "");
+  } else {
+    $("#dern-titre").textContent = "Offres qui correspondent à votre profil";
+    $("#dern-info").hidden = false; $("#dern-info").textContent = "Votre première veille arrive le prochain matin de semaine. En attendant, voici les offres ouvertes trouvées avec vos mots-clés.";
+    $("#dernieres").innerHTML = `<p class="empty">Recherche des offres…</p>`;
+    chercherOffres({ q: motsProfil(), deps: parseDeps(c.departements), types: typesProfil(), limit: 8 })
+      .then(r => { propositionsAuto = r.offres; lister($("#dernieres"), r.offres, "Aucune offre ouverte ne correspond pour l'instant. Essayez la recherche avec d'autres mots."); rendreEcheances(); })
+      .catch(() => { $("#dernieres").innerHTML = `<p class="empty">Le BOAMP ne répond pas pour l'instant. Réessayez dans quelques minutes.</p>`; });
+  }
+  rendreEcheances(); majCompteurs();
+}
+function toutesEcheances() {
+  const m = new Map();
+  [...proposees(), ...propositionsAuto].forEach(o => m.set(String(o.id), { ...o, suivie: false }));
+  suivies.forEach(o => m.set(String(o.id), { ...o, suivie: true }));
+  return [...m.values()].filter(o => toDate(o.limite));
+}
+function rendreEcheances() {
+  const now = new Date(); now.setHours(0, 0, 0, 0);
+  const list = toutesEcheances().filter(o => toDate(o.limite) >= now).sort((a, b) => toDate(a.limite) - toDate(b.limite)).slice(0, 6);
+  list.forEach(o => index.set(String(o.id), o));
+  $("#echeances").innerHTML = list.length ? list.map(o => { const t = toDate(o.limite), j = joursRestants(o.limite); return `
+    <div class="ech"><div class="d"><b>${t.getDate()}</b><small>${t.toLocaleDateString("fr-FR", { month: "short" })}</small></div>
+    <div><a href="${esc(o.url)}" target="_blank" rel="noopener">${esc(o.objet)}</a><span class="r${j <= 7 ? " urgent" : ""}">${esc(fmtReste(o.limite))}${o.suivie ? ", suivie" : ""}</span></div></div>`; }).join("")
+    : `<p class="empty">Aucune échéance à venir. Suivez une offre pour l'ajouter ici.</p>`;
+}
+function majCompteurs() {
+  const debut = new Date(); debut.setDate(1); debut.setHours(0, 0, 0, 0);
+  $("#f-recues").textContent = proposees().filter(o => (toDate(o.recu) || 0) >= debut).length;
+  $("#f-suivies").textContent = suivies.length; $("#c-suivies").textContent = suivies.length;
+  $("#f-analyses").textContent = (session.analyses || []).filter(a => (toDate(a.cree_le || a.date) || 0) >= debut).length;
+}
+$("#quick").addEventListener("submit", e => { e.preventDefault(); $("#s-q").value = $("#quick-q").value; aller("offres"); lancerRecherche(); });
+
+/* ---------- Recherche ---------- */
+async function lancerRecherche() {
+  const q = $("#s-q").value.trim(), types = $$('#f-search input[name="type"]:checked').map(i => i.value), ouvertes = $("#s-ouv").checked;
+  if (ongletRecherche === "proposees") {
+    const mots = q.toLowerCase().split(/[,\s]+/).filter(Boolean);
+    const sans = s => String(s).toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "");
+    const r = proposees().filter(o => !mots.length || mots.some(m => sans(o.objet + " " + o.resume + " " + o.acheteur).includes(sans(m)))).filter(o => !ouvertes || (joursRestants(o.limite) ?? 1) >= 0);
+    $("#s-info").textContent = `${r.length} offre${r.length > 1 ? "s" : ""} proposée${r.length > 1 ? "s" : ""} par Lumen${q ? " pour « " + q + " »" : ""}.`;
+    lister($("#s-res"), r, "Aucune offre proposée ne correspond.");
+    return;
+  }
+  const deps = $("#s-zone").value === "moi" ? parseDeps(session.compte.departements) : [];
+  $("#s-info").textContent = "Recherche dans le BOAMP…"; $("#s-res").innerHTML = "";
+  try {
+    const r = await chercherOffres({ q, deps, types: types.length === 3 ? [] : types, ouvertes, limit: 40 });
+    $("#s-info").textContent = `${r.total.toLocaleString("fr-FR")} offre${r.total > 1 ? "s" : ""} trouvée${r.total > 1 ? "s" : ""}${r.total > r.offres.length ? ", les " + r.offres.length + " plus récentes affichées" : ""}.`;
+    lister($("#s-res"), r.offres, "Aucune offre ne correspond. Essayez d'autres mots-clés ou toute la France.");
+  } catch (e) { $("#s-info").textContent = "Le BOAMP ne répond pas pour l'instant. Réessayez dans quelques minutes."; }
+}
+$("#f-search").addEventListener("submit", e => { e.preventDefault(); lancerRecherche(); });
+$("#s-profil").onclick = () => { $("#s-q").value = motsProfil(); lancerRecherche(); };
+$$(".tabs [data-tab]").forEach(t => t.onclick = () => {
+  ongletRecherche = t.dataset.tab;
+  $$(".tabs [data-tab]").forEach(x => x.setAttribute("aria-selected", x === t));
+  $("#s-zone").disabled = ongletRecherche === "proposees";
+  lancerRecherche();
+});
+
+/* ---------- Calendrier ---------- */
+let mois = new Date(); mois.setDate(1);
+let jourSel = null;
+const cleJour = d => d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
+function rendreCalendrier() {
+  const parJour = {};
+  toutesEcheances().forEach(o => { const k = cleJour(toDate(o.limite)); (parJour[k] = parJour[k] || []).push(o); index.set(String(o.id), o); });
+  $("#cal-mois").textContent = mois.toLocaleDateString("fr-FR", { month: "long", year: "numeric" });
+  const debut = new Date(mois); const decal = (debut.getDay() + 6) % 7; debut.setDate(1 - decal);
+  const auj = cleJour(new Date());
+  let html = ["Lun", "Mar", "Mer", "Jeu", "Ven", "Sam", "Dim"].map(d => `<div class="dn">${d}</div>`).join("");
+  for (let i = 0; i < 42; i++) {
+    const d = new Date(debut); d.setDate(debut.getDate() + i);
+    const k = cleJour(d), ev = (parJour[k] || []).sort((a, b) => b.suivie - a.suivie);
+    if (i >= 35 && d.getMonth() !== mois.getMonth()) break;
+    html += `<button class="day${d.getMonth() !== mois.getMonth() ? " out" : ""}${k === auj ? " today" : ""}${k === jourSel ? " sel" : ""}" data-k="${k}" aria-label="${d.toLocaleDateString("fr-FR", { day: "numeric", month: "long" })}, ${ev.length} échéance${ev.length > 1 ? "s" : ""}">
+      <span class="n">${d.getDate()}</span>${ev.slice(0, 3).map(o => `<span class="ev${o.suivie ? " suivie" : ""}">${esc(o.objet)}</span>`).join("")}${ev.length > 3 ? `<span class="more">+${ev.length - 3}</span>` : ""}</button>`;
+  }
+  $("#cal").innerHTML = html;
+  $$("#cal .day").forEach(b => b.onclick = () => { jourSel = b.dataset.k; rendreCalendrier(); });
+  if (jourSel) {
+    const ev = parJour[jourSel] || [];
+    $("#cal-jour").textContent = "Échéances du " + fmtJour(jourSel + "T12:00:00");
+    lister($("#cal-liste"), ev, "Aucune échéance ce jour-là.");
+  }
+}
+$("#cal-prev").onclick = () => { mois.setMonth(mois.getMonth() - 1); rendreCalendrier(); };
+$("#cal-next").onclick = () => { mois.setMonth(mois.getMonth() + 1); rendreCalendrier(); };
+$("#cal-today").onclick = () => { mois = new Date(); mois.setDate(1); jourSel = cleJour(new Date()); rendreCalendrier(); };
+
+/* ---------- Profil et abonnement ---------- */
+function rendreProfil() {
+  const c = session.compte;
+  $("#p-entreprise").value = c.entreprise || ""; $("#p-siren").value = c.siren || ""; $("#p-email").value = c.email || "";
+  $("#m-user").value = c.email || "";
+  $("#p-telephone").value = c.telephone || ""; $("#p-metiers").value = c.metiers || ""; $("#p-mots").value = c.mots_cles || "";
+  $("#p-deps").value = c.departements || ""; $("#p-deps").dispatchEvent(new Event("input"));
+  $("#p-montant").regler(c.montant_min || 0);
+  const t = typesProfil(); $$("#p-types input").forEach(i => i.checked = !t.length || t.includes(i.value));
+  $("#p-suppr").textContent = CFG.EMAIL; $("#p-suppr").href = `mailto:${CFG.EMAIL}?subject=${encodeURIComponent("Supprimer mon compte – " + (c.entreprise || c.email))}`;
+  const essai = (c.formule || "essai") === "essai", j = joursRestants(c.fin_essai);
+  $("#abo").innerHTML = `
+    <h2 style="font-size:1.3rem">${essai ? "Essai gratuit" : "Abonnement actif"}</h2>
+    <div class="amount">${esc(CFG.PRIX || 99)} € <small>HT par mois, tout compris</small></div>
+    <p class="muted">${essai ? (j > 0 ? `Votre essai se termine le ${esc(fmtJour(c.fin_essai))}, dans ${j} jour${j > 1 ? "s" : ""}. Abonnez-vous pour continuer à recevoir vos offres sans interruption.` : "Votre essai est terminé. Abonnez-vous pour continuer à recevoir vos offres.") : "Merci ! Votre abonnement comprend la veille, l'analyse des dossiers, le tableau de bord et le calendrier."}</p>
+    <div style="display:flex;gap:12px;flex-wrap:wrap">
+      ${essai ? (CFG.STRIPE_ABONNEMENT ? `<a class="btn yellow" href="${esc(CFG.STRIPE_ABONNEMENT)}?prefilled_email=${encodeURIComponent(c.email)}" target="_blank" rel="noopener">S'abonner maintenant</a>` : `<a class="btn yellow" href="mailto:${esc(CFG.EMAIL)}?subject=${encodeURIComponent("Abonnement – " + (c.entreprise || ""))}">S'abonner</a>`) : ""}
+      <a class="btn alt" href="mailto:${esc(CFG.EMAIL)}?subject=${encodeURIComponent((essai ? "Arrêter mon essai – " : "Résilier mon abonnement – ") + (c.entreprise || ""))}">${essai ? "Arrêter mon essai" : "Résilier"}</a>
+    </div>
+    <p class="note">Sans engagement : l'arrêt prend effet à la fin du mois en cours.</p>
+    <div style="border-top:1px solid var(--line);padding-top:16px;display:grid;gap:8px">
+      <h3>Accompagnement personnalisé, 500 € HT</h3>
+      <p class="muted">Un développeur Lumen disponible par message et par téléphone, qui modifie votre tableau de bord et vos agents sur demande.</p>
+      <p><a href="sur-mesure.html?offre=accompagnement">Demander l'accompagnement</a></p>
+    </div>`;
+}
+
+brancherCurseur("pm-curseur", "p-montant", "pm-sortie");
+$("#p-deps").addEventListener("input", () => { const c = parseDeps($("#p-deps").value); $("#p-deps-noms").textContent = c.map(nomDep).join(", "); });
+$("#f-profil").addEventListener("submit", async ev => {
+  ev.preventDefault();
+  const st = $("#p-status"); st.className = "status";
+  const deps = parseDeps($("#p-deps").value), siren = $("#p-siren").value.replace(/\s/g, ""), types = $$("#p-types input:checked").map(i => i.value);
+  const err = !$("#p-entreprise").value.trim() ? "Indiquez le nom de l'entreprise." : siren && !/^\d{9}$/.test(siren) ? "Le SIREN compte 9 chiffres."
+    : !deps.length ? "Indiquez au moins un département." : deps.some(d => !DEPTS[d]) ? "Un des numéros de département n'existe pas." : !types.length ? "Cochez au moins un type de marché." : null;
+  if (err) { st.classList.add("err"); st.textContent = err; return; }
+  $("#p-go").disabled = true; st.textContent = "Enregistrement…";
+  try {
+    session.compte = { ...session.compte, ...await Compte.majProfil({
+      entreprise: $("#p-entreprise").value.trim(), siren: siren || null, telephone: $("#p-telephone").value.trim(),
+      metiers: $("#p-metiers").value.trim(), mots_cles: $("#p-mots").value.trim(), departements: deps.join(", "),
+      types: types.join(", "), montant_min: $("#p-montant").value ? Number($("#p-montant").value) : null }) };
+    st.classList.add("ok"); st.textContent = "Profil enregistré. Il sera utilisé dès la prochaine veille.";
+    rendreAccueil();
+  } catch (e) { st.classList.add("err"); st.textContent = traduireErreur(e); }
+  finally { $("#p-go").disabled = false; }
+});
+$("#f-mdp").addEventListener("submit", async ev => {
+  ev.preventDefault();
+  const st = $("#m-status"); st.className = "status";
+  const p = $("#m-mdp").value;
+  const err = verifierMdp(p) || (p !== $("#m-mdp2").value ? "Les deux mots de passe ne sont pas identiques." : null);
+  if (err) { st.classList.add("err"); st.textContent = err; return; }
+  $("#m-go").disabled = true;
+  try { await Compte.changerMotDePasse(p); $("#m-mdp").value = ""; $("#m-mdp2").value = ""; st.classList.add("ok"); st.textContent = "Mot de passe modifié."; }
+  catch (e) { st.classList.add("err"); st.textContent = traduireErreur(e); }
+  finally { $("#m-go").disabled = false; }
+});
+
+/* ---------- Analyse des dossiers ---------- */
+const verdictClass = d => { d = (d || "").toLowerCase(); return d.includes("pass") || d.includes("no") ? "v-no" : d.includes("tudier") ? "v-mid" : "v-go"; };
+const sevClass = n => { n = (n || "").toLowerCase(); return /^[ée]/.test(n) ? "high" : n.startsWith("m") ? "mid" : "low"; };
+const EXEMPLE_ANALYSE = {
+  acheteur: "Commune (exemple fictif)", objet: "Réhabilitation énergétique d'un groupe scolaire", procedure: "Procédure adaptée (MAPA)",
+  lots: ["Lot 3 : Électricité courants forts et faibles", "Lot 4 : Chauffage, ventilation, climatisation"],
+  date_limite: "Vendredi 4 décembre, 12 h 00", visite: "Obligatoire, attestation à joindre (RC art. 5.3)", duree: "8 mois, dont 1 mois de préparation", montant: "Non communiqué",
+  criteres: [{ critere: "Valeur technique (mémoire)", poids: 60 }, { critere: "Prix", poids: 40 }],
+  pieces: [{ piece: "DC1 / DC2 ou DUME", ref: "RC art. 6.1" }, { piece: "Attestation de visite signée", ref: "RC art. 5.3" }, { piece: "Attestations d'assurance RC et décennale de l'année", ref: "RC art. 6.1" }, { piece: "Mémoire technique (méthodologie, planning, moyens humains)", ref: "RC art. 6.2" }, { piece: "DPGF complétée pour chaque lot", ref: "RC art. 6.2" }],
+  risques: [{ niveau: "élevé", point: "Pénalités de retard élevées", explication: "1/1000e du montant du marché par jour, sans plafond (CCAP art. 14)." }, { niveau: "moyen", point: "Travaux en site occupé", explication: "Interventions limitées aux vacances scolaires (CCTP art. 2.4) : planning serré." }, { niveau: "faible", point: "Retenue de garantie", explication: "5 % remplaçable par une caution bancaire (CCAP art. 8)." }],
+  avis: { decision: "À étudier", raison: "Lots dans votre activité et votre zone, mais la visite obligatoire et le planning en site occupé demandent de mobiliser une équipe rapidement." }
+};
+function rendreAnalyse(r, exemple) {
+  const crit = (r.criteres || []).map(c => `<div class="row"><span>${esc(c.critere)}</span><span>${esc(c.poids)} %</span><div class="bar"><span style="width:${Math.max(0, Math.min(100, Number(c.poids) || 0))}%"></span></div></div>`).join("");
+  $("#result").innerHTML = `
+    <div class="result-head"><div style="min-width:0"><span class="badge">${exemple ? "Exemple sur un dossier fictif" : "Votre analyse"}</span>
+      <h3 style="margin-top:10px;font-size:1.3rem">${esc(r.objet)}</h3><p class="note" style="margin-top:4px">${esc(r.acheteur)}</p></div>
+      <span class="verdict ${verdictClass(r.avis?.decision)}">${esc(r.avis?.decision || "Avis non précisé")}</span></div>
+    <div class="result-body">
+      <p>${esc(r.avis?.raison)}</p>
+      <dl class="kv">
+        <div><dt>Date limite</dt><dd>${esc(r.date_limite)}</dd></div><div><dt>Visite</dt><dd>${esc(r.visite)}</dd></div>
+        <div><dt>Procédure</dt><dd>${esc(r.procedure)}</dd></div><div><dt>Durée</dt><dd>${esc(r.duree)}</dd></div>
+        <div><dt>Montant estimé</dt><dd>${esc(r.montant)}</dd></div><div><dt>Lots</dt><dd>${(r.lots || []).map(esc).join("<br>") || "Non précisé"}</dd></div>
+      </dl>
+      ${crit ? `<div class="block crit"><h3>Critères de notation</h3>${crit}</div>` : ""}
+      <div class="block"><h3>Pièces à fournir (${(r.pieces || []).length})</h3><ul class="check">${(r.pieces || []).map((p, i) => `<li><input type="checkbox" id="p${i}"><label for="p${i}">${esc(p.piece)}<span class="ref">${esc(p.ref)}</span></label></li>`).join("")}</ul></div>
+      <div class="block"><h3>Points à risque</h3>${(r.risques || []).map(k => `<div class="risk"><span class="sev ${sevClass(k.niveau)}">${esc(k.niveau)}</span><div><strong>${esc(k.point)}</strong><p>${esc(k.explication)}</p></div></div>`).join("")}</div>
+      ${exemple ? "" : `<p class="note">Analyse produite par une IA : vérifiez les dates et les pièces dans le règlement de consultation avant de déposer votre offre.</p>`}
+    </div>`;
+}
+let fichiers = [];
+const drop = $("#drop");
+function choisir(list) {
+  fichiers = [...list].filter(f => f.type === "application/pdf" || /\.pdf$/i.test(f.name));
+  $("#files").innerHTML = fichiers.map(f => `<li>${esc(f.name)} (${(f.size / 1048576).toFixed(1)} Mo)</li>`).join("");
+  $("#a-go").disabled = !fichiers.length;
+}
+$("#pdfs").addEventListener("change", () => choisir($("#pdfs").files));
+["dragenter", "dragover"].forEach(e => drop.addEventListener(e, ev => { ev.preventDefault(); drop.classList.add("over"); }));
+["dragleave", "drop"].forEach(e => drop.addEventListener(e, ev => { ev.preventDefault(); drop.classList.remove("over"); }));
+drop.addEventListener("drop", ev => choisir(ev.dataTransfer.files));
+async function textePdf(file) {
+  const pdf = await pdfjsLib.getDocument({ data: await file.arrayBuffer() }).promise;
+  let out = `\n\n===== FICHIER : ${file.name} (${pdf.numPages} pages) =====\n`;
+  for (let i = 1; i <= pdf.numPages; i++) { const tc = await (await pdf.getPage(i)).getTextContent(); out += `\n[page ${i}]\n` + tc.items.map(it => it.str).join(" "); }
+  return out;
+}
+let suiviAnalyse = null;
+$("#f-analyse").addEventListener("submit", async ev => {
+  ev.preventDefault();
+  const st = $("#a-status"); st.className = "status";
+  if (DEMO || !SB) { st.classList.add("err"); st.textContent = "Mode démonstration : l'analyse réelle fonctionne une fois le site relié à la base."; return; }
+  $("#a-go").disabled = true;
+  try {
+    let text = "";
+    for (const f of fichiers) { st.textContent = `Lecture de ${f.name}…`; text += await textePdf(f); }
+    if (text.replace(/\s/g, "").length < 200) { st.classList.add("err"); st.textContent = "Ces PDF ne contiennent presque pas de texte (documents scannés ?). Envoyez la version d'origine du dossier."; return; }
+    if (text.length > 195000) text = text.slice(0, 195000);
+    st.textContent = "Envoi du dossier…";
+    const { data, error } = await SB.from("analyses").insert({ texte: text }).select("id,cree_le,statut").single();
+    if (error) { st.classList.add("err"); st.textContent = error.code === "P0001" ? error.message : traduireErreur(error); return; }
+    session.analyses = [{ ...data, objet: fichiers.map(f => f.name).join(", ").slice(0, 120) }, ...(session.analyses || [])];
+    majCompteurs(); rendreHistorique(); suivreAnalyse(data.id);
+    st.classList.add("ok"); st.textContent = "Dossier envoyé. L'analyse arrive ici en quelques minutes, et par email.";
+    fichiers = []; $("#files").innerHTML = ""; $("#pdfs").value = "";
+  } catch (e) { st.classList.add("err"); st.textContent = "L'envoi a échoué. Réessayez dans un instant, ou envoyez le dossier à " + CFG.EMAIL + "."; }
+  finally { $("#a-go").disabled = !fichiers.length; }
+});
+const libStatut = { en_attente: ["En file d'attente", "var(--muted)"], en_cours: ["En cours d'analyse", "var(--accent)"], terminee: ["Terminée", "var(--ok)"], erreur: ["Échec", "var(--bad)"] };
+function rendreHistorique() {
+  const l = (session.analyses || []).filter(a => a.id);
+  $("#a-histo-p").hidden = !l.length;
+  $("#a-histo").innerHTML = l.map(a => { const [t, c] = libStatut[a.statut || "terminee"] || libStatut.terminee;
+    return `<li><button type="button" data-analyse="${a.id}"><span>${esc(a.objet || "Dossier envoyé")}</span><span class="etat" style="color:${c}">${esc(a.decision || t)}</span><small>${esc(fmtJour(a.cree_le))}</small></button></li>`; }).join("");
+}
+function attenteAnalyse(statut) {
+  $("#result").innerHTML = `<div class="attente-analyse"><div class="roue" aria-hidden="true"></div><h3>${statut === "en_cours" ? "L'agent lit votre dossier…" : "Votre dossier est dans la file d'attente…"}</h3>
+    <p class="note">Comptez quelques minutes. Vous pouvez quitter cette page : l'analyse vous sera aussi envoyée par email.</p></div>`;
+}
+function afficherAnalyse(a) {
+  if (a.statut === "terminee" && a.resultat) { rendreAnalyse(a.resultat, false); if (a.message) $("#result .result-body").insertAdjacentHTML("afterbegin", `<p class="note">${esc(a.message)}</p>`); }
+  else if (a.statut === "erreur") $("#result").innerHTML = `<div class="attente-analyse"><h3>L'analyse n'a pas abouti</h3><p class="note">${esc(a.message || "Relancez l'analyse dans quelques minutes.")}</p></div>`;
+  else attenteAnalyse(a.statut);
+}
+async function suivreAnalyse(id) {
+  clearTimeout(suiviAnalyse);
+  const { data } = await SB.from("analyses").select("id,cree_le,objet,decision,statut,resultat,message").eq("id", id).single();
+  if (!data) return;
+  session.analyses = (session.analyses || []).map(a => a.id === id ? { ...a, ...data, objet: data.objet || a.objet } : a);
+  rendreHistorique(); afficherAnalyse(data);
+  if (data.statut === "en_attente" || data.statut === "en_cours") suiviAnalyse = setTimeout(() => suivreAnalyse(id), 6000);
+  else if (data.statut === "terminee") { $("#a-status").className = "status ok"; $("#a-status").textContent = "Analyse terminée."; }
+}
+$("#a-histo").addEventListener("click", e => { const b = e.target.closest("[data-analyse]"); if (!b) return; const a = session.analyses.find(x => String(x.id) === b.dataset.analyse); if (!a) return;
+  if (a.statut === "en_attente" || a.statut === "en_cours") suivreAnalyse(a.id); else afficherAnalyse(a); $("#result").scrollIntoView({ behavior: "smooth", block: "start" }); });
+
+/* ---------- Assistant ---------- */
+let messages = [], offreLiee = null, suiviChat = null, chatCharge = false;
+const lienAuto = t => esc(t).replace(/https?:\/\/[^\s<)]+/g, u => `<a href="${u}" target="_blank" rel="noopener">${u.length > 60 ? "Voir l'offre" : u}</a>`);
+function rendreFil() {
+  const f = $("#fil");
+  const html = messages.map(m => `<div class="msg ${m.role}">${m.avis_id && m.role === "client" && index.get(String(m.avis_id)) ? `<span class="sur">À propos de : ${esc(index.get(String(m.avis_id)).objet)}</span>` : ""}${m.role === "agent" ? lienAuto(m.contenu) : esc(m.contenu)}<small>${new Date(m.cree_le).toLocaleString("fr-FR", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" })}</small></div>`).join("");
+  const enAttente = messages.some(m => m.role === "client" && (m.statut === "en_attente" || m.statut === "en_cours"));
+  f.innerHTML = (html || `<div class="msg agent">Bonjour ! Je connais les offres que je vous ai proposées et je peux chercher dans les offres ouvertes de votre zone. Que voulez-vous savoir ?</div>`)
+    + (enAttente ? `<div class="msg agent attente">L'assistant réfléchit…</div>` : "");
+  $("#suggest").hidden = messages.length > 0;
+  f.scrollTop = f.scrollHeight;
+  return enAttente;
+}
+async function chargerMessages() {
+  const { data } = await SB.from("messages_chat").select("id,cree_le,role,contenu,avis_id,statut").order("cree_le", { ascending: false }).limit(60);
+  messages = (data || []).reverse();
+  const attente = rendreFil();
+  clearTimeout(suiviChat);
+  if (attente && $("#v-assistant").classList.contains("on")) suiviChat = setTimeout(chargerMessages, 3500);
+}
+function ouvrirAssistant() {
+  if (DEMO || !SB) { $("#fil").innerHTML = `<div class="msg agent">Mode démonstration : l'assistant répond une fois le site relié à la base.</div>`; return; }
+  chargerMessages(); if (!chatCharge) { chatCharge = true; }
+  if (window.innerWidth > 700) setTimeout(() => $("#chat-q").focus(), 50);
+}
+function lierOffre(o) { offreLiee = o; $("#lien-offre").hidden = !o; $("#lien-offre-txt").textContent = o ? "À propos de : " + o.objet : ""; }
+$("#lien-offre-x").onclick = () => lierOffre(null);
+$("#suggest").addEventListener("click", e => { const b = e.target.closest("button"); if (b) { $("#chat-q").value = b.textContent; $("#f-chat").requestSubmit(); } });
+$("#chat-q").addEventListener("input", e => { e.target.style.height = "auto"; e.target.style.height = Math.min(160, e.target.scrollHeight) + "px"; });
+$("#chat-q").addEventListener("keydown", e => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); $("#f-chat").requestSubmit(); } });
+$("#f-chat").addEventListener("submit", async ev => {
+  ev.preventDefault();
+  const t = $("#chat-q").value.trim(); if (!t || DEMO || !SB) return;
+  $("#chat-go").disabled = true;
+  const { data, error } = await SB.from("messages_chat").insert({ contenu: t, avis_id: offreLiee ? String(offreLiee.id) : null }).select("id,cree_le,role,contenu,avis_id,statut").single();
+  $("#chat-go").disabled = false;
+  if (error) { messages.push({ role: "agent", contenu: error.code === "P0001" ? error.message : traduireErreur(error), cree_le: new Date().toISOString() }); rendreFil(); return; }
+  $("#chat-q").value = ""; $("#chat-q").style.height = ""; lierOffre(null);
+  messages.push(data); rendreFil();
+  clearTimeout(suiviChat); suiviChat = setTimeout(chargerMessages, 3500);
+});
+
+
+/* ---------- Questionnaire de première connexion ---------- */
+let qOnb = 1, ficheOnb = null, gagnesOnb = [];
+const Q_TOTAL = 7;
+TRANCHES_EFFECTIF.forEach(t => $("#o-eff").insertAdjacentHTML("beforeend", `<option>${t} salariés</option>`));
+TRANCHES_CA.forEach(t => $("#o-ca").insertAdjacentHTML("beforeend", `<option>${t}</option>`));
+function afficherQ() {
+  $$(".onb-q").forEach(q => q.classList.toggle("on", +q.dataset.q === qOnb));
+  $("#onb-barre").style.width = ((qOnb - 1) / Q_TOTAL * 100) + "%";
+  $("#onb-etape").textContent = `Question ${qOnb} sur ${Q_TOTAL}`;
+  $("#onb-prec").disabled = qOnb === 1;
+  $("#onb-suiv").hidden = qOnb === Q_TOTAL; $("#onb-fin").hidden = qOnb !== Q_TOTAL;
+  $("#onb-st").textContent = ""; $("#onb-st").className = "status";
+  const champ = $(`.onb-q[data-q="${qOnb}"] input:not([type=checkbox]), .onb-q[data-q="${qOnb}"] textarea, .onb-q[data-q="${qOnb}"] select`);
+  if (champ && window.innerWidth > 700) setTimeout(() => champ.focus({ preventScroll: true }), 50);
+}
+function ouvrirQuestionnaire() {
+  const c = session.compte;
+  $("#o-siret").value = c.siret || c.siren || ""; $("#o-site").value = c.site_web || ""; $("#o-desc").value = c.description || "";
+  $("#o-excl").value = c.exclusions || ""; $("#o-refs").value = c.references_clients || "";
+  const q = String(c.qualifications || "").split(/,\s*/).filter(Boolean);
+  $$("#o-qualifs input").forEach(i => i.checked = q.includes(i.value));
+  $("#o-qualifs-autre").value = q.filter(x => !$$("#o-qualifs input").some(i => i.value === x)).join(", ");
+  if (c.effectif) $("#o-eff").value = c.effectif; if (c.ca_annuel) $("#o-ca").value = c.ca_annuel;
+  $("#o-desc").dispatchEvent(new Event("input"));
+  qOnb = 1; $("#onb").hidden = false; document.body.style.overflow = "hidden"; afficherQ();
+  if ($("#o-siret").value.replace(/\D/g, "").length >= 9) rechercherSiret();
+}
+function fermerQuestionnaire() { $("#onb").hidden = true; document.body.style.overflow = ""; }
+let siretEnCours = "";
+async function rechercherSiret() {
+  const n = $("#o-siret").value.replace(/\D/g, ""), st = $("#o-siret-st");
+  st.className = "status";
+  if (!(n.length === 9 || n.length === 14)) { $("#o-fiche").innerHTML = ""; ficheOnb = null; st.textContent = n.length ? "Le SIRET compte 14 chiffres (ou 9 pour le SIREN)." : ""; return; }
+  if (n === siretEnCours) return; siretEnCours = n;
+  st.textContent = "Recherche de votre entreprise…"; $("#o-fiche").innerHTML = "";
+  try {
+    const f = await chercherEntreprise(n);
+    if (siretEnCours !== n) return;
+    if (!f) { ficheOnb = null; st.classList.add("err"); st.textContent = "Aucune entreprise trouvée avec ce numéro. Vérifiez-le, ou continuez sans."; return; }
+    ficheOnb = f; st.textContent = "";
+    if (trancheEffectif(f.effectif_code) != null && !$("#o-eff").value) $("#o-eff").value = TRANCHES_EFFECTIF[trancheEffectif(f.effectif_code)] + " salariés";
+    if (trancheCA(f.ca) != null && f.ca > 0 && !$("#o-ca").value) $("#o-ca").value = TRANCHES_CA[trancheCA(f.ca)];
+    f.labels.forEach(l => { const i = $(`#o-qualifs input[value="${l}"]`); if (i) i.checked = true; });
+    const rendre = (gagnes, chargement) => {
+      $("#o-fiche").innerHTML = `<div class="fiche">
+        <h3>${esc(f.nom || "Entreprise trouvée")}</h3>
+        <dl>
+          <div><dt>Ville</dt><dd>${esc([f.code_postal, f.ville].filter(Boolean).join(" ") || "Non diffusée")}</dd></div>
+          <div><dt>Code d'activité (NAF)</dt><dd>${esc(f.naf || "Non précisé")}</dd></div>
+          <div><dt>Effectif</dt><dd>${esc(f.effectif_txt || "Non publié")}</dd></div>
+          <div><dt>Chiffre d'affaires</dt><dd>${f.ca > 0 ? esc(fmtMontant(f.ca).replace("≈ ", "").replace(" HT", "")) + " (" + esc(f.ca_annee) + ")" : "Non publié"}</dd></div>
+          ${f.labels.length ? `<div><dt>Labels</dt><dd>${esc(f.labels.join(", "))}</dd></div>` : ""}
+        </dl>
+        <div class="gagnes">${chargement ? `<span class="muted">Recherche des marchés publics remportés…</span>`
+          : gagnes.length ? `<strong>${gagnes.length} marché${gagnes.length > 1 ? "s" : ""} public${gagnes.length > 1 ? "s" : ""} remporté${gagnes.length > 1 ? "s" : ""}</strong><ul>${gagnes.slice(0, 5).map(m => `<li>${esc(toDate(m.date) ? toDate(m.date).toLocaleDateString("fr-FR", { month: "long", year: "numeric" }) : "")} : ${esc(m.objet.slice(0, 90))}${m.acheteur ? ", " + esc(m.acheteur.slice(0, 60)) : ""}${m.montant ? ", " + esc(fmtMontant(m.montant)) : ""}</li>`).join("")}</ul>${gagnes.length > 5 ? `<span class="muted">et ${gagnes.length - 5} autres, transmis à l'agent.</span>` : ""}`
+          : `<span class="muted">Aucun marché public remporté n'a été trouvé pour cette entreprise.</span>`}</div>
+        ${f.actif === false ? `<p class="status err">Attention : cette entreprise apparaît comme fermée.</p>` : ""}
+      </div>`;
+    };
+    rendre([], true);
+    try { gagnesOnb = await marchesGagnes(f.siren); } catch (e) { gagnesOnb = []; }
+    if (siretEnCours === n) rendre(gagnesOnb, false);
+  } catch (e) { st.classList.add("err"); st.textContent = "La recherche n'a pas abouti. Vous pouvez continuer et réessayer plus tard."; }
+}
+$("#o-siret").addEventListener("input", () => { clearTimeout(rechercherSiret.t); rechercherSiret.t = setTimeout(rechercherSiret, 400); });
+$("#o-desc").addEventListener("input", () => { $("#o-desc-n").textContent = $("#o-desc").value.length + " / 2000"; });
+function validerQ() {
+  if (qOnb === 1) { const n = $("#o-siret").value.replace(/\D/g, ""); if (n && !(n.length === 9 || n.length === 14)) return "Le SIRET compte 14 chiffres. Laissez vide si vous ne l'avez pas sous la main."; }
+  if (qOnb === 2) { const v = $("#o-site").value.trim(); if (v && !/^(https?:\/\/)?[\w-]+(\.[\w-]+)+(\/\S*)?$/i.test(v)) return "Cette adresse de site ne semble pas valide."; }
+  return null;
+}
+function suivante() { const e = validerQ(); if (e) { $("#onb-st").className = "status err"; $("#onb-st").textContent = e; return; } if (qOnb < Q_TOTAL) { qOnb++; afficherQ(); } }
+$("#onb-suiv").onclick = suivante;
+$("#onb-prec").onclick = () => { if (qOnb > 1) { qOnb--; afficherQ(); } };
+$("#f-onb").addEventListener("keydown", e => { if (e.key === "Enter" && e.target.tagName !== "TEXTAREA") { e.preventDefault(); qOnb === Q_TOTAL ? $("#onb-fin").click() : suivante(); } });
+$("#f-onb").addEventListener("submit", e => e.preventDefault());
+$("#onb-plustard").onclick = () => { try { sessionStorage.setItem("lumen_onb_plus_tard", "1"); } catch (e) {} fermerQuestionnaire(); };
+$("#onb-fin").onclick = async () => {
+  const st = $("#onb-st"); st.className = "status";
+  let site = $("#o-site").value.trim(); if (site && !/^https?:\/\//i.test(site)) site = "https://" + site;
+  const n = $("#o-siret").value.replace(/\D/g, "");
+  const qualifs = [...$$("#o-qualifs input:checked").map(i => i.value), ...$("#o-qualifs-autre").value.split(",").map(x => x.trim()).filter(Boolean)];
+  const champs = {
+    siret: n.length === 14 ? n : (ficheOnb?.siret || null), siren: n ? n.slice(0, 9) : (session.compte.siren || null),
+    site_web: site || null, description: $("#o-desc").value.trim() || null, qualifications: qualifs.join(", ") || null,
+    effectif: $("#o-eff").value || null, ca_annuel: $("#o-ca").value || null,
+    code_naf: ficheOnb?.naf || null, ville: ficheOnb?.ville || null,
+    exclusions: $("#o-excl").value.trim() || null, references_clients: $("#o-refs").value.trim() || null,
+    marches_gagnes: gagnesOnb.length ? resumeMarches(gagnesOnb) : (session.compte.marches_gagnes || null),
+    onboarding_fait: true
+  };
+  $("#onb-fin").disabled = true; st.textContent = "Enregistrement…";
+  try {
+    session.compte = { ...session.compte, ...await Compte.majProfil(champs) };
+    $("#onb-barre").style.width = "100%";
+    fermerQuestionnaire(); rendreProfil(); rendreAccueil();
+  } catch (e) { st.classList.add("err"); st.textContent = traduireErreur(e); }
+  finally { $("#onb-fin").disabled = false; }
+};
+
+$("#p-onb").onclick = ouvrirQuestionnaire;
+/* ---------- Démarrage ---------- */
+function demarrer() {
+  $("#login-view").hidden = true; $("#app").hidden = false;
+  rendreAccueil(); rendreProfil(); rendreAnalyse(EXEMPLE_ANALYSE, true); rendreHistorique();
+  const enCours = (session.analyses || []).find(a => a.statut === "en_attente" || a.statut === "en_cours");
+  if (enCours && SB && !DEMO) suivreAnalyse(enCours.id);
+  aller(location.hash.slice(1).split("&")[0] || "accueil");
+  let plusTard = false; try { plusTard = sessionStorage.getItem("lumen_onb_plus_tard") === "1"; } catch (e) {}
+  if (!session.compte.onboarding_fait && !plusTard) ouvrirQuestionnaire();
+}
+(async () => {
+  try {
+    if (await Compte.session()) { await chargerSession(); demarrer(); }
+    else afficherConnexion();
+  } catch (e) { afficherConnexion(); $("#l-status").className = "status err"; $("#l-status").textContent = "Votre session a expiré. Reconnectez-vous."; }
+  if (SB) SB.auth.onAuthStateChange(ev => { if (ev === "SIGNED_OUT" && session) { session = null; afficherConnexion(); } });
+})();
+</script>
+</body>
+</html>

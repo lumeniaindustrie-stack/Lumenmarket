@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Agents IA sur mesure – Lumen</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;700;800&family=Public+Sans:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="style.css">
+<style>
+.page{display:grid;grid-template-columns:minmax(0,.8fr) minmax(0,1.2fr);gap:56px;padding-block:56px 80px;align-items:start}
+.intro h1{font-size:clamp(2rem,4vw,3rem);font-weight:800;letter-spacing:-.02em}
+.intro > p{color:var(--muted);font-size:1.08rem;margin-top:16px}
+.exemples{margin-top:28px;border-left:2px solid var(--accent);display:grid}
+.exemples p{padding:10px 0 10px 20px;color:var(--muted)}
+.exemples strong{color:var(--ink);display:block}
+form{background:var(--sheet);border:1px solid var(--line);border-radius:10px;padding:28px;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}
+form .full{grid-column:1/-1}
+.choix{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.choix label{display:flex;gap:10px;align-items:flex-start;border:1px solid var(--line);border-radius:8px;padding:12px 14px;cursor:pointer;background:var(--paper)}
+.choix label:has(input:checked){border-color:var(--accent);background:rgba(240,181,28,.08)}
+.choix input{margin-top:4px;accent-color:var(--accent);width:auto;flex:none}
+.choix span{display:grid;gap:2px}
+.choix small{color:var(--muted);font-size:.86rem}
+textarea{min-height:170px;resize:vertical;line-height:1.5}
+.compteur{text-align:right}
+.consent{display:flex;gap:10px;align-items:flex-start;font-size:.9rem;color:var(--muted)}
+.consent input{margin-top:4px;accent-color:var(--accent)}
+.envoi{display:flex;gap:14px;align-items:center;flex-wrap:wrap}
+@media (max-width:900px){ .page{grid-template-columns:1fr;gap:28px;padding-block:32px 56px} }
+@media (max-width:600px){ form{grid-template-columns:1fr;padding:20px} .choix{grid-template-columns:1fr} }
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="index.html"><i aria-hidden="true"></i>Lumen</a>
+    <nav aria-label="Menu"><a href="index.html#sur-mesure">Retour</a></nav>
+  </div>
+</header>
+
+<main class="wrap page">
+  <div class="intro">
+    <h1>Parlez-nous de ce que vous voulez automatiser</h1>
+    <p>Décrivez la tâche avec vos mots, comme vous l'expliqueriez à un collègue. Nous revenons vers vous pour en discuter et vous proposer une solution chiffrée, sans engagement.</p>
+    <div class="exemples">
+      <p><strong>« Nos devis prennent une demi-journée. »</strong>Un agent prépare le devis à partir de la demande du client et de votre bibliothèque de prix.</p>
+      <p><strong>« On oublie de relancer les factures. »</strong>Un agent suit les échéances et envoie les relances au bon moment.</p>
+      <p><strong>« On perd du temps à chercher dans nos documents. »</strong>Un agent retrouve la bonne information dans vos dossiers, sans que rien ne sorte de chez vous.</p>
+    </div>
+  </div>
+
+  <form id="f-demande" novalidate>
+    <div class="field full"><span class="lbl" id="l-offre">Votre demande concerne</span>
+      <div class="choix" role="radiogroup" aria-labelledby="l-offre">
+        <label><input type="radio" name="offre" value="agents" checked><span>Des agents IA sur mesure<small>Automatiser une ou plusieurs tâches de l'entreprise</small></span></label>
+        <label><input type="radio" name="offre" value="accompagnement"><span>L'accompagnement personnalisé<small>500 € HT, en plus de l'abonnement Lumen Marchés</small></span></label>
+      </div>
+    </div>
+    <div class="field full"><label for="besoin">Ce que vous voulez automatiser</label>
+      <textarea id="besoin" class="input" placeholder="Exemple : chaque semaine, nous recevons des demandes de devis par email. Il faut lire le plan, compter les équipements et remplir notre tableau Excel. Cela prend environ 6 heures par semaine."></textarea>
+      <small class="compteur" id="compteur">Au moins 30 caractères</small>
+    </div>
+    <div class="field"><label for="entreprise">Entreprise</label><input id="entreprise" autocomplete="organization"></div>
+    <div class="field"><label for="nom">Votre nom</label><input id="nom" autocomplete="name"></div>
+    <div class="field"><label for="email">Email</label><input id="email" type="email" autocomplete="email"></div>
+    <div class="field"><label for="telephone">Téléphone</label><input id="telephone" type="tel" autocomplete="tel"></div>
+    <div class="field"><label for="taille">Taille de l'entreprise</label>
+      <select id="taille"><option value="">Choisir</option><option>1 à 9 salariés</option><option>10 à 49 salariés</option><option>50 à 249 salariés</option><option>250 salariés et plus</option></select></div>
+    <div class="field"><label for="rappel">Meilleur moment pour vous appeler</label>
+      <select id="rappel"><option value="">Indifférent</option><option>Le matin</option><option>Le midi</option><option>L'après-midi</option><option>En fin de journée</option></select></div>
+    <div class="field full"><label for="outils">Vos outils actuels <small>(facultatif)</small></label><input id="outils" placeholder="Excel, logiciel de devis, Outlook, Google Drive…"></div>
+    <label class="consent full"><input type="checkbox" id="rgpd"><span>J'accepte que Lumen utilise ces informations pour me recontacter au sujet de ma demande (voir les <a href="index.html#mentions">mentions légales</a>).</span></label>
+    <div class="envoi full">
+      <button class="btn yellow" type="submit" id="go">Envoyer ma demande</button>
+      <p class="status" id="status" role="status"></p>
+    </div>
+  </form>
+</main>
+
+<footer class="foot"><div class="wrap"><span>Lumen IA, SIRET 985 215 474 00018</span><span><a href="index.html#mentions">Mentions légales</a></span></div></footer>
+
+<script src="config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<script src="commun.js"></script>
+<script>
+if (new URLSearchParams(location.search).get("offre") === "accompagnement") $('input[value="accompagnement"]').checked = true;
+// Si le client est connecté, on pré-remplit avec son profil
+if (Compte.semblerConnecte()) Compte.session().then(s => s && Compte.charger()).then(d => {
+  if (!d?.profil) return; const p = d.profil;
+  if (!$("#entreprise").value) $("#entreprise").value = p.entreprise || "";
+  if (!$("#email").value) $("#email").value = p.email || "";
+  if (!$("#telephone").value) $("#telephone").value = p.telephone || "";
+}).catch(() => {});
+$("#besoin").addEventListener("input", () => { const n = $("#besoin").value.trim().length; $("#compteur").textContent = n < 30 ? `Au moins 30 caractères (${n})` : `${n} caractères`; });
+
+$("#f-demande").addEventListener("submit", async ev => {
+  ev.preventDefault();
+  const st = $("#status"); st.className = "status";
+  const d = {
+    offre: $('input[name="offre"]:checked').value, besoin: $("#besoin").value.trim(),
+    entreprise: $("#entreprise").value.trim(), nom: $("#nom").value.trim(), email: $("#email").value.trim().toLowerCase(),
+    telephone: $("#telephone").value.trim(), taille: $("#taille").value, rappel: $("#rappel").value, outils: $("#outils").value.trim()
+  };
+  const err = d.besoin.length < 30 ? ["#besoin", "Décrivez votre besoin en quelques phrases (au moins 30 caractères)."]
+    : !d.entreprise ? ["#entreprise", "Indiquez le nom de votre entreprise."]
+    : !d.nom ? ["#nom", "Indiquez votre nom."]
+    : !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(d.email) ? ["#email", "Indiquez une adresse email valide."]
+    : d.telephone.replace(/\D/g, "").length < 9 ? ["#telephone", "Indiquez un numéro de téléphone pour que nous puissions vous rappeler."]
+    : !$("#rgpd").checked ? ["#rgpd", "Cochez la case pour que nous puissions vous recontacter."] : null;
+  if (err) { st.classList.add("err"); st.textContent = err[1]; $(err[0]).focus(); return; }
+  if (!CFG.WEBHOOK_DEMANDE && !DEMO) { st.classList.add("err"); st.innerHTML = `L'envoi en ligne arrive bientôt. Écrivez-nous en attendant à <a href="mailto:${esc(CFG.EMAIL)}">${esc(CFG.EMAIL)}</a>.`; return; }
+  $("#go").disabled = true; st.textContent = "Envoi de votre demande…";
+  try {
+    if (CFG.WEBHOOK_DEMANDE) { const j = await appelerAgent(CFG.WEBHOOK_DEMANDE, d); if (j.ok === false) throw new Error(); }
+    local.set("lumen_demande", { prenom: d.nom.split(" ")[0], offre: d.offre });
+    location.href = "merci.html";
+  } catch (e) {
+    st.classList.add("err"); st.innerHTML = `La demande n'a pas pu être envoyée. Réessayez, ou écrivez-nous à <a href="mailto:${esc(CFG.EMAIL)}">${esc(CFG.EMAIL)}</a>.`;
+    $("#go").disabled = false;
+  }
+});
+</script>
+</body>
+</html>
