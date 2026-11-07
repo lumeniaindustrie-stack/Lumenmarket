@@ -628,6 +628,28 @@ dialog.ndv::backdrop { background: rgba(17,24,39,.35); backdrop-filter: blur(4px
 .legende-trait.vert   { background: var(--vert) }
 .legende-trait.orange { background: var(--orange) }
 
+/* ── Vue d'ensemble ── */
+.ens-page { padding-bottom: 32px }
+.ens-kpi-top { margin-bottom: 16px }
+.ens-grille { margin-bottom: 20px }
+.ens-pan-tete {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 16px 18px 4px; gap: 10px;
+}
+.ens-pan-tete h2 { font-size: 13.5px; font-weight: 600; color: var(--t1); margin: 0 }
+.ens-sec-titre {
+  font-size: 11.5px; font-weight: 600; color: var(--t3);
+  text-transform: uppercase; letter-spacing: .05em;
+  margin-bottom: 10px;
+}
+.ens-kpi-sec { margin-bottom: 0 }
+/* État vide graphique */
+.ens-vide {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 12px; padding: 32px 24px; color: var(--t3); text-align: center;
+}
+.ens-vide p { font-size: 13px; line-height: 1.6; margin: 0 }
+
 /* ── Page Agents : nouvelle mise en page ── */
 .ag-page { padding-bottom: 32px }
 
