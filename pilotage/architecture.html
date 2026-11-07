@@ -13,15 +13,13 @@
 <style>
 /* ── Page architecture ── */
 .archi-wrap {
-  padding: 16px 20px;
+  padding: 16px 20px 20px;
   display: flex;
   flex-direction: column;
-  height: calc(100vh - 56px); /* hauteur dispo moins la barre */
+  height: calc(100vh - 56px);
   box-sizing: border-box;
   overflow: hidden;
 }
-
-/* Zone schéma : prend tout l'espace vertical dispo */
 .ac-schema-outer {
   flex: 1;
   display: flex;
@@ -34,9 +32,10 @@
 /* Schéma en colonnes — taille fixe, on scale pour rentrer */
 .ac-schema {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 0;
   transform-origin: center center;
+  padding: 4px 0;
 }
 
 /* Colonne */
@@ -44,112 +43,122 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0;
-  width: 130px;
+  gap: 8px;
+  width: 136px;
   flex-shrink: 0;
 }
 .ac-label {
-  font-size: 9px;
+  font-size: 9.5px;
   font-weight: 700;
   letter-spacing: .07em;
   text-transform: uppercase;
   color: var(--t3);
-  margin-bottom: 10px;
+  margin-bottom: 4px;
   text-align: center;
   white-space: nowrap;
+  padding: 3px 10px;
+  background: var(--panel-2);
+  border-radius: 20px;
+  border: 1px solid var(--line);
 }
 
 /* Nœud générique */
 .ac-node {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   align-items: center;
-  gap: 6px;
-  width: 118px;
-  padding: 10px 8px;
+  gap: 9px;
+  width: 136px;
+  padding: 10px 11px;
   border-radius: 10px;
   background: var(--panel);
-  border: 1px solid var(--line);
-  text-align: center;
+  border: 1.5px solid var(--line);
+  box-shadow: var(--shadow-sm);
+  text-align: left;
+  box-sizing: border-box;
 }
 .ac-node-ic {
-  width: 30px; height: 30px;
+  width: 32px; height: 32px; flex: none;
   display: flex; align-items: center; justify-content: center;
   border-radius: 8px;
-  background: var(--panel-3);
+  background: var(--panel-2);
 }
 .ac-node-ic svg { width: 18px; height: 18px; }
 .ac-node-ic-text {
-  font-size: 13px; font-weight: 700; color: #fff;
+  font-size: 12px; font-weight: 800; color: var(--t1);
 }
 .ac-node-info strong {
-  display: block; font-size: 11px; font-weight: 600; color: var(--t1);
-  margin-bottom: 2px;
+  display: block; font-size: 11.5px; font-weight: 600; color: var(--t1);
+  line-height: 1.3;
 }
 .ac-node-info span {
-  font-size: 10px; color: var(--t3); line-height: 1.4;
+  display: block; font-size: 10px; color: var(--t3); line-height: 1.4; margin-top: 2px;
 }
 
-/* Couleurs des nœuds */
-.ac-github  { border-color: #30363d; }
-.ac-github .ac-node-ic  { background: #161b22; }
-.ac-cf      { border-color: #7c3010; }
-.ac-cf .ac-node-ic      { background: #1a0f07; }
-.ac-supa    { border-color: #1a5c42; }
-.ac-supa .ac-node-ic    { background: #071a12; }
-.ac-n8n     { border-color: #6b1a30; }
-.ac-n8n .ac-node-ic     { background: #2a0a14; color: #ea4b71; }
-.ac-ollama  { border-color: #3a3a3a; }
-.ac-ollama .ac-node-ic  { background: #1a1a1a; color: #a3a3a3; }
-.ac-brevo   { border-color: #0a4a56; }
-.ac-brevo .ac-node-ic   { background: #071318; }
-.ac-boamp   { border-color: #3b2060; }
-.ac-boamp .ac-node-ic   { background: #140c22; }
-.ac-client  { border-color: #1a3a6a; }
-.ac-client .ac-node-ic  { background: #07101e; }
-.ac-admin   { border-color: #3b2060; }
-.ac-admin .ac-node-ic   { background: #140c22; }
+/* Couleurs par service (thème light) */
+.ac-github  { border-color: #D0D7DE }
+.ac-github .ac-node-ic  { background: #F6F8FA }
+.ac-cf      { border-color: #FED7AA }
+.ac-cf .ac-node-ic      { background: #FFF7ED }
+.ac-supa    { border-color: #A7F3D0 }
+.ac-supa .ac-node-ic    { background: #ECFDF5 }
+.ac-n8n     { border-color: #FBCFE8 }
+.ac-n8n .ac-node-ic     { background: #FDF2F8 }
+.ac-ollama  { border-color: #E9D5FF }
+.ac-ollama .ac-node-ic  { background: #FAF5FF }
+.ac-brevo   { border-color: #BAE6FD }
+.ac-brevo .ac-node-ic   { background: #F0F9FF }
+.ac-boamp   { border-color: #DDD6FE }
+.ac-boamp .ac-node-ic   { background: #F5F3FF }
+.ac-client  { border-color: #BFDBFE }
+.ac-client .ac-node-ic  { background: #EFF6FF }
+.ac-admin   { border-color: #DDD6FE }
+.ac-admin .ac-node-ic   { background: #F5F3FF }
 
-/* Grille agents */
+/* Grille agents dans la colonne n8n */
 .ac-agents-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 5px;
-  margin: 7px 0;
-  width: 118px;
+  width: 136px;
+  box-sizing: border-box;
 }
 .ac-agent {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 6px 4px;
-  border-radius: 7px;
-  border: 1px solid var(--line);
-  background: var(--panel-2);
+  padding: 7px 4px;
+  border-radius: 8px;
+  border: 1.5px solid var(--line);
+  background: var(--panel);
+  box-shadow: var(--shadow-sm);
 }
-.ac-agent strong { font-size: 13px; font-weight: 700; }
-.ac-agent span   { font-size: 9px; color: var(--t3); margin-top: 1px; }
-.ac-agent-vert  { border-color: #164d2a; }
-.ac-agent-vert strong { color: #22c55e; }
-.ac-agent-bleu  { border-color: #1a3a6a; }
-.ac-agent-bleu strong { color: #3b82f6; }
-.ac-agent-orange { border-color: #4a3010; }
-.ac-agent-orange strong { color: #f59e0b; }
-.ac-agent-wide { grid-column: 1 / -1; }
+.ac-agent strong { font-size: 14px; font-weight: 700; }
+.ac-agent span   { font-size: 9px; color: var(--t3); margin-top: 1px; text-align: center; line-height: 1.2 }
+.ac-agent-vert  { border-color: #A7F3D0 }
+.ac-agent-vert strong  { color: var(--vert) }
+.ac-agent-bleu  { border-color: #BFDBFE }
+.ac-agent-bleu strong  { color: var(--bleu) }
+.ac-agent-orange { border-color: #FDE68A }
+.ac-agent-orange strong { color: var(--orange) }
+.ac-agent-wide { grid-column: 1 / -1 }
 
-/* Flèche entre colonnes */
+/* Connecteur entre colonnes */
 .ac-arrow {
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: flex-start;
   flex-shrink: 0;
-  padding: 0 2px;
+  padding: 0 4px;
+  margin-top: 38px; /* aligné sur les icônes des nœuds */
 }
 .ac-arrow-line {
-  width: 36px;
+  width: 32px;
   height: 2px;
   background: var(--line-2);
   position: relative;
+  border-radius: 1px;
 }
 .ac-arrow-line::after {
   content: '';
@@ -158,30 +167,36 @@
   border: 5px solid transparent;
   border-left: 7px solid var(--line-2);
 }
-.ac-arrow-cyan { background: #06b6d4; }
-.ac-arrow-cyan::after { border-left-color: #06b6d4; }
+.ac-arrow-bleu .ac-arrow-line { background: var(--bleu) }
+.ac-arrow-bleu .ac-arrow-line::after { border-left-color: var(--bleu) }
+.ac-arrow-vert .ac-arrow-line { background: var(--vert) }
+.ac-arrow-vert .ac-arrow-line::after { border-left-color: var(--vert) }
+.ac-arrow-cyan .ac-arrow-line { background: #06B6D4 }
+.ac-arrow-cyan .ac-arrow-line::after { border-left-color: #06B6D4 }
 .ac-arrow-label {
   font-size: 9px;
   color: var(--t3);
-  margin-top: 4px;
+  margin-top: 5px;
   white-space: nowrap;
   text-align: center;
   line-height: 1.3;
+  max-width: 46px;
 }
 
 /* Légende compacte */
 .legende {
   display: flex; flex-wrap: wrap; gap: 14px;
-  padding: 10px 14px;
-  background: var(--panel); border: 1px solid var(--line); border-radius: 8px;
-  flex-shrink: 0;
-  margin-top: 12px;
+  padding: 8px 14px;
+  background: var(--panel); border: 1.5px solid var(--line); border-radius: var(--r-sm);
+  flex-shrink: 0; margin-top: 10px; box-shadow: var(--shadow-sm);
 }
-.legende-item { display: flex; align-items: center; gap: 7px; font-size: 11px; color: var(--t3); }
-.legende-trait { width: 22px; height: 2px; border-radius: 1px; }
-.legende-trait.bleu   { background: #3b82f6; }
-.legende-trait.vert   { background: #22c55e; }
-.legende-trait.orange { background: #f59e0b; }
+.legende-item { display: flex; align-items: center; gap: 7px; font-size: 11px; color: var(--t3) }
+.legende-trait { width: 22px; height: 2px; border-radius: 1px }
+.legende-trait.bleu   { background: var(--bleu) }
+.legende-trait.vert   { background: var(--vert) }
+.legende-trait.orange { background: var(--orange) }
+.legende-trait.cyan   { background: #06B6D4 }
+.legende-trait.gris   { background: var(--line-2) }
 </style>
 </head>
 <body>
@@ -233,19 +248,19 @@
             <div class="ac-label">Code source</div>
             <div class="ac-node ac-github">
               <div class="ac-node-ic">
-                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12c0 4.42 2.87 8.17 6.84 9.49.5.09.68-.22.68-.48v-1.7c-2.78.6-3.37-1.34-3.37-1.34-.45-1.16-1.11-1.47-1.11-1.47-.91-.62.07-.61.07-.61 1 .07 1.53 1.03 1.53 1.03.89 1.52 2.34 1.08 2.91.83.09-.65.35-1.08.63-1.33-2.22-.25-4.56-1.11-4.56-4.95 0-1.09.39-1.98 1.03-2.68-.1-.25-.45-1.27.1-2.64 0 0 .84-.27 2.75 1.02A9.56 9.56 0 0 1 12 6.84c.85.004 1.7.115 2.5.337 1.91-1.29 2.75-1.02 2.75-1.02.55 1.37.2 2.39.1 2.64.64.7 1.03 1.59 1.03 2.68 0 3.85-2.34 4.7-4.57 4.95.36.31.68.92.68 1.85v2.74c0 .27.18.58.69.48A10.01 10.01 0 0 0 22 12c0-5.52-4.48-10-10-10z"/></svg>
+                <svg viewBox="0 0 24 24" fill="#24292F"><path d="M12 2C6.48 2 2 6.48 2 12c0 4.42 2.87 8.17 6.84 9.49.5.09.68-.22.68-.48v-1.7c-2.78.6-3.37-1.34-3.37-1.34-.45-1.16-1.11-1.47-1.11-1.47-.91-.62.07-.61.07-.61 1 .07 1.53 1.03 1.53 1.03.89 1.52 2.34 1.08 2.91.83.09-.65.35-1.08.63-1.33-2.22-.25-4.56-1.11-4.56-4.95 0-1.09.39-1.98 1.03-2.68-.1-.25-.45-1.27.1-2.64 0 0 .84-.27 2.75 1.02A9.56 9.56 0 0 1 12 6.84c.85.004 1.7.115 2.5.337 1.91-1.29 2.75-1.02 2.75-1.02.55 1.37.2 2.39.1 2.64.64.7 1.03 1.59 1.03 2.68 0 3.85-2.34 4.7-4.57 4.95.36.31.68.92.68 1.85v2.74c0 .27.18.58.69.48A10.01 10.01 0 0 0 22 12c0-5.52-4.48-10-10-10z"/></svg>
               </div>
               <div class="ac-node-info">
                 <strong>GitHub</strong>
-                <span>lumeniaindustrie-stack/<br>Lumenmarket</span>
+                <span>lumeniaindustrie-stack/Lumenmarket</span>
               </div>
             </div>
           </div>
 
           <!-- Flèche deploy -->
-          <div class="ac-arrow ac-arrow-v">
+          <div class="ac-arrow">
             <div class="ac-arrow-line"></div>
-            <div class="ac-arrow-label">push → deploy auto</div>
+            <div class="ac-arrow-label">push → deploy</div>
           </div>
 
           <!-- Colonne 2 : Hébergement -->
@@ -253,27 +268,26 @@
             <div class="ac-label">Hébergement</div>
             <div class="ac-node ac-cf">
               <div class="ac-node-ic">
-                <svg viewBox="0 0 24 24" fill="none" stroke="#f97316" stroke-width="1.8"><ellipse cx="12" cy="12" rx="10" ry="7"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 5 Q17 12 12 19 Q7 12 12 5"/></svg>
+                <svg viewBox="0 0 24 24" fill="none" stroke="#F97316" stroke-width="1.8"><ellipse cx="12" cy="12" rx="10" ry="7"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 5 Q17 12 12 19 Q7 12 12 5"/></svg>
               </div>
               <div class="ac-node-info">
-                <strong>Cloudflare Pages</strong>
+                <strong>CF Pages — Site</strong>
                 <span>lumen-marches.pages.dev</span>
               </div>
             </div>
-            <div style="height:10px"></div>
             <div class="ac-node ac-cf">
               <div class="ac-node-ic">
-                <svg viewBox="0 0 24 24" fill="none" stroke="#f97316" stroke-width="1.8"><ellipse cx="12" cy="12" rx="10" ry="7"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 5 Q17 12 12 19 Q7 12 12 5"/></svg>
+                <svg viewBox="0 0 24 24" fill="none" stroke="#F97316" stroke-width="1.8"><ellipse cx="12" cy="12" rx="10" ry="7"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 5 Q17 12 12 19 Q7 12 12 5"/></svg>
               </div>
               <div class="ac-node-info">
-                <strong>Cloudflare Pages</strong>
+                <strong>CF Pages — Pilotage</strong>
                 <span>lumen-pilotage.pages.dev</span>
               </div>
             </div>
           </div>
 
           <!-- Flèche API -->
-          <div class="ac-arrow ac-arrow-v">
+          <div class="ac-arrow ac-arrow-bleu">
             <div class="ac-arrow-line"></div>
             <div class="ac-arrow-label">HTTPS API</div>
           </div>
@@ -283,50 +297,40 @@
             <div class="ac-label">Base de données</div>
             <div class="ac-node ac-supa">
               <div class="ac-node-ic">
-                <svg viewBox="0 0 24 24" fill="#3ecf8e"><path d="M11.9 1.5 L2 16.5 h9.9 v6L22 7.5 h-10.1z"/></svg>
+                <svg viewBox="0 0 24 24" fill="#3ECF8E"><path d="M11.9 1.5 L2 16.5 h9.9 v6L22 7.5 h-10.1z"/></svg>
               </div>
               <div class="ac-node-info">
                 <strong>Supabase</strong>
-                <span>Auth · Profils · Offres<br>Analyses · Chat · Runs</span>
+                <span>Auth · Profils · Offres · Analyses · Chat · Runs</span>
               </div>
             </div>
           </div>
 
-          <!-- Flèche poll -->
-          <div class="ac-arrow ac-arrow-v ac-arrow-bi">
+          <!-- Flèche poll + écriture -->
+          <div class="ac-arrow ac-arrow-vert">
             <div class="ac-arrow-line"></div>
             <div class="ac-arrow-label">poll + écriture</div>
           </div>
 
-          <!-- Colonne 4 : PC Local -->
+          <!-- Colonne 4 : Orchestration locale -->
           <div class="ac-col">
-            <div class="ac-label">PC de Marin (local)</div>
+            <div class="ac-label">Orchestration locale</div>
             <div class="ac-node ac-n8n">
-              <div class="ac-node-ic ac-node-ic-text">n8n</div>
+              <div class="ac-node-ic"><span class="ac-node-ic-text" style="color:#E91E8C;font-size:13px;font-weight:800">n8n</span></div>
               <div class="ac-node-info">
-                <strong>Orchestrateur</strong>
+                <strong>n8n</strong>
                 <span>Windows · port 5678</span>
               </div>
             </div>
             <div class="ac-agents-grid">
-              <div class="ac-agent ac-agent-vert">
-                <strong>A</strong><span>Collecteur</span>
-              </div>
-              <div class="ac-agent ac-agent-vert">
-                <strong>B</strong><span>Tri &amp; Veille</span>
-              </div>
-              <div class="ac-agent ac-agent-bleu">
-                <strong>C</strong><span>Chat</span>
-              </div>
-              <div class="ac-agent ac-agent-bleu">
-                <strong>D</strong><span>Analyse</span>
-              </div>
-              <div class="ac-agent ac-agent-orange ac-agent-wide">
-                <strong>G</strong><span>Contrôleur</span>
-              </div>
+              <div class="ac-agent ac-agent-vert"><strong>A</strong><span>Collecteur</span></div>
+              <div class="ac-agent ac-agent-vert"><strong>B</strong><span>Tri &amp; Veille</span></div>
+              <div class="ac-agent ac-agent-bleu"><strong>C</strong><span>Chat</span></div>
+              <div class="ac-agent ac-agent-bleu"><strong>D</strong><span>Analyse</span></div>
+              <div class="ac-agent ac-agent-orange ac-agent-wide"><strong>G</strong><span>Contrôleur</span></div>
             </div>
             <div class="ac-node ac-ollama">
-              <div class="ac-node-ic ac-node-ic-text" style="font-size:11px">AI</div>
+              <div class="ac-node-ic"><span class="ac-node-ic-text" style="color:#7C3AED">AI</span></div>
               <div class="ac-node-info">
                 <strong>Ollama</strong>
                 <span>qwen2.5:7b · port 11434</span>
@@ -335,37 +339,36 @@
           </div>
 
           <!-- Flèche emails -->
-          <div class="ac-arrow ac-arrow-v">
-            <div class="ac-arrow-line ac-arrow-cyan"></div>
-            <div class="ac-arrow-label">emails</div>
+          <div class="ac-arrow ac-arrow-cyan">
+            <div class="ac-arrow-line"></div>
+            <div class="ac-arrow-label">SMTP emails</div>
           </div>
 
-          <!-- Colonne 5 : Externe -->
+          <!-- Colonne 5 : Services externes -->
           <div class="ac-col">
             <div class="ac-label">Services externes</div>
             <div class="ac-node ac-brevo">
               <div class="ac-node-ic">
-                <svg viewBox="0 0 24 24" fill="none" stroke="#06b6d4" stroke-width="1.8"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M2 7 L12 13 L22 7"/></svg>
+                <svg viewBox="0 0 24 24" fill="none" stroke="#0EA5E9" stroke-width="1.8"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M2 7 L12 13 L22 7"/></svg>
               </div>
               <div class="ac-node-info">
                 <strong>Brevo SMTP</strong>
-                <span>Emails alertes<br>&amp; analyses</span>
+                <span>Alertes &amp; analyses par email</span>
               </div>
             </div>
-            <div style="height:10px"></div>
             <div class="ac-node ac-boamp">
               <div class="ac-node-ic">
-                <svg viewBox="0 0 24 24" fill="#8b5cf6"><path d="M12 2 L2 7 L12 12 L22 7 Z"/><path d="M2 17 L12 22 L22 17" fill="none" stroke="#8b5cf6" stroke-width="1.8"/><path d="M2 12 L12 17 L22 12" fill="none" stroke="#8b5cf6" stroke-width="1.8"/></svg>
+                <svg viewBox="0 0 24 24" fill="none"><path d="M12 2 L2 7 L12 12 L22 7 Z" fill="#7C3AED"/><path d="M2 17 L12 22 L22 17" stroke="#7C3AED" stroke-width="1.8" fill="none"/><path d="M2 12 L12 17 L22 12" stroke="#7C3AED" stroke-width="1.8" fill="none"/></svg>
               </div>
               <div class="ac-node-info">
                 <strong>BOAMP</strong>
-                <span>Marchés publics<br>API officielle</span>
+                <span>Marchés publics, API officielle</span>
               </div>
             </div>
           </div>
 
           <!-- Flèche destinataires -->
-          <div class="ac-arrow ac-arrow-v">
+          <div class="ac-arrow">
             <div class="ac-arrow-line"></div>
             <div class="ac-arrow-label">reçoit</div>
           </div>
@@ -375,21 +378,20 @@
             <div class="ac-label">Utilisateurs</div>
             <div class="ac-node ac-client">
               <div class="ac-node-ic">
-                <svg viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="1.8"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 20 h8 M12 17 v3"/></svg>
+                <svg viewBox="0 0 24 24" fill="none" stroke="#3B82F6" stroke-width="1.8"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 20 h8 M12 17 v3"/></svg>
               </div>
               <div class="ac-node-info">
-                <strong>Clients</strong>
-                <span>Site Lumen Marchés<br>Assistant · Analyses</span>
+                <strong>Clients PME</strong>
+                <span>Assistant · Analyses · Veille</span>
               </div>
             </div>
-            <div style="height:10px"></div>
             <div class="ac-node ac-admin">
               <div class="ac-node-ic">
-                <svg viewBox="0 0 24 24" fill="#8b5cf6"><circle cx="12" cy="8" r="4"/><path d="M4 20 C4 16 20 16 20 20"/></svg>
+                <svg viewBox="0 0 24 24" fill="#7C3AED"><circle cx="12" cy="8" r="4"/><path d="M4 20 C4 16 20 16 20 20"/></svg>
               </div>
               <div class="ac-node-info">
-                <strong>Admin (Marin)</strong>
-                <span>Tableau de pilotage<br>Alertes G</span>
+                <strong>Admin</strong>
+                <span>Pilotage · Alertes G</span>
               </div>
             </div>
           </div>
@@ -398,11 +400,11 @@
         </div><!-- fin ac-schema-outer -->
 
         <!-- Légende -->
-        <div class="legende" style="margin-top:24px">
-          <div class="legende-item"><div class="legende-trait vert"></div>Collecte &amp; stockage offres (A)</div>
-          <div class="legende-item"><div class="legende-trait bleu"></div>Données API / chat / analyses (C, D)</div>
-          <div class="legende-item"><div class="legende-trait orange"></div>Alertes &amp; supervision (G)</div>
-          <div class="legende-item"><div class="legende-trait" style="background:#06b6d4;height:2px;width:28px;border-radius:1px"></div>Emails Brevo (B, D, G)</div>
+        <div class="legende">
+          <div class="legende-item"><div class="legende-trait gris"></div>Déploiement CI/CD</div>
+          <div class="legende-item"><div class="legende-trait bleu"></div>Appels API HTTPS</div>
+          <div class="legende-item"><div class="legende-trait vert"></div>Collecte &amp; écriture (agents A, B, C, D)</div>
+          <div class="legende-item"><div class="legende-trait cyan"></div>Emails SMTP (agents B, D, G via Brevo)</div>
         </div>
 
       </div>
