@@ -1,0 +1,616 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<title>Architecture – Lumen Pilotage</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="admin.css">
+<style>
+/* ── Page architecture ── */
+.archi-wrap { padding: 24px; max-width: 1400px; margin: 0 auto; }
+
+.archi-svg-box {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 32px 24px;
+  overflow-x: auto;
+}
+
+#schema-archi {
+  display: block;
+  margin: 0 auto;
+  min-width: 900px;
+}
+
+/* Légende */
+.legende {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  margin-top: 20px;
+  padding: 16px 20px;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+}
+.legende-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--muted, #6b7280);
+}
+.legende-trait {
+  width: 28px;
+  height: 2px;
+  border-radius: 1px;
+}
+.legende-trait.bleu   { background: #3b82f6; }
+.legende-trait.vert   { background: #22c55e; }
+.legende-trait.orange { background: #f59e0b; }
+.legende-trait.gris   { background: #5b6275; border: none; }
+.legende-trait.tiret  { background: none; border-top: 2px dashed #5b6275; }
+
+/* Bloc texte explicatif */
+.archi-desc {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 14px;
+  margin-top: 20px;
+}
+.archi-desc-card {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 16px 18px;
+}
+.archi-desc-card h3 {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--fg, #e2e8f0);
+  margin: 0 0 6px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.archi-desc-card h3 .dot {
+  width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
+}
+.archi-desc-card p {
+  font-size: 12px;
+  color: var(--muted, #6b7280);
+  line-height: 1.6;
+  margin: 0;
+}
+</style>
+</head>
+<body>
+<div id="porte" hidden>
+  <form class="porte" id="f-porte" novalidate>
+    <a class="logo" href="index.html"><span class="tuile-ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><rect x="3" y="3" width="8" height="8" rx="2.2"/><rect x="13" y="3" width="8" height="8" rx="2.2"/><rect x="3" y="13" width="8" height="8" rx="2.2"/><rect x="13" y="13" width="8" height="8" rx="2.2" fill-opacity=".45"/></svg></span>Lumen Pilotage</a>
+    <h1>Connexion administrateur</h1>
+    <p class="muted" id="porte-txt">Espace réservé à l'administrateur.</p>
+    <div class="champ"><label for="a-email">Email</label><input class="input" id="a-email" type="email" autocomplete="username"></div>
+    <div class="champ"><label for="a-mdp">Mot de passe</label><input class="input" id="a-mdp" type="password" autocomplete="current-password"></div>
+    <p class="statut" id="a-st" role="status"></p>
+    <button class="btn prim" id="a-go">Se connecter</button>
+  </form>
+</div>
+
+<div class="app" id="app" hidden>
+  <aside class="cote">
+    <a class="logo" href="index.html"><span class="tuile-ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><rect x="3" y="3" width="8" height="8" rx="2.2"/><rect x="13" y="3" width="8" height="8" rx="2.2"/><rect x="3" y="13" width="8" height="8" rx="2.2"/><rect x="13" y="13" width="8" height="8" rx="2.2" fill-opacity=".45"/></svg></span>Lumen Pilotage</a>
+    <p class="nav-titre">Pilotage</p>
+    <nav class="nav" aria-label="Menu">
+      <button data-v="ensemble"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="3" y="3" width="8" height="8" rx="2.2"/><rect x="13" y="3" width="8" height="8" rx="2.2"/><rect x="3" y="13" width="8" height="8" rx="2.2"/><rect x="13" y="13" width="8" height="8" rx="2.2"/></svg>Vue d'ensemble</button>
+      <button data-v="agents"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="5.5" cy="12" r="3.2"/><circle cx="18.5" cy="5.5" r="3.2"/><circle cx="18.5" cy="18.5" r="3.2"/><path d="M8 11.2 16 6.6M8 12.8l8 4.6" fill="none" stroke="currentColor" stroke-width="1.9"/></svg>Agents</button>
+      <button data-v="clients"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="9" cy="7.9" r="3.7"/><path d="M2.4 19.2c0-3.35 2.95-5.7 6.6-5.7s6.6 2.35 6.6 5.7c0 .72-.56 1.3-1.25 1.3H3.65c-.69 0-1.25-.58-1.25-1.3z"/><circle cx="17" cy="8.5" r="2.9"/><path d="M16.9 13.4c2.85.12 4.8 2.05 4.8 4.75 0 .7-.55 1.25-1.22 1.25h-3.1c.18-.38.27-.8.27-1.24 0-1.86-.8-3.5-2.18-4.62.45-.1.92-.15 1.43-.14z"/></svg>Clients</button>
+      <button data-v="demandes"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M5.3 3.5h13.4c.9 0 1.7.6 2 1.45L23 12v6a2.5 2.5 0 0 1-2.5 2.5h-17A2.5 2.5 0 0 1 1 18v-6l2.3-7.05c.3-.85 1.1-1.45 2-1.45zm-1.6 8h4.1c.45 0 .85.3.96.74.37 1.4 1.64 2.36 3.24 2.36s2.87-.96 3.24-2.36c.11-.44.51-.74.96-.74h4.1L18.4 5.6H5.6z" fill-rule="evenodd"/></svg>Demandes <span class="compteur zero" id="n-demandes">0</span></button>
+      <button data-v="architecture" class="actif"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a3.5 3.5 0 0 1 3.5 3.5v.6A6.5 6.5 0 0 1 20 12v.5a3.5 3.5 0 1 1-2 0V12a4.5 4.5 0 0 0-3-4.24V9.5a3.5 3.5 0 1 1-6 0V7.76A4.5 4.5 0 0 0 6 12v.5a3.5 3.5 0 1 1-2 0V12a6.5 6.5 0 0 1 4.5-6.14V5.5A3.5 3.5 0 0 1 12 2z"/></svg>Architecture</button>
+    </nav>
+    <div class="bas"><span id="qui"></span><button id="sortir">Se déconnecter</button></div>
+  </aside>
+
+  <div class="principal">
+    <header class="barre" hidden></header>
+
+    <section class="vue actif" id="v-architecture" data-titre="Architecture">
+      <div class="archi-wrap">
+
+        <!-- En-tête -->
+        <div class="entete" style="margin-bottom:20px">
+          <span class="tuile-ic">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a3.5 3.5 0 0 1 3.5 3.5v.6A6.5 6.5 0 0 1 20 12v.5a3.5 3.5 0 1 1-2 0V12a4.5 4.5 0 0 0-3-4.24V9.5a3.5 3.5 0 1 1-6 0V7.76A4.5 4.5 0 0 0 6 12v.5a3.5 3.5 0 1 1-2 0V12a6.5 6.5 0 0 1 4.5-6.14V5.5A3.5 3.5 0 0 1 12 2z"/></svg>
+          </span>
+          <div>
+            <h1>Architecture système</h1>
+            <p>Vue complète de l'infrastructure Lumen Marchés</p>
+          </div>
+        </div>
+
+        <!-- Schéma SVG principal -->
+        <div class="archi-svg-box">
+          <svg id="schema-archi" viewBox="0 0 1200 760" width="1200" height="760"
+               xmlns="http://www.w3.org/2000/svg" font-family="Geist,Arial,sans-serif">
+
+            <!-- ░░ DÉFINITIONS ░░ -->
+            <defs>
+              <!-- Flèche bleue -->
+              <marker id="fl-bleu" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+                <path d="M0 0 L6 3 L0 6 Z" fill="#3b82f6"/>
+              </marker>
+              <!-- Flèche verte -->
+              <marker id="fl-vert" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+                <path d="M0 0 L6 3 L0 6 Z" fill="#22c55e"/>
+              </marker>
+              <!-- Flèche orange -->
+              <marker id="fl-orange" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+                <path d="M0 0 L6 3 L0 6 Z" fill="#f59e0b"/>
+              </marker>
+              <!-- Flèche grise -->
+              <marker id="fl-gris" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+                <path d="M0 0 L6 3 L0 6 Z" fill="#5b6275"/>
+              </marker>
+              <!-- Filtre ombre légère -->
+              <filter id="ombre" x="-10%" y="-10%" width="120%" height="120%">
+                <feDropShadow dx="0" dy="2" stdDeviation="4" flood-color="#000" flood-opacity="0.35"/>
+              </filter>
+              <!-- Gradient fond internet -->
+              <linearGradient id="grad-cloud" x1="0%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" stop-color="#1a2235"/>
+                <stop offset="100%" stop-color="#0e1016"/>
+              </linearGradient>
+            </defs>
+
+            <!-- ════════════════════════════════════════════
+                 ZONES / CADRES
+                 ════════════════════════════════════════════ -->
+
+            <!-- Zone Internet / Cloud -->
+            <rect x="10" y="10" width="1180" height="380" rx="16" fill="none" stroke="#1c202b" stroke-width="1.5" stroke-dasharray="6 4"/>
+            <text x="22" y="32" font-size="11" fill="#2d3748" font-weight="600" letter-spacing=".06em">CLOUD / INTERNET</text>
+
+            <!-- Zone PC Marin -->
+            <rect x="10" y="410" width="560" height="340" rx="16" fill="none" stroke="#1c202b" stroke-width="1.5" stroke-dasharray="6 4"/>
+            <text x="22" y="432" font-size="11" fill="#2d3748" font-weight="600" letter-spacing=".06em">PC DE MARIN (LOCAL)</text>
+
+            <!-- Zone Clients -->
+            <rect x="590" y="410" width="600" height="340" rx="16" fill="none" stroke="#1c202b" stroke-width="1.5" stroke-dasharray="6 4"/>
+            <text x="602" y="432" font-size="11" fill="#2d3748" font-weight="600" letter-spacing=".06em">CLIENTS</text>
+
+            <!-- ════════════════════════════════════════════
+                 NOEUDS – ligne cloud
+                 ════════════════════════════════════════════ -->
+
+            <!-- GitHub -->
+            <g id="n-github" transform="translate(50,55)">
+              <rect width="140" height="72" rx="12" fill="#161b22" stroke="#30363d" stroke-width="1.5" filter="url(#ombre)"/>
+              <!-- icone github -->
+              <g transform="translate(14,14)" fill="#c9d1d9">
+                <path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0 1 12 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0 0 22 12.017C22 6.484 17.522 2 12 2z" transform="scale(1.2) translate(-2,-2)"/>
+              </g>
+              <text x="52" y="22" font-size="12" font-weight="600" fill="#c9d1d9">GitHub</text>
+              <text x="14" y="52" font-size="10" fill="#6b7280">lumeniaindustrie-stack/</text>
+              <text x="14" y="64" font-size="10" fill="#6b7280">Lumenmarket</text>
+            </g>
+
+            <!-- Cloudflare Pages – site client -->
+            <g id="n-cf-site" transform="translate(240,55)">
+              <rect width="160" height="72" rx="12" fill="#0d1117" stroke="#f97316" stroke-width="1.5" filter="url(#ombre)"/>
+              <g transform="translate(12,16)">
+                <ellipse cx="12" cy="12" rx="11" ry="8" fill="none" stroke="#f97316" stroke-width="2"/>
+                <line x1="1" y1="12" x2="23" y2="12" stroke="#f97316" stroke-width="1.5"/>
+                <path d="M12 4 Q18 12 12 20 Q6 12 12 4" fill="none" stroke="#f97316" stroke-width="1.5"/>
+              </g>
+              <text x="42" y="26" font-size="12" font-weight="600" fill="#f97316">Cloudflare Pages</text>
+              <text x="14" y="50" font-size="10" fill="#6b7280">lumen-marches</text>
+              <text x="14" y="62" font-size="10" fill="#6b7280">.pages.dev</text>
+            </g>
+
+            <!-- Cloudflare Pages – pilotage -->
+            <g id="n-cf-pilotage" transform="translate(450,55)">
+              <rect width="160" height="72" rx="12" fill="#0d1117" stroke="#f97316" stroke-width="1.5" filter="url(#ombre)"/>
+              <g transform="translate(12,16)">
+                <ellipse cx="12" cy="12" rx="11" ry="8" fill="none" stroke="#f97316" stroke-width="2"/>
+                <line x1="1" y1="12" x2="23" y2="12" stroke="#f97316" stroke-width="1.5"/>
+                <path d="M12 4 Q18 12 12 20 Q6 12 12 4" fill="none" stroke="#f97316" stroke-width="1.5"/>
+              </g>
+              <text x="42" y="26" font-size="12" font-weight="600" fill="#f97316">Cloudflare Pages</text>
+              <text x="14" y="50" font-size="10" fill="#6b7280">lumen-pilotage</text>
+              <text x="14" y="62" font-size="10" fill="#6b7280">.pages.dev</text>
+            </g>
+
+            <!-- Supabase -->
+            <g id="n-supabase" transform="translate(670,55)">
+              <rect width="150" height="72" rx="12" fill="#1a1f2e" stroke="#3ecf8e" stroke-width="1.5" filter="url(#ombre)"/>
+              <g transform="translate(12,12)">
+                <path d="M11.9 1.5 L2 16.5 h9.9 v6L22 7.5 h-10.1z" fill="#3ecf8e"/>
+              </g>
+              <text x="46" y="26" font-size="12" font-weight="600" fill="#3ecf8e">Supabase</text>
+              <text x="14" y="50" font-size="10" fill="#6b7280">Auth · Profils · Offres</text>
+              <text x="14" y="62" font-size="10" fill="#6b7280">Analyses · Chat · Runs</text>
+            </g>
+
+            <!-- BOAMP -->
+            <g id="n-boamp" transform="translate(870,55)">
+              <rect width="130" height="72" rx="12" fill="#1a1424" stroke="#8b5cf6" stroke-width="1.5" filter="url(#ombre)"/>
+              <g transform="translate(12,16)" fill="#8b5cf6">
+                <path d="M12 2 L2 7 L12 12 L22 7 Z M2 17 L12 22 L22 17 M2 12 L12 17 L22 12"/>
+              </g>
+              <text x="42" y="28" font-size="12" font-weight="600" fill="#8b5cf6">BOAMP</text>
+              <text x="14" y="50" font-size="10" fill="#6b7280">Marchés publics</text>
+              <text x="14" y="62" font-size="10" fill="#6b7280">API officielle</text>
+            </g>
+
+            <!-- Brevo SMTP -->
+            <g id="n-brevo" transform="translate(1050,55)">
+              <rect width="130" height="72" rx="12" fill="#0a1a2a" stroke="#06b6d4" stroke-width="1.5" filter="url(#ombre)"/>
+              <g transform="translate(12,18)" fill="none" stroke="#06b6d4" stroke-width="1.8">
+                <rect x="1" y="1" width="22" height="16" rx="2" stroke="#06b6d4"/>
+                <path d="M1 4 L12 11 L23 4"/>
+              </g>
+              <text x="46" y="28" font-size="12" font-weight="600" fill="#06b6d4">Brevo</text>
+              <text x="14" y="50" font-size="10" fill="#6b7280">SMTP · Emails</text>
+              <text x="14" y="62" font-size="10" fill="#6b7280">alertes &amp; analyses</text>
+            </g>
+
+            <!-- ── Ligne 2 cloud : détails Supabase ── -->
+            <!-- Supabase auth note -->
+            <g transform="translate(630,165)">
+              <rect width="240" height="88" rx="10" fill="#0a1118" stroke="#1c202b" stroke-width="1"/>
+              <text x="12" y="20" font-size="11" font-weight="600" fill="#e2e8f0">Base de données Supabase</text>
+              <text x="12" y="37" font-size="10" fill="#6b7280">profils · offres_avis · agent_runs</text>
+              <text x="12" y="51" font-size="10" fill="#6b7280">analyses · messages_chat</text>
+              <text x="12" y="65" font-size="10" fill="#22c55e">RLS activé sur toutes les tables</text>
+              <text x="12" y="79" font-size="10" fill="#6b7280">Auth JWT · Triggers PostgreSQL</text>
+            </g>
+
+            <!-- ════════════════════════════════════════════
+                 NOEUDS – PC LOCAL
+                 ════════════════════════════════════════════ -->
+
+            <!-- n8n -->
+            <g id="n-n8n" transform="translate(50,450)">
+              <rect width="140" height="80" rx="12" fill="#1a1a2e" stroke="#ea4b71" stroke-width="1.5" filter="url(#ombre)"/>
+              <text x="14" y="26" font-size="16" font-weight="700" fill="#ea4b71">n8n</text>
+              <text x="14" y="44" font-size="10" fill="#6b7280">Orchestrateur local</text>
+              <text x="14" y="57" font-size="10" fill="#6b7280">port 5678</text>
+              <text x="14" y="70" font-size="10" fill="#6b7280">Windows · auto-start</text>
+            </g>
+
+            <!-- Ollama -->
+            <g id="n-ollama" transform="translate(230,450)">
+              <rect width="130" height="80" rx="12" fill="#1a1a1a" stroke="#a3a3a3" stroke-width="1.5" filter="url(#ombre)"/>
+              <text x="14" y="26" font-size="13" font-weight="700" fill="#a3a3a3">Ollama</text>
+              <text x="14" y="43" font-size="10" fill="#6b7280">Modèle IA local</text>
+              <text x="14" y="56" font-size="10" fill="#6b7280">qwen2.5:7b</text>
+              <text x="14" y="69" font-size="10" fill="#6b7280">port 11434</text>
+            </g>
+
+            <!-- Agents -->
+            <!-- Agent A -->
+            <g id="n-agA" transform="translate(50,575)">
+              <rect width="96" height="68" rx="10" fill="#0d1f1a" stroke="#22c55e" stroke-width="1.5"/>
+              <text x="48" y="22" text-anchor="middle" font-size="13" font-weight="700" fill="#22c55e">A</text>
+              <text x="48" y="38" text-anchor="middle" font-size="10" fill="#6b7280">Collecteur</text>
+              <text x="48" y="52" text-anchor="middle" font-size="9" fill="#374151">toutes les 2h</text>
+              <text x="48" y="62" text-anchor="middle" font-size="9" fill="#374151">6h–20h</text>
+            </g>
+
+            <!-- Agent B -->
+            <g id="n-agB" transform="translate(165,575)">
+              <rect width="96" height="68" rx="10" fill="#0d1f1a" stroke="#22c55e" stroke-width="1.5"/>
+              <text x="48" y="22" text-anchor="middle" font-size="13" font-weight="700" fill="#22c55e">B</text>
+              <text x="48" y="38" text-anchor="middle" font-size="10" fill="#6b7280">Tri &amp; Veille</text>
+              <text x="48" y="52" text-anchor="middle" font-size="9" fill="#374151">lun–ven</text>
+              <text x="48" y="62" text-anchor="middle" font-size="9" fill="#374151">6h45</text>
+            </g>
+
+            <!-- Agent C -->
+            <g id="n-agC" transform="translate(280,575)">
+              <rect width="96" height="68" rx="10" fill="#0d1f1a" stroke="#3b82f6" stroke-width="1.5"/>
+              <text x="48" y="22" text-anchor="middle" font-size="13" font-weight="700" fill="#3b82f6">C</text>
+              <text x="48" y="38" text-anchor="middle" font-size="10" fill="#6b7280">Chat</text>
+              <text x="48" y="52" text-anchor="middle" font-size="9" fill="#374151">toutes les</text>
+              <text x="48" y="62" text-anchor="middle" font-size="9" fill="#374151">15 sec</text>
+            </g>
+
+            <!-- Agent D -->
+            <g id="n-agD" transform="translate(395,575)">
+              <rect width="96" height="68" rx="10" fill="#0d1f1a" stroke="#3b82f6" stroke-width="1.5"/>
+              <text x="48" y="22" text-anchor="middle" font-size="13" font-weight="700" fill="#3b82f6">D</text>
+              <text x="48" y="38" text-anchor="middle" font-size="10" fill="#6b7280">Analyse DCE</text>
+              <text x="48" y="52" text-anchor="middle" font-size="9" fill="#374151">toutes les</text>
+              <text x="48" y="62" text-anchor="middle" font-size="9" fill="#374151">20 sec</text>
+            </g>
+
+            <!-- Agent G -->
+            <g id="n-agG" transform="translate(50,680)">
+              <rect width="140" height="56" rx="10" fill="#1a1710" stroke="#f59e0b" stroke-width="1.5"/>
+              <text x="70" y="20" text-anchor="middle" font-size="13" font-weight="700" fill="#f59e0b">G – Contrôleur</text>
+              <text x="70" y="36" text-anchor="middle" font-size="10" fill="#6b7280">Surveille A, B, C, D</text>
+              <text x="70" y="49" text-anchor="middle" font-size="9" fill="#374151">toutes les heures · 7h–22h</text>
+            </g>
+
+            <!-- ════════════════════════════════════════════
+                 NOEUDS – CLIENTS
+                 ════════════════════════════════════════════ -->
+
+            <!-- Navigateur client -->
+            <g id="n-client" transform="translate(610,450)">
+              <rect width="160" height="80" rx="12" fill="#0d1f2d" stroke="#3b82f6" stroke-width="1.5" filter="url(#ombre)"/>
+              <g transform="translate(12,14)" fill="none" stroke="#3b82f6" stroke-width="1.8">
+                <rect x="1" y="1" width="22" height="18" rx="3"/>
+                <path d="M4 6 h16 M7 1 v5 M17 1 v5"/>
+              </g>
+              <text x="46" y="30" font-size="12" font-weight="600" fill="#3b82f6">Navigateur client</text>
+              <text x="14" y="52" font-size="10" fill="#6b7280">Site Lumen Marchés</text>
+              <text x="14" y="64" font-size="10" fill="#6b7280">Tableau de bord</text>
+              <text x="14" y="76" font-size="10" fill="#6b7280">Assistant · Analyses</text>
+            </g>
+
+            <!-- Email client -->
+            <g id="n-email-client" transform="translate(610,570)">
+              <rect width="160" height="68" rx="12" fill="#0a1a2a" stroke="#06b6d4" stroke-width="1.5" filter="url(#ombre)"/>
+              <g transform="translate(12,16)" fill="none" stroke="#06b6d4" stroke-width="1.8">
+                <rect x="1" y="1" width="22" height="16" rx="2"/>
+                <path d="M1 4 L12 11 L23 4"/>
+              </g>
+              <text x="46" y="30" font-size="12" font-weight="600" fill="#06b6d4">Email client</text>
+              <text x="14" y="50" font-size="10" fill="#6b7280">Veille quotidienne B</text>
+              <text x="14" y="62" font-size="10" fill="#6b7280">Résultat analyse D</text>
+            </g>
+
+            <!-- Admin navigateur -->
+            <g id="n-admin" transform="translate(830,450)">
+              <rect width="160" height="80" rx="12" fill="#1a1424" stroke="#8b5cf6" stroke-width="1.5" filter="url(#ombre)"/>
+              <g transform="translate(12,14)" fill="#8b5cf6">
+                <circle cx="12" cy="8" r="4"/>
+                <path d="M4 22 C4 17 20 17 20 22"/>
+              </g>
+              <text x="44" y="30" font-size="12" font-weight="600" fill="#8b5cf6">Admin (Marin)</text>
+              <text x="14" y="52" font-size="10" fill="#6b7280">Tableau de pilotage</text>
+              <text x="14" y="64" font-size="10" fill="#6b7280">lumen-pilotage</text>
+              <text x="14" y="76" font-size="10" fill="#6b7280">.pages.dev</text>
+            </g>
+
+            <!-- Email admin -->
+            <g id="n-email-admin" transform="translate(830,570)">
+              <rect width="160" height="68" rx="12" fill="#0a1a2a" stroke="#f59e0b" stroke-width="1.5" filter="url(#ombre)"/>
+              <g transform="translate(12,16)" fill="none" stroke="#f59e0b" stroke-width="1.8">
+                <rect x="1" y="1" width="22" height="16" rx="2"/>
+                <path d="M1 4 L12 11 L23 4"/>
+              </g>
+              <text x="46" y="30" font-size="12" font-weight="600" fill="#f59e0b">Email admin</text>
+              <text x="14" y="50" font-size="10" fill="#6b7280">Alertes agent G</text>
+              <text x="14" y="62" font-size="10" fill="#6b7280">Rapport quotidien</text>
+            </g>
+
+            <!-- ════════════════════════════════════════════
+                 CONNEXIONS
+                 ════════════════════════════════════════════ -->
+
+            <!-- GitHub → Cloudflare site (push deploy) -->
+            <path d="M190 91 L240 91" stroke="#22c55e" stroke-width="1.5" fill="none" marker-end="url(#fl-vert)"/>
+            <text x="210" y="85" text-anchor="middle" font-size="9" fill="#22c55e">push</text>
+
+            <!-- GitHub → Cloudflare pilotage (push deploy) -->
+            <path d="M190 91 Q220 55 450 91" stroke="#22c55e" stroke-width="1.5" fill="none" marker-end="url(#fl-vert)" stroke-dasharray="4 3"/>
+            <text x="320" y="52" text-anchor="middle" font-size="9" fill="#22c55e">deploy auto</text>
+
+            <!-- Cloudflare site → Supabase (HTTPS API) -->
+            <path d="M400 91 Q540 91 670 91" stroke="#3b82f6" stroke-width="1.5" fill="none" marker-end="url(#fl-bleu)"/>
+            <text x="535" y="82" text-anchor="middle" font-size="9" fill="#3b82f6">HTTPS API</text>
+
+            <!-- Cloudflare pilotage → Supabase -->
+            <path d="M610 91 L670 91" stroke="#8b5cf6" stroke-width="1.5" fill="none" marker-end="url(#fl-gris)"/>
+
+            <!-- Agent A → BOAMP -->
+            <path d="M98 575 Q880 290 935 127" stroke="#8b5cf6" stroke-width="1.5" fill="none" marker-end="url(#fl-gris)"/>
+            <text x="600" y="310" text-anchor="middle" font-size="9" fill="#8b5cf6">fetch API</text>
+
+            <!-- Agent A → Supabase (stocke offres) -->
+            <path d="M146 575 Q400 350 745 127" stroke="#22c55e" stroke-width="1.5" fill="none" marker-end="url(#fl-vert)"/>
+            <text x="380" y="308" text-anchor="middle" font-size="9" fill="#22c55e">stocke offres</text>
+
+            <!-- Agent B → Supabase (lit offres, écrit notes) -->
+            <path d="M213 575 Q500 360 745 155" stroke="#22c55e" stroke-width="1.5" fill="none" marker-end="url(#fl-vert)"/>
+
+            <!-- Agent B → Brevo (email veille) -->
+            <path d="M261 575 Q700 390 1115 127" stroke="#06b6d4" stroke-width="1.5" fill="none" marker-end="url(#fl-bleu)"/>
+            <text x="780" y="390" text-anchor="middle" font-size="9" fill="#06b6d4">email veille</text>
+
+            <!-- Agent C → Supabase (lit/écrit chat) -->
+            <path d="M328 575 Q500 380 745 170" stroke="#3b82f6" stroke-width="1.5" fill="none" marker-end="url(#fl-bleu)"/>
+
+            <!-- Agent C → Ollama -->
+            <path d="M328 609 L360 609" stroke="#a3a3a3" stroke-width="1.5" fill="none" marker-end="url(#fl-gris)"/>
+            <path d="M360 609 Q420 609 420 580" stroke="#a3a3a3" stroke-width="1.5" fill="none"/>
+            <!-- Ollama → Agent C et D (flèche inverse) -->
+            <text x="378" y="602" font-size="9" fill="#a3a3a3">IA</text>
+
+            <!-- Agent D → Supabase -->
+            <path d="M443 575 Q550 390 745 180" stroke="#3b82f6" stroke-width="1.5" fill="none" marker-end="url(#fl-bleu)"/>
+
+            <!-- Agent D → Brevo (email résultat) -->
+            <path d="M491 590 Q800 400 1115 140" stroke="#06b6d4" stroke-width="1.5" fill="none" marker-end="url(#fl-bleu)"/>
+
+            <!-- Agent G → Supabase (lit journal) -->
+            <path d="M120 680 Q400 600 745 185" stroke="#f59e0b" stroke-width="1.5" fill="none" marker-end="url(#fl-orange)" stroke-dasharray="5 3"/>
+            <text x="420" y="590" text-anchor="middle" font-size="9" fill="#f59e0b">lit journal</text>
+
+            <!-- Agent G → Brevo (email alerte) -->
+            <path d="M190 680 Q700 650 1115 155" stroke="#f59e0b" stroke-width="1.5" fill="none" marker-end="url(#fl-orange)"/>
+            <text x="700" y="660" text-anchor="middle" font-size="9" fill="#f59e0b">alerte / rapport</text>
+
+            <!-- n8n → Agents A B C D G (contient) -->
+            <line x1="120" y1="530" x2="120" y2="575" stroke="#ea4b71" stroke-width="1.5" stroke-dasharray="3 3" marker-end="url(#fl-gris)"/>
+            <line x1="150" y1="530" x2="210" y2="575" stroke="#ea4b71" stroke-width="1.5" stroke-dasharray="3 3" marker-end="url(#fl-gris)"/>
+            <line x1="165" y1="530" x2="325" y2="575" stroke="#ea4b71" stroke-width="1.5" stroke-dasharray="3 3" marker-end="url(#fl-gris)"/>
+            <line x1="175" y1="530" x2="440" y2="575" stroke="#ea4b71" stroke-width="1.5" stroke-dasharray="3 3" marker-end="url(#fl-gris)"/>
+            <path d="M140 530 Q100 580 120 680" stroke="#ea4b71" stroke-width="1.5" stroke-dasharray="3 3" fill="none" marker-end="url(#fl-gris)"/>
+
+            <!-- n8n → Ollama -->
+            <line x1="190" y1="490" x2="230" y2="490" stroke="#a3a3a3" stroke-width="1.5" fill="none" marker-end="url(#fl-gris)"/>
+            <text x="210" y="484" text-anchor="middle" font-size="9" fill="#a3a3a3">HTTP</text>
+
+            <!-- Cloudflare site → Navigateur client -->
+            <path d="M340 91 Q470 150 690 450" stroke="#3b82f6" stroke-width="1.5" fill="none" marker-end="url(#fl-bleu)" stroke-dasharray="5 3"/>
+            <text x="490" y="225" text-anchor="middle" font-size="9" fill="#3b82f6">site SPA</text>
+
+            <!-- Cloudflare pilotage → Admin -->
+            <path d="M530 91 Q750 200 910 450" stroke="#8b5cf6" stroke-width="1.5" fill="none" marker-end="url(#fl-gris)" stroke-dasharray="5 3"/>
+            <text x="760" y="210" text-anchor="middle" font-size="9" fill="#8b5cf6">pilotage SPA</text>
+
+            <!-- Brevo → Email client -->
+            <path d="M1115 127 Q1130 400 770 570" stroke="#06b6d4" stroke-width="1" fill="none" marker-end="url(#fl-bleu)"/>
+
+            <!-- Brevo → Email admin -->
+            <path d="M1115 127 Q1120 500 990 570" stroke="#f59e0b" stroke-width="1" fill="none" marker-end="url(#fl-orange)"/>
+
+            <!-- Navigateur client → Supabase (auth + data) -->
+            <path d="M690 490 Q730 300 745 185" stroke="#3b82f6" stroke-width="1.5" fill="none" marker-end="url(#fl-bleu)" stroke-dasharray="4 3"/>
+            <text x="754" y="340" font-size="9" fill="#3b82f6">auth+data</text>
+
+            <!-- Admin → Supabase -->
+            <path d="M910 490 Q840 300 820 185" stroke="#8b5cf6" stroke-width="1" fill="none" marker-end="url(#fl-gris)" stroke-dasharray="4 3"/>
+
+            <!-- ════════════════════════════════════════════
+                 LABELS connexions n8n ↔ Supabase
+                 ════════════════════════════════════════════ -->
+            <!-- n8n lit la file Supabase -->
+            <path d="M190 460 Q420 350 670 160" stroke="#ea4b71" stroke-width="1.5" fill="none" marker-end="url(#fl-gris)" stroke-dasharray="4 3"/>
+            <text x="410" y="285" text-anchor="middle" font-size="9" fill="#ea4b71">poll file</text>
+
+            <!-- ════════════════════════════════════════════
+                 ÉTIQUETTES ZONES
+                 ════════════════════════════════════════════ -->
+            <text x="22" y="445" font-size="11" fill="#374151">Windows · n8n · Ollama · Agents</text>
+            <text x="602" y="445" font-size="11" fill="#374151">Navigateurs · Emails reçus</text>
+
+          </svg>
+        </div>
+
+        <!-- Légende -->
+        <div class="legende">
+          <div class="legende-item"><div class="legende-trait bleu"></div>Données / HTTPS API</div>
+          <div class="legende-item"><div class="legende-trait vert"></div>Collecte &amp; stockage offres</div>
+          <div class="legende-item"><div class="legende-trait orange"></div>Alertes &amp; supervision (G)</div>
+          <div class="legende-item"><div class="legende-trait" style="background:#06b6d4"></div>Emails Brevo</div>
+          <div class="legende-item"><div class="legende-trait" style="background:#ea4b71"></div>n8n orchestre les agents</div>
+          <div class="legende-item"><div class="legende-trait tiret" style="width:28px"></div>Déploiement automatique</div>
+        </div>
+
+        <!-- Cards explicatives -->
+        <div class="archi-desc">
+
+          <div class="archi-desc-card">
+            <h3><div class="dot" style="background:#30363d"></div>GitHub</h3>
+            <p>Dépôt source unique (<code>lumeniaindustrie-stack/Lumenmarket</code>). Chaque <code>git push</code> sur <code>main</code> déclenche automatiquement le déploiement des deux sites Cloudflare Pages.</p>
+          </div>
+
+          <div class="archi-desc-card">
+            <h3><div class="dot" style="background:#f97316"></div>Cloudflare Pages</h3>
+            <p>Héberge deux sites statiques sans serveur : <strong>lumen-marches</strong> (espace client) et <strong>lumen-pilotage</strong> (tableau de bord admin). CDN mondial, HTTPS automatique, zéro infrastructure à gérer.</p>
+          </div>
+
+          <div class="archi-desc-card">
+            <h3><div class="dot" style="background:#3ecf8e"></div>Supabase</h3>
+            <p>Base de données PostgreSQL managée avec Auth, RLS et triggers. Les sites lisent et écrivent via l'API REST avec la clé publishable. Les agents n8n utilisent la clé service côté PC (jamais dans le navigateur).</p>
+          </div>
+
+          <div class="archi-desc-card">
+            <h3><div class="dot" style="background:#ea4b71"></div>n8n (local)</h3>
+            <p>Orchestrateur de workflows sur le PC de Marin. Démarre automatiquement au démarrage Windows (port 5678). Surveille Supabase en polling et exécute les 5 agents selon leur calendrier.</p>
+          </div>
+
+          <div class="archi-desc-card">
+            <h3><div class="dot" style="background:#a3a3a3"></div>Ollama (local)</h3>
+            <p>Modèle IA <code>qwen2.5:7b</code> tournant en local sur le PC (port 11434). Utilisé par l'agent B pour noter les offres, par C pour répondre au chat, et par D pour analyser les DCE.</p>
+          </div>
+
+          <div class="archi-desc-card">
+            <h3><div class="dot" style="background:#22c55e"></div>Agents A &amp; B</h3>
+            <p><strong>A</strong> collecte les offres du BOAMP toutes les 2h (6h–20h) et les stocke dans Supabase. <strong>B</strong> les trie et note chaque matin en semaine à 6h45, puis envoie la veille par email.</p>
+          </div>
+
+          <div class="archi-desc-card">
+            <h3><div class="dot" style="background:#3b82f6"></div>Agents C &amp; D</h3>
+            <p><strong>C</strong> répond aux questions des clients (chat) toutes les 15 sec. <strong>D</strong> analyse les DCE déposés par les clients toutes les 20 sec, avec retry automatique et email de résultat.</p>
+          </div>
+
+          <div class="archi-desc-card">
+            <h3><div class="dot" style="background:#f59e0b"></div>Agent G – Contrôleur</h3>
+            <p>Surveille A, B, C, D et Ollama toutes les heures de 7h à 22h. Envoie un email d'alerte si un problème est détecté (sans répéter pendant 6h) et un rapport quotidien à 21h.</p>
+          </div>
+
+          <div class="archi-desc-card">
+            <h3><div class="dot" style="background:#06b6d4"></div>Brevo SMTP</h3>
+            <p>Service d'envoi d'emails. Utilisé par B (veille quotidienne), D (résultat d'analyse au client), et G (alertes et rapport à Marin). Credentials stockées uniquement dans n8n, jamais dans le code.</p>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+  </div>
+</div>
+
+<script type="module">
+import { SB, Compte } from "./commun.js";
+import { verifierAdmin } from "./agents.js";
+
+(async () => {
+  const porte  = document.getElementById("porte");
+  const app    = document.getElementById("app");
+  const qui    = document.getElementById("qui");
+  const sortir = document.getElementById("sortir");
+  const fPorte = document.getElementById("f-porte");
+  const porteTxt = document.getElementById("porte-txt");
+  const aSt   = document.getElementById("a-st");
+  const aGo   = document.getElementById("a-go");
+
+  // Vérif admin
+  const { erreur, moi } = await verifierAdmin();
+  if (erreur) {
+    porteTxt.textContent = erreur || "Espace réservé à l'administrateur.";
+    porte.hidden = false; return;
+  }
+  if (!moi) { porte.hidden = false; }
+  else {
+    qui.textContent = moi.email || moi.entreprise || "";
+    app.hidden = false;
+  }
+
+  // Connexion depuis la porte
+  fPorte.addEventListener("submit", async e => {
+    e.preventDefault();
+    aGo.disabled = true; aSt.textContent = "Connexion…";
+    const { error } = await SB.auth.signInWithPassword({
+      email: document.getElementById("a-email").value.trim(),
+      password: document.getElementById("a-mdp").value
+    });
+    if (error) { aSt.textContent = error.message; aGo.disabled = false; return; }
+    location.reload();
+  });
+
+  // Déconnexion
+  sortir.addEventListener("click", async () => { await Compte.deconnecter(); location.reload(); });
+
+  // Navigation entre vues (liens sidebar)
+  document.querySelectorAll(".nav button[data-v]").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const v = btn.dataset.v;
+      // Les autres vues sont sur index.html
+      if (v === "architecture") return;
+      location.href = "index.html#" + v;
+    });
+  });
+})();
+</script>
+</body>
+</html>
