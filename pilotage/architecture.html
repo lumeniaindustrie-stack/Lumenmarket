@@ -7,199 +7,61 @@
 <title>Architecture – Lumen Pilotage</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&display=swap">
-<link rel="stylesheet" href="admin.css?v=202611082128">
-<script src="config.js?v=202611082128"></script>
+<link rel="stylesheet" href="admin.css?v=202611082133">
+<script src="config.js?v=202611082133"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
 <style>
 /* ── Page architecture ── */
-.archi-wrap {
-  padding: 12px 24px 24px 20px;
-  display: flex;
-  flex-direction: column;
-  height: calc(100vh - 100px);
-  box-sizing: border-box;
-  overflow: hidden;
-}
-.ac-schema-outer {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  overflow: hidden;
-  min-height: 0;
-}
+.archi-wrap { padding: 8px 16px 24px 12px; display: grid; gap: 12px }
+.ar-carte { background: var(--panel-d); border: 1px solid var(--line); border-radius: 16px; box-shadow: var(--shadow); padding: 14px }
+.ar-tete { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 12px; flex-wrap: wrap }
+.ar-tete h2 { font-size: 16px; font-weight: 500; letter-spacing: -.01em }
+.ar-tete p { font-size: 11.5px; color: var(--t3) }
+.ar-maj { font-size: 11px; color: var(--t3); display: inline-flex; align-items: center; gap: 6px }
+.ar-maj i { width: 6px; height: 6px; border-radius: 50%; background: var(--vert); animation: pouls 2.4s infinite }
 
-/* Schéma en colonnes — taille fixe, on scale pour rentrer */
-.ac-schema {
-  display: flex;
-  align-items: flex-start;
-  gap: 0;
-  transform-origin: center center;
-  padding: 4px 0;
-}
+/* schéma : 6 colonnes séparées par des flèches */
+.ar-schema { display: grid; grid-template-columns: minmax(0,1fr) 64px minmax(0,1fr) 64px minmax(0,1fr) 64px minmax(0,1.15fr) 64px minmax(0,1fr) 64px minmax(0,1fr); align-items: start; background: var(--canvas); border-radius: 12px; padding: 14px 12px; overflow-x: auto }
+.ar-col { display: grid; gap: 8px; min-width: 140px }
+.ar-cat { font-size: 10px; font-weight: 600; letter-spacing: .07em; text-transform: uppercase; color: var(--t3); text-align: center; padding: 3px 0 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis }
+.ar-fl { align-self: start; margin-top: 42px; display: grid; justify-items: center; gap: 3px; font-size: 10px; color: var(--t3); text-align: center; line-height: 1.25 }
+.ar-fl svg { width: 52px; height: 10px; overflow: visible }
+.ar-fl.gris svg { color: #A3ACBB } .ar-fl.bleu svg { color: var(--bleu) } .ar-fl.vert svg { color: var(--vert) } .ar-fl.cyan svg { color: #0EA5C6 }
 
-/* Colonne */
-.ac-col {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 8px;
-  width: 136px;
-  flex-shrink: 0;
-}
-.ac-label {
-  font-size: 9.5px;
-  font-weight: 700;
-  letter-spacing: .07em;
-  text-transform: uppercase;
-  color: var(--t3);
-  margin-bottom: 4px;
-  text-align: center;
-  white-space: nowrap;
-  padding: 3px 10px;
-  background: var(--panel-2);
-  border-radius: 20px;
-  border: 1px solid var(--line);
-}
+.ar-svc { position: relative; display: grid; grid-template-columns: 28px minmax(0,1fr); gap: 4px 9px; align-items: start; padding: 9px 10px; background: #fff; border: 1px solid var(--line); border-left: 3px solid var(--c, var(--line-2)); border-radius: 10px; color: inherit; text-decoration: none; transition: border-color .15s, box-shadow .15s, transform .15s }
+a.ar-svc:hover { box-shadow: 0 6px 16px -10px rgba(16,24,40,.3); transform: translateY(-1px); border-color: var(--c, var(--bleu)) }
+a.ar-svc::after { content: "↗"; position: absolute; top: 6px; right: 8px; font-size: 11px; color: var(--t3); opacity: 0; transition: opacity .15s }
+a.ar-svc:hover::after { opacity: 1 }
+.ar-ic { width: 28px; height: 28px; border-radius: 8px; display: grid; place-items: center; background: var(--f, var(--panel-2)); color: var(--c, var(--t2)); font-size: 10.5px; font-weight: 700 }
+.ar-ic svg { width: 15px; height: 15px }
+.ar-nom { font-size: 12.5px; font-weight: 600; color: var(--t1); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding-right: 10px }
+.ar-role { grid-column: 2; font-size: 11px; color: var(--t3); line-height: 1.35; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden }
+.ar-etat { grid-column: 1 / -1; display: flex; align-items: center; gap: 6px; font-size: 10.5px; color: var(--t3); border-top: 1px dashed var(--line); padding-top: 6px; margin-top: 3px; min-width: 0 }
+.ar-etat span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis }
+.ar-etat i { width: 6px; height: 6px; border-radius: 50%; background: #C3C9D4; flex: none }
+.ar-etat.ok i { background: var(--vert) } .ar-etat.att i { background: var(--orange) } .ar-etat.ko i { background: var(--rouge) }
+.ar-etat.ok { color: var(--vert-t) } .ar-etat.att { color: var(--orange-t) } .ar-etat.ko { color: var(--rouge-t) }
+.ar-agents { display: grid; grid-template-columns: 1fr 1fr; gap: 6px }
+.ar-agent { display: grid; justify-items: center; gap: 1px; padding: 6px 4px; background: #fff; border: 1px solid var(--line); border-radius: 9px; text-decoration: none; color: var(--t2); font-size: 10.5px; text-align: center; transition: border-color .15s }
+.ar-agent:hover { border-color: var(--bleu) }
+.ar-agent b { font-size: 13px; color: var(--t1); display: flex; align-items: center; gap: 5px }
+.ar-agent b i { width: 6px; height: 6px; border-radius: 50%; background: #C3C9D4 }
+.ar-agent.ok b i { background: var(--vert) } .ar-agent.att b i { background: var(--orange) } .ar-agent.ko b i { background: var(--rouge) }
+.ar-agent span { max-width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis }
+.ar-agent.idle { opacity: .6; border-style: dashed }
 
-/* Nœud générique */
-.ac-node {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  gap: 9px;
-  width: 136px;
-  padding: 10px 11px;
-  border-radius: 10px;
-  background: var(--panel);
-  border: 1.5px solid var(--line);
-  box-shadow: var(--shadow-sm);
-  text-align: left;
-  box-sizing: border-box;
-}
-.ac-node-ic {
-  width: 32px; height: 32px; flex: none;
-  display: flex; align-items: center; justify-content: center;
-  border-radius: 8px;
-  background: var(--panel-2);
-}
-.ac-node-ic svg { width: 18px; height: 18px; }
-.ac-node-ic-text {
-  font-size: 12px; font-weight: 800; color: var(--t1);
-}
-.ac-node-info strong {
-  display: block; font-size: 11.5px; font-weight: 600; color: var(--t1);
-  line-height: 1.3;
-}
-.ac-node-info span {
-  display: block; font-size: 10px; color: var(--t3); line-height: 1.4; margin-top: 2px;
-}
-
-/* Couleurs par service (thème light) */
-.ac-github  { border-color: #D0D7DE }
-.ac-github .ac-node-ic  { background: #F6F8FA }
-.ac-cf      { border-color: #FED7AA }
-.ac-cf .ac-node-ic      { background: #FFF7ED }
-.ac-supa    { border-color: #A7F3D0 }
-.ac-supa .ac-node-ic    { background: #ECFDF5 }
-.ac-n8n     { border-color: #FBCFE8 }
-.ac-n8n .ac-node-ic     { background: #FDF2F8 }
-.ac-ollama  { border-color: #E9D5FF }
-.ac-ollama .ac-node-ic  { background: #FAF5FF }
-.ac-brevo   { border-color: #BAE6FD }
-.ac-brevo .ac-node-ic   { background: #F0F9FF }
-.ac-boamp   { border-color: #DDD6FE }
-.ac-boamp .ac-node-ic   { background: #F5F3FF }
-.ac-client  { border-color: #BFDBFE }
-.ac-client .ac-node-ic  { background: #EFF6FF }
-.ac-admin   { border-color: #DDD6FE }
-.ac-admin .ac-node-ic   { background: #F5F3FF }
-
-/* Grille agents dans la colonne n8n */
-.ac-agents-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 5px;
-  width: 136px;
-  box-sizing: border-box;
-}
-.ac-agent {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 7px 4px;
-  border-radius: 8px;
-  border: 1.5px solid var(--line);
-  background: var(--panel);
-  box-shadow: var(--shadow-sm);
-}
-.ac-agent strong { font-size: 14px; font-weight: 700; }
-.ac-agent span   { font-size: 9px; color: var(--t3); margin-top: 1px; text-align: center; line-height: 1.2 }
-.ac-agent-vert  { border-color: #A7F3D0 }
-.ac-agent-vert strong  { color: var(--vert) }
-.ac-agent-bleu  { border-color: #BFDBFE }
-.ac-agent-bleu strong  { color: var(--bleu) }
-.ac-agent-orange { border-color: #FDE68A }
-.ac-agent-orange strong { color: var(--orange) }
-.ac-agent-wide { grid-column: 1 / -1 }
-
-/* Connecteur entre colonnes */
-.ac-arrow {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: flex-start;
-  flex-shrink: 0;
-  padding: 0 4px;
-  margin-top: 38px; /* aligné sur les icônes des nœuds */
-}
-.ac-arrow-line {
-  width: 32px;
-  height: 2px;
-  background: var(--line-2);
-  position: relative;
-  border-radius: 1px;
-}
-.ac-arrow-line::after {
-  content: '';
-  position: absolute;
-  right: -1px; top: -4px;
-  border: 5px solid transparent;
-  border-left: 7px solid var(--line-2);
-}
-.ac-arrow-bleu .ac-arrow-line { background: var(--bleu) }
-.ac-arrow-bleu .ac-arrow-line::after { border-left-color: var(--bleu) }
-.ac-arrow-vert .ac-arrow-line { background: var(--vert) }
-.ac-arrow-vert .ac-arrow-line::after { border-left-color: var(--vert) }
-.ac-arrow-cyan .ac-arrow-line { background: #06B6D4 }
-.ac-arrow-cyan .ac-arrow-line::after { border-left-color: #06B6D4 }
-.ac-arrow-label {
-  font-size: 9px;
-  color: var(--t3);
-  margin-top: 5px;
-  white-space: nowrap;
-  text-align: center;
-  line-height: 1.3;
-  max-width: 46px;
-}
-
-/* Légende compacte */
-.legende {
-  display: flex; flex-wrap: wrap; gap: 14px;
-  padding: 8px 14px;
-  background: var(--panel); border: 1.5px solid var(--line); border-radius: var(--r-sm);
-  flex-shrink: 0; margin-top: 10px; box-shadow: var(--shadow-sm);
-}
-.legende-item { display: flex; align-items: center; gap: 7px; font-size: 11px; color: var(--t3) }
-.legende-trait { width: 22px; height: 2px; border-radius: 1px }
-.legende-trait.bleu   { background: var(--bleu) }
-.legende-trait.vert   { background: var(--vert) }
-.legende-trait.orange { background: var(--orange) }
-.legende-trait.cyan   { background: #06B6D4 }
-.legende-trait.gris   { background: var(--line-2) }
-/* carte englobante, comme les autres pages */
-.ac-schema-outer { background: var(--canvas); border: 10px solid var(--panel-d); outline: 1px solid var(--line); border-radius: var(--r-xl); box-shadow: var(--shadow); margin-top: 4px }
-.archi-wrap .legende { border-radius: 999px; margin-top: 14px }
+/* base de données en direct */
+.ar-db { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 8px }
+.ar-table { display: grid; grid-template-columns: minmax(0,1fr) auto; gap: 2px 10px; align-items: baseline; padding: 10px 12px; background: #fff; border: 1px solid var(--line); border-radius: 10px; text-decoration: none; color: inherit; transition: border-color .15s }
+.ar-table:hover { border-color: #3ECF8E }
+.ar-table b { font-size: 12px; font-weight: 600; color: var(--t1); font-family: var(--mono); white-space: nowrap; overflow: hidden; text-overflow: ellipsis }
+.ar-table strong { font-size: 17px; font-weight: 600; letter-spacing: -.02em; font-variant-numeric: tabular-nums }
+.ar-table small { grid-column: 1 / -1; font-size: 10.5px; color: var(--t3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis }
+.ar-table.ko strong { color: var(--rouge-t); font-size: 11px }
+.ar-legende { display: flex; flex-wrap: wrap; gap: 14px; margin-top: 10px; font-size: 10.5px; color: var(--t2) }
+.ar-legende span { display: inline-flex; align-items: center; gap: 6px }
+.ar-legende i { width: 18px; height: 2px; border-radius: 1px }
+@media (max-width: 1100px) { .ar-db { grid-template-columns: repeat(2, minmax(0,1fr)) } }
 </style>
 </head>
 <body>
@@ -253,179 +115,38 @@
     <section class="vue on" id="v-architecture" data-titre="Architecture">
       <div class="archi-wrap">
 
-        <div class="entete" style="margin-bottom:24px">
+        <div class="entete">
           <span class="tuile-ic">
             <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a3.5 3.5 0 0 1 3.5 3.5v.6A6.5 6.5 0 0 1 20 12v.5a3.5 3.5 0 1 1-2 0V12a4.5 4.5 0 0 0-3-4.24V9.5a3.5 3.5 0 1 1-6 0V7.76A4.5 4.5 0 0 0 6 12v.5a3.5 3.5 0 1 1-2 0V12a6.5 6.5 0 0 1 4.5-6.14V5.5A3.5 3.5 0 0 1 12 2z"/></svg>
           </span>
           <div><h1>Architecture système</h1><p>Vue complète de l'infrastructure Lumen Marchés</p></div>
         </div>
 
-        <!-- SCHÉMA EN COLONNES -->
-        <div class="ac-schema-outer">
-        <div class="ac-schema" id="ac-schema">
-
-          <!-- Colonne 1 : Code source -->
-          <div class="ac-col">
-            <div class="ac-label">Code source</div>
-            <div class="ac-node ac-github">
-              <div class="ac-node-ic">
-                <svg viewBox="0 0 24 24" fill="#24292F"><path d="M12 2C6.48 2 2 6.48 2 12c0 4.42 2.87 8.17 6.84 9.49.5.09.68-.22.68-.48v-1.7c-2.78.6-3.37-1.34-3.37-1.34-.45-1.16-1.11-1.47-1.11-1.47-.91-.62.07-.61.07-.61 1 .07 1.53 1.03 1.53 1.03.89 1.52 2.34 1.08 2.91.83.09-.65.35-1.08.63-1.33-2.22-.25-4.56-1.11-4.56-4.95 0-1.09.39-1.98 1.03-2.68-.1-.25-.45-1.27.1-2.64 0 0 .84-.27 2.75 1.02A9.56 9.56 0 0 1 12 6.84c.85.004 1.7.115 2.5.337 1.91-1.29 2.75-1.02 2.75-1.02.55 1.37.2 2.39.1 2.64.64.7 1.03 1.59 1.03 2.68 0 3.85-2.34 4.7-4.57 4.95.36.31.68.92.68 1.85v2.74c0 .27.18.58.69.48A10.01 10.01 0 0 0 22 12c0-5.52-4.48-10-10-10z"/></svg>
-              </div>
-              <div class="ac-node-info">
-                <strong>GitHub</strong>
-                <span>lumeniaindustrie-stack/Lumenmarket</span>
-              </div>
-            </div>
+        <div class="ar-carte">
+          <div class="ar-tete"><div><h2>Infrastructure</h2><p>Cliquez sur un service pour l'ouvrir dans un nouvel onglet.</p></div><span class="ar-maj" id="ar-maj"><i></i>Chargement…</span></div>
+          <div class="ar-schema">
+            <div class="ar-col"><div class="ar-cat" title="Code source">Code source</div><div id="col-code"></div></div>
+            <div class="ar-fl gris"><svg viewBox="0 0 52 10"><path d="M0 5h46" stroke="currentColor" stroke-width="1.6"/><path d="M45 1l5 4-5 4" fill="none" stroke="currentColor" stroke-width="1.6"/></svg>push<br>déploie</div>
+            <div class="ar-col"><div class="ar-cat" title="Hébergement">Hébergement</div><div id="col-heb" style="display:grid;gap:8px"></div></div>
+            <div class="ar-fl bleu"><svg viewBox="0 0 52 10"><path d="M0 5h46" stroke="currentColor" stroke-width="1.6"/><path d="M45 1l5 4-5 4" fill="none" stroke="currentColor" stroke-width="1.6"/></svg>API<br>HTTPS</div>
+            <div class="ar-col"><div class="ar-cat" title="Base de données">Base de données</div><div id="col-db"></div></div>
+            <div class="ar-fl vert"><svg viewBox="0 0 52 10"><path d="M6 5h40" stroke="currentColor" stroke-width="1.6"/><path d="M45 1l5 4-5 4M7 1 2 5l5 4" fill="none" stroke="currentColor" stroke-width="1.6"/></svg>lecture<br>écriture</div>
+            <div class="ar-col"><div class="ar-cat" title="Orchestration locale">Orchestration locale</div><div id="col-orch" style="display:grid;gap:8px"></div></div>
+            <div class="ar-fl cyan"><svg viewBox="0 0 52 10"><path d="M0 5h46" stroke="currentColor" stroke-width="1.6"/><path d="M45 1l5 4-5 4" fill="none" stroke="currentColor" stroke-width="1.6"/></svg>emails<br>API</div>
+            <div class="ar-col"><div class="ar-cat" title="Services externes">Services externes</div><div id="col-ext" style="display:grid;gap:8px"></div></div>
+            <div class="ar-fl gris"><svg viewBox="0 0 52 10"><path d="M0 5h46" stroke="currentColor" stroke-width="1.6"/><path d="M45 1l5 4-5 4" fill="none" stroke="currentColor" stroke-width="1.6"/></svg>reçoivent<br>consultent</div>
+            <div class="ar-col"><div class="ar-cat" title="Utilisateurs">Utilisateurs</div><div id="col-users" style="display:grid;gap:8px"></div></div>
           </div>
-
-          <!-- Flèche deploy -->
-          <div class="ac-arrow">
-            <div class="ac-arrow-line"></div>
-            <div class="ac-arrow-label">push → deploy</div>
+          <div class="ar-legende">
+            <span><i style="background:#A3ACBB"></i>Déploiement</span><span><i style="background:var(--bleu)"></i>Appels API HTTPS</span>
+            <span><i style="background:var(--vert)"></i>Lecture et écriture des agents</span><span><i style="background:#0EA5C6"></i>Emails (Brevo) et collecte (BOAMP)</span>
           </div>
+        </div>
 
-          <!-- Colonne 2 : Hébergement -->
-          <div class="ac-col">
-            <div class="ac-label">Hébergement</div>
-            <div class="ac-node ac-cf">
-              <div class="ac-node-ic">
-                <svg viewBox="0 0 24 24" fill="none" stroke="#F97316" stroke-width="1.8"><ellipse cx="12" cy="12" rx="10" ry="7"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 5 Q17 12 12 19 Q7 12 12 5"/></svg>
-              </div>
-              <div class="ac-node-info">
-                <strong>CF Pages — Site</strong>
-                <span>lumen-marches.pages.dev</span>
-              </div>
-            </div>
-            <div class="ac-node ac-cf">
-              <div class="ac-node-ic">
-                <svg viewBox="0 0 24 24" fill="none" stroke="#F97316" stroke-width="1.8"><ellipse cx="12" cy="12" rx="10" ry="7"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 5 Q17 12 12 19 Q7 12 12 5"/></svg>
-              </div>
-              <div class="ac-node-info">
-                <strong>CF Pages — Pilotage</strong>
-                <span>lumen-pilotage.pages.dev</span>
-              </div>
-            </div>
-          </div>
-
-          <!-- Flèche API -->
-          <div class="ac-arrow ac-arrow-bleu">
-            <div class="ac-arrow-line"></div>
-            <div class="ac-arrow-label">HTTPS API</div>
-          </div>
-
-          <!-- Colonne 3 : Base de données -->
-          <div class="ac-col">
-            <div class="ac-label">Base de données</div>
-            <div class="ac-node ac-supa">
-              <div class="ac-node-ic">
-                <svg viewBox="0 0 24 24" fill="#3ECF8E"><path d="M11.9 1.5 L2 16.5 h9.9 v6L22 7.5 h-10.1z"/></svg>
-              </div>
-              <div class="ac-node-info">
-                <strong>Supabase</strong>
-                <span>Auth · Profils · Offres · Analyses · Chat · Runs</span>
-              </div>
-            </div>
-          </div>
-
-          <!-- Flèche poll + écriture -->
-          <div class="ac-arrow ac-arrow-vert">
-            <div class="ac-arrow-line"></div>
-            <div class="ac-arrow-label">poll + écriture</div>
-          </div>
-
-          <!-- Colonne 4 : Orchestration locale -->
-          <div class="ac-col">
-            <div class="ac-label">Orchestration locale</div>
-            <div class="ac-node ac-n8n">
-              <div class="ac-node-ic"><span class="ac-node-ic-text" style="color:#E91E8C;font-size:13px;font-weight:800">n8n</span></div>
-              <div class="ac-node-info">
-                <strong>n8n</strong>
-                <span>Windows · port 5678</span>
-              </div>
-            </div>
-            <div class="ac-agents-grid">
-              <div class="ac-agent ac-agent-vert"><strong>A</strong><span>Collecteur</span></div>
-              <div class="ac-agent ac-agent-vert"><strong>B</strong><span>Tri &amp; Veille</span></div>
-              <div class="ac-agent ac-agent-bleu"><strong>C</strong><span>Chat</span></div>
-              <div class="ac-agent ac-agent-bleu"><strong>D</strong><span>Analyse</span></div>
-              <div class="ac-agent ac-agent-orange ac-agent-wide"><strong>G</strong><span>Contrôleur</span></div>
-            </div>
-            <div class="ac-node ac-ollama">
-              <div class="ac-node-ic"><span class="ac-node-ic-text" style="color:#7C3AED">AI</span></div>
-              <div class="ac-node-info">
-                <strong>Ollama</strong>
-                <span>qwen2.5:7b · port 11434</span>
-              </div>
-            </div>
-          </div>
-
-          <!-- Flèche emails -->
-          <div class="ac-arrow ac-arrow-cyan">
-            <div class="ac-arrow-line"></div>
-            <div class="ac-arrow-label">SMTP emails</div>
-          </div>
-
-          <!-- Colonne 5 : Services externes -->
-          <div class="ac-col">
-            <div class="ac-label">Services externes</div>
-            <div class="ac-node ac-brevo">
-              <div class="ac-node-ic">
-                <svg viewBox="0 0 24 24" fill="none" stroke="#0EA5E9" stroke-width="1.8"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M2 7 L12 13 L22 7"/></svg>
-              </div>
-              <div class="ac-node-info">
-                <strong>Brevo SMTP</strong>
-                <span>Alertes &amp; analyses par email</span>
-              </div>
-            </div>
-            <div class="ac-node ac-boamp">
-              <div class="ac-node-ic">
-                <svg viewBox="0 0 24 24" fill="none"><path d="M12 2 L2 7 L12 12 L22 7 Z" fill="#7C3AED"/><path d="M2 17 L12 22 L22 17" stroke="#7C3AED" stroke-width="1.8" fill="none"/><path d="M2 12 L12 17 L22 12" stroke="#7C3AED" stroke-width="1.8" fill="none"/></svg>
-              </div>
-              <div class="ac-node-info">
-                <strong>BOAMP</strong>
-                <span>Marchés publics, API officielle</span>
-              </div>
-            </div>
-          </div>
-
-          <!-- Flèche destinataires -->
-          <div class="ac-arrow">
-            <div class="ac-arrow-line"></div>
-            <div class="ac-arrow-label">reçoit</div>
-          </div>
-
-          <!-- Colonne 6 : Utilisateurs -->
-          <div class="ac-col">
-            <div class="ac-label">Utilisateurs</div>
-            <div class="ac-node ac-client">
-              <div class="ac-node-ic">
-                <svg viewBox="0 0 24 24" fill="none" stroke="#3B82F6" stroke-width="1.8"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 20 h8 M12 17 v3"/></svg>
-              </div>
-              <div class="ac-node-info">
-                <strong>Clients PME</strong>
-                <span>Assistant · Analyses · Veille</span>
-              </div>
-            </div>
-            <div class="ac-node ac-admin">
-              <div class="ac-node-ic">
-                <svg viewBox="0 0 24 24" fill="#7C3AED"><circle cx="12" cy="8" r="4"/><path d="M4 20 C4 16 20 16 20 20"/></svg>
-              </div>
-              <div class="ac-node-info">
-                <strong>Admin</strong>
-                <span>Pilotage · Alertes G</span>
-              </div>
-            </div>
-          </div>
-
-        </div><!-- fin ac-schema -->
-        </div><!-- fin ac-schema-outer -->
-
-        <!-- Légende -->
-        <div class="legende">
-          <div class="legende-item"><div class="legende-trait gris"></div>Déploiement CI/CD</div>
-          <div class="legende-item"><div class="legende-trait bleu"></div>Appels API HTTPS</div>
-          <div class="legende-item"><div class="legende-trait vert"></div>Collecte &amp; écriture (agents A, B, C, D)</div>
-          <div class="legende-item"><div class="legende-trait cyan"></div>Emails SMTP (agents B, D, G via Brevo)</div>
+        <div class="ar-carte">
+          <div class="ar-tete"><div><h2>Base de données en direct</h2><p>Nombre de lignes de chaque table, actualisé toutes les 30 secondes. Cliquez pour ouvrir la table dans Supabase.</p></div>
+            <a class="btn sm" id="ar-ouvrir-db" target="_blank" rel="noopener">Ouvrir Supabase ↗</a></div>
+          <div class="ar-db" id="ar-db"></div>
         </div>
 
       </div>
@@ -433,8 +154,8 @@
   </main>
 </div>
 
-<script src="commun.js?v=202611082128"></script>
-<script src="agents.js?v=202611082128"></script>
+<script src="commun.js?v=202611082133"></script>
+<script src="agents.js?v=202611082133"></script>
 <script>
 
 (async () => {
@@ -484,21 +205,63 @@
     btn.addEventListener("click", () => { location.href = "index.html#" + btn.dataset.v; });
   });
 
-  // Auto-scale du schéma pour tenir sans scroll
-  function scaleSchema() {
-    const schema = document.getElementById("ac-schema");
-    const outer  = schema && schema.closest(".ac-schema-outer");
-    if (!schema || !outer) return;
-    schema.style.transform = "scale(1)";
-    const sw = schema.scrollWidth;
-    const sh = schema.scrollHeight;
-    const ow = outer.clientWidth;
-    const oh = outer.clientHeight;
-    const scale = Math.min((ow - 48) / sw, (oh - 48) / sh, 1.55);
-    schema.style.transform = `scale(${scale})`;
+  /* ---------- Schéma d'architecture et base en direct ---------- */
+  const REF = (CFG.SUPABASE_URL || "").match(/https:\/\/([a-z0-9]+)\.supabase/)?.[1] || "";
+  const SUPA = REF ? `https://supabase.com/dashboard/project/${REF}` : "https://supabase.com/dashboard";
+  const N8N = "http://localhost:5678/home/workflows";
+  const COURT = { "A-collecteur": "Collecteur", "B-tri": "Tri", "C-chat": "Chat", "D-analyse": "Analyse", "E-prospection": "Prospection", "F-commercial": "Emails", "G-controle": "Contrôleur", "H-comptable": "Comptable" };
+  const ICO = {
+    gh: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 0 0-3.16 19.5c.5.08.68-.22.68-.48v-1.7c-2.78.6-3.37-1.34-3.37-1.34-.46-1.16-1.11-1.47-1.11-1.47-.9-.62.07-.6.07-.6 1 .07 1.53 1.03 1.53 1.03.9 1.52 2.34 1.08 2.91.83.09-.65.35-1.09.63-1.34-2.22-.25-4.55-1.11-4.55-4.94 0-1.1.39-1.99 1.03-2.69-.1-.25-.45-1.27.1-2.64 0 0 .84-.27 2.75 1.02a9.5 9.5 0 0 1 5 0c1.91-1.3 2.75-1.02 2.75-1.02.55 1.37.2 2.39.1 2.64.64.7 1.03 1.6 1.03 2.69 0 3.84-2.34 4.68-4.57 4.93.36.31.68.92.68 1.85v2.75c0 .27.18.57.69.47A10 10 0 0 0 12 2z"/></svg>',
+    cf: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.7 3.8 5.7 3.8 9s-1.3 6.3-3.8 9c-2.5-2.7-3.8-5.7-3.8-9S9.5 5.7 12 3z"/></svg>',
+    db: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M13.2 2.6c.6-.8 1.9-.3 1.9.7V10h5.3c.9 0 1.4 1 .9 1.7l-8.5 9.7c-.6.8-1.9.3-1.9-.7V14H5.6c-.9 0-1.4-1-.9-1.7z"/></svg>',
+    mail: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3.5 6.5 8.5 6 8.5-6"/></svg>',
+    boamp: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M12 3 3 7.5l9 4.5 9-4.5z"/><path d="m3 12 9 4.5 9-4.5M3 16.5 12 21l9-4.5"/></svg>',
+    pme: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 16v4"/></svg>',
+    admin: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="8" r="3.5"/><path d="M5 20c.8-3.6 3.6-5.5 7-5.5s6.2 1.9 7 5.5"/></svg>'
+  };
+  const quand = d => { if (!d) return "jamais"; const m = Math.round((Date.now() - new Date(d)) / 6e4); return m < 1 ? "à l'instant" : m < 60 ? `il y a ${m} min` : m < 1440 ? `il y a ${Math.round(m / 60)} h` : `il y a ${Math.round(m / 1440)} j`; };
+  const svc = s => `<${s.url ? `a href="${s.url}" target="_blank" rel="noopener"` : "div"} class="ar-svc" style="--c:${s.c};--f:${s.f}" title="${esc(s.nom)} : ${esc(s.role)}${s.url ? " (ouvrir)" : ""}">
+      <span class="ar-ic">${s.ic}</span><span class="ar-nom">${esc(s.nom)}</span><span class="ar-role">${esc(s.role)}</span>
+      <span class="ar-etat ${s.cl || ""}"><i></i><span>${esc(s.etat || "État non suivi")}</span></span></${s.url ? "a" : "div"}>`;
+
+  const TABLES = [["profils", "Comptes clients et admin", "cree_le"], ["offres", "Offres collectées au BOAMP", "collecte_le"], ["offres_envoyees", "Offres proposées aux clients", "date_envoi"],
+    ["offres_suivies", "Offres suivies par les clients", "cree_le"], ["analyses", "Dossiers analysés (agent D)", "cree_le"], ["messages_chat", "Questions et réponses (agent C)", "cree_le"],
+    ["agent_runs", "Journal des agents", "debut"], ["demandes", "Demandes sur mesure", "cree_le"]];
+
+  async function rafraichir() {
+    const [runsR, ...comptes] = await Promise.all([
+      SB.from("agent_runs").select("*").gte("debut", ilYa(7)).order("debut", { ascending: false }).limit(2000),
+      ...TABLES.map(([t]) => SB.from(t).select("*", { count: "exact", head: true }))
+    ]);
+    const runs = runsR.data || [], dbOk = !runsR.error;
+    const etat = code => { const ag = AGENTS.find(a => a.code === code); const e = sante(ag, runs); return { e, cl: ag.avenir ? "idle" : e.cle === "erreur" ? "ko" : e.cle === "retard" ? "att" : "ok" }; };
+    const der = codes => runs.find(r => codes.includes(r.agent));
+    const dN8n = runs[0], dOll = der(["B-tri", "C-chat", "D-analyse"]), dA = der(["A-collecteur"]), dMail = der(["B-tri", "D-analyse", "G-controle"]);
+    const age = d => d ? (Date.now() - new Date(d.debut)) / 36e5 : Infinity;
+
+    $("#col-code").innerHTML = svc({ nom: "GitHub", role: "Dépôt lumeniaindustrie-stack/Lumenmarket", ic: ICO.gh, c: "#334155", f: "#F1F5F9", url: "https://github.com/lumeniaindustrie-stack/Lumenmarket", etat: "Déploie à chaque push", cl: "ok" });
+    $("#col-heb").innerHTML = svc({ nom: "Site clients", role: "Cloudflare Pages · lumen-marches.pages.dev", ic: ICO.cf, c: "#F38020", f: "#FFF1E6", url: "https://lumen-marches.pages.dev", etat: "En ligne", cl: "ok" })
+      + svc({ nom: "Pilotage", role: "Cloudflare Pages · lumenmarket.pages.dev", ic: ICO.cf, c: "#F38020", f: "#FFF1E6", url: "https://lumenmarket.pages.dev", etat: "En ligne (vous y êtes)", cl: "ok" });
+    $("#col-db").innerHTML = svc({ nom: "Supabase", role: "Comptes, offres, analyses, chat, journal des agents", ic: ICO.db, c: "#3ECF8E", f: "#E6FAF1", url: SUPA + "/editor", etat: dbOk ? "Connectée · données en direct" : "Connexion impossible", cl: dbOk ? "ok" : "ko" });
+    const agents = ["A-collecteur", "B-tri", "C-chat", "D-analyse", "G-controle", "E-prospection", "F-commercial", "H-comptable"].map(code => {
+      const ag = AGENTS.find(a => a.code === code), { e, cl } = etat(code);
+      return `<a class="ar-agent ${cl}" href="agent.html?a=${encodeURIComponent(code)}" target="_blank" rel="noopener" title="${esc(ag.nom)} · ${esc(ag.titre)} : ${esc(e.txt)}${e.der ? " · dernier passage " + quand(e.der.debut) : ""}"><b><i></i>${code[0]}</b><span>${esc(COURT[code] || ag.titre)}</span></a>`;
+    }).join("");
+    $("#col-orch").innerHTML = svc({ nom: "n8n", role: "Windows · port 5678 · exécute les agents", ic: '<b style="font-size:10px">n8n</b>', c: "#EA4B71", f: "#FDEBF0", url: N8N, etat: dN8n ? "Dernier passage " + quand(dN8n.debut) : "Aucun passage récent", cl: age(dN8n) < 3 ? "ok" : dN8n ? "att" : "ko" })
+      + `<div class="ar-agents">${agents}</div>`
+      + svc({ nom: "Ollama", role: "IA locale · qwen2.5:7b · port 11434", ic: '<b>IA</b>', c: "#8B5CF6", f: "#F1EBFF", url: "http://localhost:11434", etat: dOll ? (dOll.statut === "erreur" ? "Dernier appel en erreur " : "Dernier appel ") + quand(dOll.debut) : "Pas d'appel cette semaine", cl: dOll ? (dOll.statut === "erreur" ? "ko" : "ok") : "att" });
+    $("#col-ext").innerHTML = svc({ nom: "BOAMP", role: "Marchés publics · API officielle", ic: ICO.boamp, c: "#6D4AE0", f: "#F0EBFF", url: "https://www.boamp.fr", etat: dA ? "Collecte " + quand(dA.debut) : "Aucune collecte", cl: age(dA) < 3 ? "ok" : "att" })
+      + svc({ nom: "Brevo", role: "Envoi des emails : veille, analyses, alertes", ic: ICO.mail, c: "#0EA5C6", f: "#E3F6FB", url: "https://app.brevo.com", etat: dMail ? "Dernier agent émetteur " + quand(dMail.debut) : "Aucun envoi récent", cl: dMail ? "ok" : "att" });
+    $("#col-users").innerHTML = svc({ nom: "Clients PME", role: "Espace client : veille, assistant, analyses", ic: ICO.pme, c: "#2F6BF2", f: "#EAF1FF", url: "https://lumen-marches.pages.dev", etat: comptes[0].count != null ? `${Math.max(0, comptes[0].count - 1)} comptes` : "", cl: "ok" })
+      + svc({ nom: "Administrateur", role: "Pilotage et alertes de l'agent G", ic: ICO.admin, c: "#7C3AED", f: "#F3EDFF", url: "index.html", etat: "Connecté", cl: "ok" });
+
+    $("#ar-ouvrir-db").href = SUPA + "/editor";
+    $("#ar-db").innerHTML = TABLES.map(([t, desc], i) => { const r = comptes[i];
+      return `<a class="ar-table ${r.error ? "ko" : ""}" href="${SUPA}/editor?schema=public" target="_blank" rel="noopener" title="${t} : ${esc(desc)}"><b>${t}</b><strong>${r.error ? (/schema cache|does not exist/.test(r.error.message) ? "table absente" : "accès refusé") : nf(r.count)}</strong><small>${esc(desc)}</small></a>`; }).join("");
+    $("#ar-maj").innerHTML = `<i></i>En direct · ${new Date().toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit", second: "2-digit" })}`;
   }
-  window.addEventListener("resize", scaleSchema);
-  setTimeout(scaleSchema, 50);
+  const $ = s => document.querySelector(s);
+  if (res.moi) { rafraichir(); setInterval(rafraichir, 30000); }
 })();
 </script>
 </body>
