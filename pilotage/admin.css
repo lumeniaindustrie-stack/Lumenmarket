@@ -579,6 +579,54 @@ dialog.ndv::backdrop { background: rgba(15,23,42,.28); backdrop-filter: blur(2px
 .legende-trait { width: 13px; height: 2px; border-radius: 1px }
 .legende-trait.bleu { background: var(--bleu) } .legende-trait.vert { background: var(--vert) } .legende-trait.orange { background: var(--orange) }
 
+/* Page Ollama / modèles IA */
+.ol-etat { display: flex; align-items: center; gap: 7px; padding: 9px 12px; border-radius: var(--r-lg); background: var(--orange-f); color: var(--orange-t); font-size: 12.5px; font-weight: 500; margin-top: 11.5px }
+.ol-etat svg { flex: none }
+.ol-section { margin-top: 20px }
+.ol-section h2 { font-size: 13px; font-weight: 600; color: var(--t1); margin: 0 }
+.ol-section .muted { font-size: 12px; color: var(--t3); margin: 3px 0 11.5px; max-width: 640px }
+.ol-grille { display: grid; grid-template-columns: repeat(auto-fill, minmax(168px, 1fr)); gap: 11.5px }
+.ol-carte { position: relative }
+.ol-carte summary {
+  list-style: none; cursor: pointer; display: flex; flex-direction: column; gap: 9px;
+  aspect-ratio: 1 / 1; padding: 14px; border-radius: var(--r-lg);
+  background: var(--panel); border: 1px solid var(--line); box-shadow: var(--shadow-sm);
+  transition: box-shadow .15s, border-color .15s;
+}
+.ol-carte summary::-webkit-details-marker { display: none }
+.ol-carte summary:hover { box-shadow: var(--shadow); border-color: var(--line-2) }
+.ol-carte[open] summary { border-color: var(--bleu); box-shadow: 0 0 0 2.5px var(--bleu-f) }
+.ol-carte.indispo summary { cursor: default; opacity: .62 }
+.ol-logo {
+  width: 34px; height: 34px; border-radius: 9px; display: grid; place-items: center;
+  font-weight: 700; font-size: 13px; color: #fff; flex: none;
+}
+.ol-carte-corps { display: grid; gap: 1.5px; margin-top: auto }
+.ol-carte-corps b { font-size: 12.5px; font-weight: 600; color: var(--t1); line-height: 1.25 }
+.ol-carte-corps small { font-size: 11px; color: var(--t3) }
+.ol-etat-pill {
+  position: absolute; top: 10px; right: 10px; height: 17.5px; padding: 0 7.5px;
+  border-radius: 577px; font-size: 10px; font-weight: 600; display: flex; align-items: center; gap: 3.5px;
+}
+.ol-etat-pill.actif  { background: var(--vert-f);   color: var(--vert-t) }
+.ol-etat-pill.pret   { background: var(--bleu-t);   color: var(--bleu) }
+.ol-etat-pill.absent { background: var(--gris-f);   color: var(--t3) }
+.ol-menu {
+  position: absolute; left: 0; top: calc(100% + 4.5px); min-width: 180px;
+  background: var(--panel); border: 1px solid var(--line); border-radius: 10.5px;
+  padding: 3.5px; box-shadow: var(--shadow-lg); z-index: 30;
+}
+.ol-menu button {
+  display: flex; align-items: center; gap: 6px; width: 100%;
+  padding: 7px 8px; border-radius: 7px; font-size: 11.5px; color: var(--t1); text-align: left;
+}
+.ol-menu button:hover { background: var(--panel-2) }
+.ol-menu button.danger { color: var(--rouge-t) }
+.ol-menu button.danger:hover { background: var(--rouge-f) }
+.ol-menu button[disabled] { opacity: .45; cursor: default; pointer-events: none }
+.ol-menu hr { border: 0; border-top: 1px solid var(--line); margin: 3.5px 1px }
+.ol-menu .ol-menu-info { padding: 6px 8px; font-size: 11px; color: var(--t3) }
+
 /* ───────── Responsive ───────── */
 @media (max-width: 1360px) {
   .profil-txt { display: none }
@@ -623,6 +671,7 @@ dialog.ndv::backdrop { background: rgba(15,23,42,.28); backdrop-filter: blur(2px
   .kpi { grid-template-columns: auto minmax(0, 1fr) }
   .spark, .kpi-cote { display: none }
   .ag-kpi { grid-template-columns: 1fr 1fr }
+  .ol-grille { grid-template-columns: repeat(auto-fill, minmax(132px, 1fr)) }
 }
 @media (prefers-reduced-motion: reduce) {
   .agent.on .halo, .etat-live i, .maj-btn.tourne svg { animation: none }

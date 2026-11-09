@@ -1,13 +1,14 @@
 """Génère les agents C (chat client) et D (analyse des dossiers) pour n8n en local, avec Ollama."""
 import json, os
-from build_agents_local import sb_http, code, SUPABASE_URL  # noqa: E402
+from build_agents_local import sb_http, code, SUPABASE_URL, LIRE_MODELE_ACTIF  # noqa: E402
 
 OUT = os.path.dirname(os.path.abspath(__file__))
 S = SUPABASE_URL + "/rest/v1/"
 C = lambda n: {"node": n, "type": "main", "index": 0}
 REGLAGES_IA = """
+""" + LIRE_MODELE_ACTIF + """
 const OLLAMA_URL = 'http://127.0.0.1:11434';
-const MODELE = 'qwen2.5:7b';
+const MODELE = await modeleActif('qwen2.5:7b');  // modèle choisi dans l'onglet "Modèles IA" du pilotage
 """
 SETTINGS = {"executionOrder": "v1", "saveDataSuccessExecution": "none", "saveManualExecutions": True}
 

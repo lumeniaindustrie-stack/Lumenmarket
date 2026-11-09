@@ -30,6 +30,7 @@
       <button data-v="agents">Agents</button>
       <button data-v="clients">Clients</button>
       <button data-v="demandes">Demandes<span class="compteur zero" id="n-demandes">0</span></button>
+      <button data-v="ollama">Ollama</button>
       <a href="architecture.html">Architecture</a>
     </nav>
     <div class="top-droite">
@@ -58,6 +59,7 @@
       <button data-v="agents" title="Agents" aria-label="Agents"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="8" width="16" height="11" rx="3"/><path d="M12 4v4M9 13v1M15 13v1M2 13v2M22 13v2"/></svg></button>
       <button data-v="clients" title="Clients" aria-label="Clients"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.6-3.4 3.2-5.5 6.5-5.5s5.9 2.1 6.5 5.5M16 4.8a3.5 3.5 0 0 1 0 6.4M18.5 14.8c1.7.8 2.8 2.6 3 5.2"/></svg></button>
       <button data-v="demandes" title="Demandes" aria-label="Demandes"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 13h5l1.5 3h5L16 13h5"/><path d="M5.5 5h13L21 13v5a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-5z"/></svg><i class="badge" id="rail-badge" hidden></i></button>
+      <button data-v="ollama" title="Modèles IA" aria-label="Modèles IA"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 3v2.2M12 18.8V21M21 12h-2.2M5.2 12H3M18.4 5.6l-1.6 1.6M7.2 16.8l-1.6 1.6M18.4 18.4l-1.6-1.6M7.2 7.2 5.6 5.6"/></svg></button>
       <a href="architecture.html" title="Architecture" aria-label="Architecture"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="6" rx="1.5"/><rect x="14" y="15" width="7" height="6" rx="1.5"/><rect x="3" y="15" width="7" height="6" rx="1.5"/><path d="M6.5 9v6M10 18h4M10 6h4.5a2.5 2.5 0 0 1 2.5 2.5V15"/></svg></a>
     </div>
   </aside>
@@ -183,6 +185,26 @@
       <div class="page">
         <div class="entete"><span class="tuile-ic"><svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor"><path d="M5.3 3.5h13.4c.9 0 1.7.6 2 1.45L23 12v6a2.5 2.5 0 0 1-2.5 2.5h-17A2.5 2.5 0 0 1 1 18v-6l2.3-7.05c.3-.85 1.1-1.45 2-1.45zm-1.6 8h4.1c.45 0 .85.3.96.74.37 1.4 1.64 2.36 3.24 2.36s2.87-.96 3.24-2.36c.11-.44.51-.74.96-.74h4.1L18.4 5.6H5.6z" fill-rule="evenodd"/></svg></span><div><h1>Demandes sur mesure</h1><p>Pour changer le statut d'une demande : Supabase, Table Editor, table demandes.</p></div><div class="actions"><button class="btn js-rafraichir"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M20 11a8 8 0 1 0-2.3 5.7M20 4v7h-7"/></svg>Actualiser</button></div></div>
         <div class="panneau"><div class="tableau"><table><thead><tr><th>Date</th><th>Offre</th><th>Entreprise</th><th>Contact</th><th>Besoin</th><th>Statut</th></tr></thead><tbody id="d-liste"></tbody></table></div></div>
+      </div>
+    </section>
+
+    <section class="vue" id="v-ollama" data-titre="Modèles IA">
+      <div class="page">
+        <div class="entete"><span class="tuile-ic"><svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a1 1 0 0 1 1 1v2.06a7 7 0 0 1 5.94 5.94H21a1 1 0 1 1 0 2h-2.06a7 7 0 0 1-5.94 5.94V21a1 1 0 1 1-2 0v-2.06a7 7 0 0 1-5.94-5.94H3a1 1 0 1 1 0-2h2.06A7 7 0 0 1 11 5.06V3a1 1 0 0 1 1-1zm0 5a5 5 0 1 0 0 10 5 5 0 0 0 0-10zm0 3a2 2 0 1 1 0 4 2 2 0 0 1 0-4z"/></svg></span><div><h1>Modèles IA</h1><p>Agents B, C et D : modèle utilisé pour le tri, le chat et l'analyse des dossiers.</p></div><div class="actions"><button class="btn js-rafraichir" id="ol-rafraichir"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M20 11a8 8 0 1 0-2.3 5.7M20 4v7h-7"/></svg>Actualiser</button></div></div>
+
+        <div class="ol-etat" id="ol-etat" hidden></div>
+
+        <div class="ol-section">
+          <h2>Installés sur ton PC, via Ollama</h2>
+          <p class="muted">Tournent en local, gratuitement, sans connexion internet. Clique une carte pour l'installer, la désinstaller, ou la définir comme modèle actif des agents.</p>
+          <div class="ol-grille" id="ol-grille-local"></div>
+        </div>
+
+        <div class="ol-section">
+          <h2>Fournisseurs cloud</h2>
+          <p class="muted">Modèles plus puissants, mais payants à l'usage et qui envoient les données (offres, dossiers) hors de ton PC. Pas encore activables depuis cet onglet.</p>
+          <div class="ol-grille" id="ol-grille-cloud"></div>
+        </div>
       </div>
     </section>
   </main>
@@ -602,13 +624,136 @@ function ouvrirFiche(code) {
   dlg.showModal();
 }
 
+/* ---------- Modèles IA (Ollama) ---------- */
+const OLLAMA_URL = "http://127.0.0.1:11434";
+const OL_CATALOGUE = [
+  { marque: "Qwen", couleur: "#615CED", tag: "qwen2.5:7b", nom: "Qwen 2.5 7B", taille: "~4,7 Go", desc: "Modèle actuel, léger et rapide" },
+  { marque: "Qwen", couleur: "#615CED", tag: "qwen2.5:14b", nom: "Qwen 2.5 14B", taille: "~9 Go", desc: "Plus fin, plus lent" },
+  { marque: "Mistral AI", couleur: "#FA5B2B", tag: "mistral-nemo", nom: "Mistral NeMo 12B", taille: "~7,1 Go", desc: "Bon compromis qualité / vitesse" },
+  { marque: "Mistral AI", couleur: "#FA5B2B", tag: "mistral-small", nom: "Mistral Small", taille: "~13 Go", desc: "Le plus performant, plus lent sans carte graphique" },
+  { marque: "Mistral AI", couleur: "#FA5B2B", tag: "mistral", nom: "Mistral 7B", taille: "~4,1 Go", desc: "Le plus léger de la gamme Mistral" },
+  { marque: "Meta", couleur: "#0668E1", tag: "llama3.1:8b", nom: "Llama 3.1 8B", taille: "~4,9 Go", desc: "Généraliste, bon niveau en français" },
+  { marque: "Google", couleur: "#1A73E8", tag: "gemma2:9b", nom: "Gemma 2 9B", taille: "~5,4 Go", desc: "Généraliste Google, open source" },
+  { marque: "OpenAI", couleur: "#10A37F", tag: "gpt-oss:20b", nom: "GPT-OSS 20B", taille: "~13 Go", desc: "Version ouverte d'OpenAI, plus lourde" },
+  { marque: "DeepSeek", couleur: "#4D6BFE", tag: "deepseek-r1:8b", nom: "DeepSeek R1 8B", taille: "~4,9 Go", desc: "Spécialisé raisonnement pas à pas" }
+];
+const OL_CLOUD = [
+  { marque: "OpenAI", couleur: "#10A37F", nom: "GPT (cloud)", desc: "Clé API OpenAI nécessaire" },
+  { marque: "Anthropic", couleur: "#D97757", nom: "Claude (cloud)", desc: "Pas de version téléchargeable : clé API uniquement" },
+  { marque: "Google", couleur: "#1A73E8", nom: "Gemini (cloud)", desc: "Clé API Google AI nécessaire" }
+];
+const Ollama = { chargee: false, joignable: false, installes: [], actif: null };
+
+async function ollamaFetch(chemin, options) {
+  const ctrl = new AbortController();
+  const t = setTimeout(() => ctrl.abort(), chemin === "/api/pull" ? 1800000 : 6000); // 30 min pour un téléchargement, 6 s pour une simple lecture
+  try { return await fetch(OLLAMA_URL + chemin, { ...options, signal: ctrl.signal }); }
+  finally { clearTimeout(t); }
+}
+
+async function rafraichirOllama() {
+  const etat = $("#ol-etat");
+  try {
+    const r = await ollamaFetch("/api/tags");
+    if (!r.ok) throw new Error("http " + r.status);
+    const j = await r.json();
+    Ollama.installes = (j.models || []).map(m => m.name);
+    Ollama.joignable = true;
+    etat.hidden = true;
+  } catch (e) {
+    Ollama.joignable = false; Ollama.installes = [];
+    etat.hidden = false;
+    etat.innerHTML = `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 9v4M12 17h.01M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"/></svg>Ollama n'est pas joignable sur ce PC. Vérifie qu'il tourne (<code>ollama serve</code>) et que la variable <code>OLLAMA_ORIGINS</code> autorise ce site (sinon le navigateur bloque la connexion).`;
+  }
+  if (SB) {
+    const { data } = await SB.from("ia_parametres").select("modele").eq("id", 1).maybeSingle();
+    Ollama.actif = data?.modele || null;
+  }
+  dessinerOllama();
+}
+
+function ollamaInitiales(marque) { return marque.slice(0, 2).toUpperCase(); }
+
+function ollamaCarteLocale(m) {
+  const installe = Ollama.installes.includes(m.tag);
+  const actif = Ollama.actif === m.tag;
+  const pill = actif ? '<span class="ol-etat-pill actif">Actif</span>' : installe ? '<span class="ol-etat-pill pret">Installé</span>' : "";
+  return `<details class="ol-carte" data-tag="${esc(m.tag)}">
+    <summary>${pill}
+      <span class="ol-logo" style="background:${m.couleur}">${ollamaInitiales(m.marque)}</span>
+      <span class="ol-carte-corps"><b>${esc(m.nom)}</b><small>${esc(m.marque)} · ${esc(m.taille)}</small></span>
+    </summary>
+    <div class="ol-menu">
+      <div class="ol-menu-info">${esc(m.desc)}</div>
+      <hr>
+      ${!Ollama.joignable ? '<div class="ol-menu-info">Ollama non joignable.</div>' :
+        !installe ? `<button data-action="installer" data-tag="${esc(m.tag)}">⬇ Installer (${esc(m.taille)})</button>` :
+        `<button data-action="actif" data-tag="${esc(m.tag)}" ${actif ? "disabled" : ""}>✓ Définir comme modèle actif</button>
+         ${actif ? `<button data-action="desactiver">Déconnecter (revenir à Qwen 2.5 7B)</button>` : ""}
+         <button class="danger" data-action="desinstaller" data-tag="${esc(m.tag)}" ${actif ? "disabled" : ""}>🗑 Désinstaller</button>`
+      }
+    </div>
+  </details>`;
+}
+
+function ollamaCarteCloud(m) {
+  return `<details class="ol-carte indispo">
+    <summary><span class="ol-etat-pill absent">Bientôt</span>
+      <span class="ol-logo" style="background:${m.couleur}">${ollamaInitiales(m.marque)}</span>
+      <span class="ol-carte-corps"><b>${esc(m.nom)}</b><small>${esc(m.marque)}</small></span>
+    </summary>
+  </details>`;
+}
+
+function dessinerOllama() {
+  $("#ol-grille-local").innerHTML = OL_CATALOGUE.map(ollamaCarteLocale).join("");
+  $("#ol-grille-cloud").innerHTML = OL_CLOUD.map(ollamaCarteCloud).join("");
+  $$("#ol-grille-local details").forEach(d => d.addEventListener("toggle", () => { if (d.open) $$("#ol-grille-local details").forEach(a => a !== d && (a.open = false)); }));
+  $$("#ol-grille-local [data-action]").forEach(b => b.onclick = ev => { ev.preventDefault(); ollamaAction(b.dataset.action, b.dataset.tag); });
+}
+
+async function ollamaAction(action, tag) {
+  const carte = $$(`#ol-grille-local details[data-tag="${CSS.escape(tag || "")}"]`)[0];
+  if (carte) carte.open = false;
+  if (action === "actif") {
+    if (!SB) return;
+    await SB.from("ia_parametres").upsert({ id: 1, modele: tag, maj_le: new Date().toISOString() });
+    Ollama.actif = tag; dessinerOllama(); return;
+  }
+  if (action === "desactiver") {
+    if (!SB) return;
+    await SB.from("ia_parametres").upsert({ id: 1, modele: "qwen2.5:7b", maj_le: new Date().toISOString() });
+    Ollama.actif = "qwen2.5:7b"; dessinerOllama(); return;
+  }
+  if (action === "desinstaller") {
+    if (!confirm(`Désinstaller ${tag} ? Il faudra le retélécharger pour le réutiliser.`)) return;
+    try {
+      await ollamaFetch("/api/delete", { method: "DELETE", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ model: tag }) });
+    } catch (e) {}
+    await rafraichirOllama(); return;
+  }
+  if (action === "installer") {
+    const etat = $("#ol-etat");
+    etat.hidden = false; etat.innerHTML = `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v10m0 0 4-4m-4 4-4-4M4 18v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>Téléchargement de ${esc(tag)} en cours (peut prendre plusieurs minutes selon la connexion)…`;
+    try {
+      const r = await ollamaFetch("/api/pull", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ model: tag, stream: false }) });
+      if (!r.ok) throw new Error("http " + r.status);
+    } catch (e) {
+      etat.innerHTML = `Échec du téléchargement de ${esc(tag)} : ${esc(e.message || e)}`;
+      return;
+    }
+    await rafraichirOllama();
+  }
+}
+
 /* ---------- Navigation ---------- */
 function aller(v) {
-  if (!["ensemble", "clients", "agents", "demandes"].includes(v)) v = "ensemble";
+  if (!["ensemble", "clients", "agents", "demandes", "ollama"].includes(v)) v = "ensemble";
   $$(".vue").forEach(s => s.classList.toggle("on", s.id === "v-" + v));
   $$(".nav [data-v]").forEach(b => b.dataset.v === v ? b.setAttribute("aria-current", "page") : b.removeAttribute("aria-current"));
   $("#titre").firstChild.textContent = $("#v-" + v).dataset.titre + " ";
   history.replaceState(null, "", "#" + v);
+  if (v === "ollama" && !Ollama.chargee) { Ollama.chargee = true; rafraichirOllama(); }
 }
 $$(".nav [data-v]").forEach(b => b.onclick = () => aller(b.dataset.v));
 /* Texte coupé : on affiche le texte complet au survol */

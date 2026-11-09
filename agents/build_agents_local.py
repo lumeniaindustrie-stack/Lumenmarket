@@ -3,7 +3,23 @@ import json, os
 
 OUT = os.path.dirname(os.path.abspath(__file__))
 SUPABASE_URL = "https://jsmffmtzoauvqltshiyg.supabase.co"
+SUPABASE_ANON_KEY = "sb_publishable_kDVV8tAZEirvMiVXpr4YPw_hmAdT7Mu"  # clé publique : sécurité assurée par les règles RLS
 SB_CRED = {"supabaseApi": {"id": "", "name": "Supabase Lumen"}}
+
+# Lit le modèle Ollama actif choisi depuis l'onglet "Modèles IA" du pilotage (table
+# ia_parametres), avec repli sur le modèle par défaut si la table est vide, absente,
+# ou si Supabase ne répond pas. Collé en tête des code nodes qui ont besoin de MODELE.
+LIRE_MODELE_ACTIF = r"""
+async function modeleActif(defaut) {
+  try {
+    const r = await this.helpers.httpRequest({ method: 'GET',
+      url: '""" + SUPABASE_URL + r"""/rest/v1/ia_parametres?id=eq.1&select=modele',
+      headers: { apikey: '""" + SUPABASE_ANON_KEY + r"""', Authorization: 'Bearer """ + SUPABASE_ANON_KEY + r"""' },
+      json: true, timeout: 4000 });
+    return (Array.isArray(r) && r[0] && r[0].modele) || defaut;
+  } catch (e) { return defaut; }
+}
+"""
 
 def sb_http(id_, name, pos, method, path_expr, body_expr=None, prefer=None, always=True, cont=True):
     p = {"method": method, "url": "=" + path_expr,
@@ -112,9 +128,10 @@ agent_a = {"name": "Lumen – Agent A : collecteur des offres", "nodes": a_nodes
 #  AGENT B : TRI PAR CLIENT (Ollama)
 # =====================================================================
 B_REGLAGES = r"""
+""" + LIRE_MODELE_ACTIF + r"""
 // ===== RÉGLAGES =====
-const OLLAMA_URL = 'http://127.0.0.1:11434';   // Ollama sur ton ordinateur (127.0.0.1 plutôt que localhost)
-const MODELE = 'qwen2.5:7b';                     // ou 'qwen2.5:14b' (plus fin, plus lent)
+const OLLAMA_URL = 'http://127.0.0.1:11434';     // Ollama sur ton ordinateur (127.0.0.1 plutôt que localhost)
+const MODELE = await modeleActif('qwen2.5:7b');  // modèle choisi dans l'onglet "Modèles IA" du pilotage (par défaut : qwen2.5:7b)
 const JOURS = 3;                                 // offres publiées ces 3 derniers jours
 const MAX_PAR_CLIENT = 15;                       // offres envoyées à l'IA par client
 // =====================
