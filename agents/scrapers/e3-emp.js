@@ -5,8 +5,11 @@
  * plus récent au plus ancien, sans filtre de région ni de département.
  *
  * Piège repéré en testant en direct : le site affiche un bandeau de consentement cookies
- * qui bloque le rendu du contenu réel jusqu'à ce qu'on clique "Continuer sans accepter" —
- * sans ce clic, la page paraît vide. La pagination, elle, est en JavaScript (AJAX) : on
+ * (Didomi) qui bloque le rendu du contenu réel jusqu'à ce qu'on clique "Continuer sans
+ * accepter" — sans ce clic, la page paraît vide. Ce bandeau peut aussi se réafficher (ou ne
+ * se fermer qu'à moitié, en laissant son fond `didomi-popup-backdrop` capter les clics) au
+ * moment de changer de page : on le fait donc disparaître du DOM avant chaque clic, pas
+ * seulement au chargement initial. La pagination, elle, est en JavaScript (AJAX) : on
  * clique la vraie flèche ">" comme le ferait un humain, plutôt que d'appeler la fonction
  * JS ou de changer l'URL (un paramètre ?page=N est ignoré par le site).
  *
@@ -37,6 +40,19 @@ function dateIsoFr(txt) {
   return `${a}-${mo}-${j}T${(h || '12').padStart(2, '0')}:${(mi || '00').padStart(2, '0')}:00+01:00`;
 }
 
+// Ferme (ou, en secours, supprime du DOM) le bandeau cookies Didomi s'il est présent.
+// Appelé avant chaque clic sensible, pas seulement au chargement initial, car le bandeau
+// peut se réafficher et son fond `didomi-popup-backdrop` intercepte alors tous les clics.
+async function fermerCookies(page) {
+  await page.evaluate(() => {
+    const lien = Array.from(document.querySelectorAll('a,button,div,span')).find(el => el.textContent.trim().startsWith('Continuer sans accepter'));
+    if (lien) lien.click();
+    document.getElementById('didomi-popup')?.remove();
+    document.getElementById('didomi-host')?.remove();
+    document.querySelectorAll('.didomi-popup-backdrop, .didomi-popup-notice, .didomi-consent-popup-preferences').forEach(el => el.remove());
+  }).catch(() => {});
+}
+
 async function main() {
   const navigateur = await chromium.launch({ headless: true });
   const page = await navigateur.newPage({ userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120 Safari/537.36' });
@@ -44,10 +60,8 @@ async function main() {
   let toutesLignes = [];
   try {
     await page.goto(URL_NATIONALE, { waitUntil: 'domcontentloaded', timeout: 60000 });
-    await page.evaluate(() => {
-      const lien = Array.from(document.querySelectorAll('a,button,div,span')).find(el => el.textContent.trim().startsWith('Continuer sans accepter'));
-      if (lien) lien.click();
-    });
+    await page.waitForTimeout(800); // laisse le bandeau Didomi (chargé en JS tiers) apparaître avant de le fermer
+    await fermerCookies(page);
     await page.waitForSelector('.box', { timeout: 30000 });
 
     for (let p = 0; p < MAX_PAGES; p++) {
@@ -71,7 +85,15 @@ async function main() {
       const suivant = page.locator('.pages-prev.pages-up .fa-angle-right:not(.disabled)');
       if (p === MAX_PAGES - 1 || !(await suivant.count())) break;
       const premierAvant = lignes[0]?.avisHref;
-      await suivant.first().click();
+      await fermerCookies(page);
+      try {
+        await suivant.first().click({ timeout: 10000 });
+      } catch {
+        // Filet de sécurité : si un élément invisible intercepte encore le clic
+        // (bandeau cookies réapparu, overlay résiduel), on force le clic DOM direct.
+        await fermerCookies(page);
+        await suivant.first().click({ force: true, timeout: 10000 });
+      }
       await page.waitForFunction(
         (avant) => document.querySelector('.box a.notice-a[href*="/appel-offre/"]')?.getAttribute('href') !== avant,
         premierAvant, { timeout: 20000 }
