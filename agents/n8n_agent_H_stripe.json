@@ -1,0 +1,381 @@
+{
+  "name": "Lumen – Agent H : abonnement Stripe",
+  "nodes": [
+    {
+      "id": "h1",
+      "name": "Stripe : évènement reçu",
+      "type": "n8n-nodes-base.stripeTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "parameters": {
+        "events": [
+          "checkout.session.completed",
+          "invoice.paid",
+          "customer.subscription.deleted"
+        ]
+      },
+      "credentials": {
+        "stripeApi": {
+          "id": "",
+          "name": "Stripe Lumen"
+        }
+      }
+    },
+    {
+      "id": "h2",
+      "name": "Lire l'évènement",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        220,
+        0
+      ],
+      "parameters": {
+        "jsCode": "const body = $input.first().json.body || $input.first().json;\nconst type = body.type || '';\nconst obj = (body.data && body.data.object) || {};\n\nlet email = null, customer_id = obj.customer || null, action = 'ignorer';\n\nif (type === 'checkout.session.completed' || type === 'invoice.paid' || type === 'invoice.payment_succeeded') {\n  email = ((obj.customer_details && obj.customer_details.email) || obj.customer_email || '').trim().toLowerCase() || null;\n  action = 'activer';\n} else if (type === 'customer.subscription.deleted') {\n  action = 'desactiver';\n}\n\nreturn [{ json: { type, email, customer_id, action, recu: new Date().toISOString() } }];"
+      }
+    },
+    {
+      "id": "h3",
+      "name": "Activer, désactiver ou ignorer ?",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3,
+      "position": [
+        440,
+        0
+      ],
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose"
+                },
+                "conditions": [
+                  {
+                    "id": "a",
+                    "leftValue": "={{ $json.action }}",
+                    "rightValue": "activer",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "outputKey": "activer"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose"
+                },
+                "conditions": [
+                  {
+                    "id": "d",
+                    "leftValue": "={{ $json.action }}",
+                    "rightValue": "desactiver",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "outputKey": "desactiver"
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "extra"
+        }
+      }
+    },
+    {
+      "id": "h4",
+      "name": "Préparer l'activation",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        660,
+        -120
+      ],
+      "parameters": {
+        "jsCode": "const j = $json;\nconst filtre = j.email ? 'email=ilike.' + encodeURIComponent(j.email)\n             : (j.customer_id ? 'stripe_customer_id=eq.' + encodeURIComponent(j.customer_id) : null);\nreturn [{ json: { ...j, filtre_valide: !!filtre,\n  url: 'https://jsmffmtzoauvqltshiyg.supabase.co/rest/v1/profils?' + (filtre || ''),\n  patch: { formule: 'abonne', actif: true, stripe_customer_id: j.customer_id, maj_le: new Date().toISOString() } } }];"
+      }
+    },
+    {
+      "id": "h5",
+      "name": "Activer l'abonnement",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        880,
+        -120
+      ],
+      "parameters": {
+        "method": "PATCH",
+        "url": "={{ $json.url }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "supabaseApi",
+        "options": {
+          "timeout": 60000
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Prefer",
+              "value": "return=minimal"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify($json.patch) }}"
+      },
+      "credentials": {
+        "supabaseApi": {
+          "id": "",
+          "name": "Supabase Lumen"
+        }
+      },
+      "alwaysOutputData": true,
+      "continueOnFail": true
+    },
+    {
+      "id": "h6",
+      "name": "Préparer la désactivation",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        660,
+        60
+      ],
+      "parameters": {
+        "jsCode": "const j = $json;\nconst filtre = j.customer_id ? 'stripe_customer_id=eq.' + encodeURIComponent(j.customer_id) : null;\nreturn [{ json: { ...j, filtre_valide: !!filtre,\n  url: 'https://jsmffmtzoauvqltshiyg.supabase.co/rest/v1/profils?' + (filtre || ''),\n  patch: { actif: false, maj_le: new Date().toISOString() } } }];"
+      }
+    },
+    {
+      "id": "h7",
+      "name": "Désactiver l'abonnement",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        880,
+        60
+      ],
+      "parameters": {
+        "method": "PATCH",
+        "url": "={{ $json.url }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "supabaseApi",
+        "options": {
+          "timeout": 60000
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Prefer",
+              "value": "return=minimal"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify($json.patch) }}"
+      },
+      "credentials": {
+        "supabaseApi": {
+          "id": "",
+          "name": "Supabase Lumen"
+        }
+      },
+      "alwaysOutputData": true,
+      "continueOnFail": true
+    },
+    {
+      "id": "h8",
+      "name": "Préparer le journal",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1100,
+        0
+      ],
+      "parameters": {
+        "jsCode": "const j = $json;\nreturn [{ json: { journal: {\n  agent: 'H-comptable', debut: j.recu, fin: new Date().toISOString(),\n  statut: j.action === 'ignorer' ? 'vide' : 'ok',\n  entrees: 1, sorties: j.action === 'ignorer' ? 0 : 1,\n  details: { type: j.type, email: j.email, customer_id: j.customer_id, action: j.action },\n  message: j.filtre_valide === false ? \"évènement Stripe sans email ni customer_id : profil non mis à jour\" : null\n} } }];"
+      },
+      "alwaysOutputData": true
+    },
+    {
+      "id": "h9",
+      "name": "Écrire le journal",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1320,
+        0
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "=https://jsmffmtzoauvqltshiyg.supabase.co/rest/v1/agent_runs",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "supabaseApi",
+        "options": {
+          "timeout": 60000
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Prefer",
+              "value": "return=minimal"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify($json.journal) }}"
+      },
+      "credentials": {
+        "supabaseApi": {
+          "id": "",
+          "name": "Supabase Lumen"
+        }
+      },
+      "alwaysOutputData": true,
+      "continueOnFail": true
+    }
+  ],
+  "connections": {
+    "Stripe : évènement reçu": {
+      "main": [
+        [
+          {
+            "node": "Lire l'évènement",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Lire l'évènement": {
+      "main": [
+        [
+          {
+            "node": "Activer, désactiver ou ignorer ?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Activer, désactiver ou ignorer ?": {
+      "main": [
+        [
+          {
+            "node": "Préparer l'activation",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Préparer la désactivation",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Préparer le journal",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Préparer l'activation": {
+      "main": [
+        [
+          {
+            "node": "Activer l'abonnement",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Activer l'abonnement": {
+      "main": [
+        [
+          {
+            "node": "Préparer le journal",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Préparer la désactivation": {
+      "main": [
+        [
+          {
+            "node": "Désactiver l'abonnement",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Désactiver l'abonnement": {
+      "main": [
+        [
+          {
+            "node": "Préparer le journal",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Préparer le journal": {
+      "main": [
+        [
+          {
+            "node": "Écrire le journal",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "pinData": {}
+}
