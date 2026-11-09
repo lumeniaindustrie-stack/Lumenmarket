@@ -5,13 +5,14 @@
  * plus récent au plus ancien, sans filtre de région ni de département.
  *
  * Piège repéré en testant en direct : le site affiche un bandeau de consentement cookies
- * (Didomi) qui bloque le rendu du contenu réel jusqu'à ce qu'on clique "Continuer sans
- * accepter" — sans ce clic, la page paraît vide. Ce bandeau peut aussi se réafficher (ou ne
- * se fermer qu'à moitié, en laissant son fond `didomi-popup-backdrop` capter les clics) au
- * moment de changer de page : on le fait donc disparaître du DOM avant chaque clic, pas
- * seulement au chargement initial. La pagination, elle, est en JavaScript (AJAX) : on
- * clique la vraie flèche ">" comme le ferait un humain, plutôt que d'appeler la fonction
- * JS ou de changer l'URL (un paramètre ?page=N est ignoré par le site).
+ * (Didomi) dont le fond `didomi-popup-backdrop` intercepte les clics. Un simple clic sur
+ * "Continuer sans accepter" (ou une suppression ponctuelle du bandeau avant de cliquer sur
+ * la flèche ">") ne suffit pas : le script Didomi le reconstruit en continu en arrière-plan,
+ * plus vite qu'on ne peut le supprimer entre deux actions. La seule solution fiable est
+ * d'empêcher Didomi de se charger du tout, en bloquant ses requêtes réseau avant même la
+ * navigation. La pagination, elle, est en JavaScript (AJAX) : on clique la vraie flèche ">"
+ * comme le ferait un humain, plutôt que d'appeler la fonction JS ou de changer l'URL (un
+ * paramètre ?page=N est ignoré par le site).
  *
  * Le nombre total affiché ("1152 appels d'offres", "116 pages") n'est pas fiable pour
  * borner la pagination (il ne change pas selon le filtre) : on se limite donc aux
@@ -40,9 +41,10 @@ function dateIsoFr(txt) {
   return `${a}-${mo}-${j}T${(h || '12').padStart(2, '0')}:${(mi || '00').padStart(2, '0')}:00+01:00`;
 }
 
-// Ferme (ou, en secours, supprime du DOM) le bandeau cookies Didomi s'il est présent.
-// Appelé avant chaque clic sensible, pas seulement au chargement initial, car le bandeau
-// peut se réafficher et son fond `didomi-popup-backdrop` intercepte alors tous les clics.
+// Supprime, en filet de sécurité, un éventuel reliquat du bandeau Didomi dans le DOM.
+// Le vrai verrou est le blocage réseau posé dans main() (plus bas) : Didomi ne devrait
+// même jamais se charger, mais on garde ce nettoyage en complément si un autre bandeau
+// de consentement (non Didomi) venait à apparaître.
 async function fermerCookies(page) {
   await page.evaluate(() => {
     const lien = Array.from(document.querySelectorAll('a,button,div,span')).find(el => el.textContent.trim().startsWith('Continuer sans accepter'));
@@ -56,12 +58,17 @@ async function fermerCookies(page) {
 async function main() {
   const navigateur = await chromium.launch({ headless: true });
   const page = await navigateur.newPage({ userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120 Safari/537.36' });
+
+  // Verrou principal : on empêche le SDK Didomi (et toute requête de consentement liée)
+  // de se charger. Sans son script, le bandeau et son fond intercepteur de clics
+  // n'existent jamais — inutile de lutter contre lui une fois qu'il tourne.
+  await page.route(/didomi|privacy-center|consent/i, route => route.abort());
+
   const erreurs = [];
   let toutesLignes = [];
   try {
     await page.goto(URL_NATIONALE, { waitUntil: 'domcontentloaded', timeout: 60000 });
-    await page.waitForTimeout(800); // laisse le bandeau Didomi (chargé en JS tiers) apparaître avant de le fermer
-    await fermerCookies(page);
+    await fermerCookies(page); // filet de sécurité, voir commentaire ci-dessus
     await page.waitForSelector('.box', { timeout: 30000 });
 
     for (let p = 0; p < MAX_PAGES; p++) {
