@@ -11,7 +11,7 @@ window.CONFIG = {
   WEBHOOK_DEMANDE: "",     // agent « Réception demande » (agents sur mesure, accompagnement)
 
   // Lien de paiement Stripe de l'abonnement (99 € HT / mois)
-  STRIPE_ABONNEMENT: "",
+  STRIPE_ABONNEMENT: "https://buy.stripe.com/7sYeVe9WZ37l8v94pjcbC00",
 
   // Prix affiché
   PRIX: 99,
