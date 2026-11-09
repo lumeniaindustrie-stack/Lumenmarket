@@ -64,8 +64,16 @@ def sous_agent(agent_code, nom_agent, dossier, script, heure):
             "settings": {"executionOrder": "v1"}, "pinData": {}}
 
 
+AGENTS = [
+    ("E1-place", "E1 : PLACE (marches-publics.gouv.fr)", "E1-place", "e1-place.js", 4, "n8n_agent_E1_place.json"),
+    ("E2-aws", "E2 : AWS-Achat (marches-publics.info)", "E2-aws", "e2-aws.js", 5, "n8n_agent_E2_aws.json"),
+    ("E3-emp", "E3 : e-marchespublics.com", "E3-emp", "e3-emp.js", 4, "n8n_agent_E3_emp.json"),
+    ("E4-maximilien", "E4 : Maximilien (marches.maximilien.fr)", "E4-maximilien", "e4-maximilien.js", 6, "n8n_agent_E4_maximilien.json"),
+]
+
 if __name__ == "__main__":
-    e2 = sous_agent("E2-aws", "E2 : AWS-Achat (marches-publics.info)", "E2-aws", "e2-aws.js", 5)
-    with open(os.path.join(OUT, "n8n_agent_E2_aws.json"), "w", encoding="utf-8") as f:
-        json.dump(e2, f, ensure_ascii=False, indent=2)
-    print("Écrit : n8n_agent_E2_aws.json")
+    for agent_code, nom, dossier, script, heure, fichier in AGENTS:
+        wf = sous_agent(agent_code, nom, dossier, script, heure)
+        with open(os.path.join(OUT, fichier), "w", encoding="utf-8") as f:
+            json.dump(wf, f, ensure_ascii=False, indent=2)
+        print(f"Écrit : {fichier}")
