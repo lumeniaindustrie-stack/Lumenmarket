@@ -28,9 +28,12 @@
 .hero .wrap>div{min-width:0}
 .sources{margin-top:24px;padding-top:18px;border-top:1px solid var(--line);min-width:0}
 .sources-label{display:block;font-weight:600;letter-spacing:.02em;text-transform:uppercase;font-size:.7rem;color:#9AA2B1;margin-bottom:10px}
-.sources-grille{display:flex;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;width:100%;max-width:100%;min-width:0}
-.sources-grille::-webkit-scrollbar{display:none}
-.source-tuile{flex:none;color:var(--ink);font-weight:700;font-size:.66rem;letter-spacing:-.01em;padding:7px 8px;white-space:nowrap}
+.sources-grille{overflow:hidden;width:100%;max-width:100%;min-width:0;mask-image:linear-gradient(90deg,transparent 0,#000 24px,#000 calc(100% - 24px),transparent 100%)}
+.sources-track{display:flex;flex-wrap:nowrap;width:max-content;animation:defiler-sources 26s linear infinite}
+.sources-grille:hover .sources-track{animation-play-state:paused}
+.source-tuile{flex:none;color:var(--ink);font-weight:700;font-size:.66rem;letter-spacing:-.01em;padding:7px 14px;white-space:nowrap}
+@keyframes defiler-sources{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+@media (prefers-reduced-motion: reduce){.sources-track{animation:none}}
 
 /* panneau des offres */
 .live{background:#fff;border:1px solid var(--line);border-radius:14px;overflow:hidden;box-shadow:0 18px 40px -24px rgba(16,24,40,.3)}
@@ -174,7 +177,10 @@ section{padding-block:76px}
         <div class="sources">
           <span class="sources-label">Sources officielles suivies</span>
           <div class="sources-grille">
-            <span class="source-tuile">BOAMP</span><span class="source-tuile">PLACE</span><span class="source-tuile">AWS-Achat</span><span class="source-tuile">e-marchespublics</span><span class="source-tuile">Maximilien</span><span class="source-tuile">Klekoon</span><span class="source-tuile">e-Bourgogne</span><span class="source-tuile">Mégalis Bretagne</span><span class="source-tuile">Achat Public</span>
+            <div class="sources-track">
+              <span class="source-tuile">BOAMP</span><span class="source-tuile">PLACE</span><span class="source-tuile">AWS-Achat</span><span class="source-tuile">e-marchespublics</span><span class="source-tuile">Maximilien</span><span class="source-tuile">Klekoon</span><span class="source-tuile">e-Bourgogne</span><span class="source-tuile">Mégalis Bretagne</span><span class="source-tuile">Achat Public</span>
+              <span class="source-tuile" aria-hidden="true">BOAMP</span><span class="source-tuile" aria-hidden="true">PLACE</span><span class="source-tuile" aria-hidden="true">AWS-Achat</span><span class="source-tuile" aria-hidden="true">e-marchespublics</span><span class="source-tuile" aria-hidden="true">Maximilien</span><span class="source-tuile" aria-hidden="true">Klekoon</span><span class="source-tuile" aria-hidden="true">e-Bourgogne</span><span class="source-tuile" aria-hidden="true">Mégalis Bretagne</span><span class="source-tuile" aria-hidden="true">Achat Public</span>
+            </div>
           </div>
         </div>
       </div>
