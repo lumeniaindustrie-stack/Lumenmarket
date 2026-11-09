@@ -39,7 +39,7 @@ const Demo = {
   get: () => local.get("lumen_demo"), set: v => local.set("lumen_demo", v),
   nouveau(email, meta) {
     const ex = EXEMPLES.map((o, i) => ({ avis_id: o.id, objet: o.objet, acheteur: o.acheteur, departement: o.dep, lieu: o.lieu, montant: o.montant, limite: o.limite, score: 5 - (i % 3), resume: o.resume, url: o.url, date_envoi: new Date(Date.now() - i * 864e5).toISOString().slice(0, 10) }));
-    return { email, profil: { id: "demo", email, formule: "essai", actif: true, fin_essai: new Date(Date.now() + 30 * 864e5).toISOString().slice(0, 10), types: "TRAVAUX, SERVICES, FOURNITURES", ...meta }, marches: ex, analyses: [], suivies: [] };
+    return { email, profil: { id: "demo", email, formule: "essai", actif: true, fin_essai: new Date(Date.now() + 7 * 864e5).toISOString().slice(0, 10), types: "TRAVAUX, SERVICES, FOURNITURES", ...meta }, marches: ex, analyses: [], suivies: [] };
   }
 };
 
