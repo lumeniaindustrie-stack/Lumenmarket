@@ -228,7 +228,7 @@ a.ar-svc:hover::after { opacity: 1 }
   const REF = (CFG.SUPABASE_URL || "").match(/https:\/\/([a-z0-9]+)\.supabase/)?.[1] || "";
   const SUPA = REF ? `https://supabase.com/dashboard/project/${REF}` : "https://supabase.com/dashboard";
   const N8N = "http://localhost:5678/home/workflows";
-  const COURT = { "A-collecteur": "Collecteur", "B-tri": "Tri", "C-chat": "Chat", "D-analyse": "Analyse", "E-prospection": "Prospection", "F-commercial": "Emails", "G-controle": "Contrôleur", "H-comptable": "Comptable" };
+  const COURT = { "A-collecteur": "Collecteur", "B-tri": "Tri", "C-chat": "Chat", "D-analyse": "Analyse", "E-prospection": "Coordinateur", "F-commercial": "Emails", "G-controle": "Contrôleur", "H-comptable": "Comptable" };
   const ICO = {
     gh: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 0 0-3.16 19.5c.5.08.68-.22.68-.48v-1.7c-2.78.6-3.37-1.34-3.37-1.34-.46-1.16-1.11-1.47-1.11-1.47-.9-.62.07-.6.07-.6 1 .07 1.53 1.03 1.53 1.03.9 1.52 2.34 1.08 2.91.83.09-.65.35-1.09.63-1.34-2.22-.25-4.55-1.11-4.55-4.94 0-1.1.39-1.99 1.03-2.69-.1-.25-.45-1.27.1-2.64 0 0 .84-.27 2.75 1.02a9.5 9.5 0 0 1 5 0c1.91-1.3 2.75-1.02 2.75-1.02.55 1.37.2 2.39.1 2.64.64.7 1.03 1.6 1.03 2.69 0 3.84-2.34 4.68-4.57 4.93.36.31.68.92.68 1.85v2.75c0 .27.18.57.69.47A10 10 0 0 0 12 2z"/></svg>',
     cf: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.7 3.8 5.7 3.8 9s-1.3 6.3-3.8 9c-2.5-2.7-3.8-5.7-3.8-9S9.5 5.7 12 3z"/></svg>',
@@ -297,7 +297,7 @@ a.ar-svc:hover::after { opacity: 1 }
     { nom: "Mégalis Bretagne", role: "Plateforme régionale Bretagne" },
     { nom: "Achat Public", role: "achatpublic.com · collectivités diverses" }
   ];
-  $("#pole-princ").innerHTML = svcPlan({ nom: "E-coordinateur", role: "Regroupe les offres des 8 sous-agents et vérifie qu'ils ont bien fonctionné (comme G-contrôleur, mais pour ce pôle)", ic: ICO.hub });
+  $("#pole-princ").innerHTML = svcPlan({ nom: "Agent E — Coordinateur collecte", role: "Regroupe les offres des 8 sous-agents et vérifie qu'ils ont bien fonctionné (comme G-contrôleur, mais pour ce pôle)", ic: ICO.hub });
   $("#pole-grille").innerHTML = PLATEFORMES.map(p => svcPlan({ ...p, ic: ICO.scrape })).join("");
 
   if (res.moi) { rafraichir(); setInterval(rafraichir, 30000); }
