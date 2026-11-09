@@ -674,8 +674,16 @@ async function rafraichirOllama() {
 
 function ollamaInitiales(marque) { return marque.slice(0, 2).toUpperCase(); }
 
+// Ollama ajoute toujours un suffixe de version ("mistral-nemo" installé devient
+// "mistral-nemo:latest" dans /api/tags) : on compare donc sans ce suffixe plutôt
+// qu'en égalité stricte, sinon un modèle installé reste affiché "à installer".
+function ollamaEstInstalle(tag) {
+  const base = n => n.split(":")[0];
+  return Ollama.installes.some(n => n === tag || base(n) === base(tag));
+}
+
 function ollamaCarteLocale(m) {
-  const installe = Ollama.installes.includes(m.tag);
+  const installe = ollamaEstInstalle(m.tag);
   const actif = Ollama.actif === m.tag;
   const pill = actif ? '<span class="ol-etat-pill actif">Actif</span>' : installe ? '<span class="ol-etat-pill pret">Installé</span>' : "";
   return `<details class="ol-carte" data-tag="${esc(m.tag)}">
