@@ -71,6 +71,7 @@ AGENTS = [
     ("E4-maximilien", "E4 : Maximilien (marches.maximilien.fr)", "E4-maximilien", "e4-maximilien.js", 6, "n8n_agent_E4_maximilien.json"),
     ("E5-klekoon", "E5 : Klekoon (klekoon.com)", "E5-klekoon", "e5-klekoon.js", 7, "n8n_agent_E5_klekoon.json"),
     ("E6-ebourgogne", "E6 : e-Bourgogne / Ternum BFC (marches.ternum-bfc.fr)", "E6-ebourgogne", "e6-ebourgogne.js", 8, "n8n_agent_E6_ebourgogne.json"),
+    ("E7-megalis", "E7 : Mégalis Bretagne (marches.megalis.bretagne.bzh)", "E7-megalis", "e7-megalis.js", 9, "n8n_agent_E7_megalis.json"),
 ]
 
 if __name__ == "__main__":
