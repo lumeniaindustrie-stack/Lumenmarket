@@ -677,4 +677,5 @@ td .muted, td strong { display: inline-block; max-width: 100%; overflow: hidden;
 /* Réseau et carte des agents : hauteur limitée */
 #reseau { max-height: 330px; min-width: 544px }
 .reseau-canvas { padding-top: 29px }
-#schema { max-height: 595px }
+#schema { max-height: 850px }
+.defile:has(#schema) { max-height: 850px; overflow-y: auto }

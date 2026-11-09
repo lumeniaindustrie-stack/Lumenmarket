@@ -7,7 +7,7 @@
 <title>Pilotage – Lumen</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&display=swap">
-<link rel="stylesheet" href="admin.css?v=202611091035">
+<link rel="stylesheet" href="admin.css?v=202611091048">
 </head>
 <body>
 <div id="porte" hidden>
@@ -134,7 +134,7 @@
           <div class="ag-mapping">
             <div class="w carte-w">
               <div class="w-tete"><span class="grip"></span><h2>Pôles et liaisons</h2><span class="pill" id="ag-pill"></span></div>
-              <div class="defile"><svg id="schema" viewBox="0 0 1330 872" role="group" aria-label="Carte des agents et de leurs liaisons"></svg></div>
+              <div class="defile"><svg id="schema" viewBox="0 0 1330 1248" role="group" aria-label="Carte des agents et de leurs liaisons"></svg></div>
               <!-- Légende -->
               <div class="ag-legende">
                 <span class="ag-leg-item"><i class="ag-leg-dot" style="background:var(--vert)"></i>Actif</span>
@@ -189,10 +189,10 @@
   <dialog class="ndv" id="fiche" aria-labelledby="fa-titre"></dialog>
 </div>
 
-<script src="config.js?v=202611091035"></script>
+<script src="config.js?v=202611091048"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
-<script src="commun.js?v=202611091035"></script>
-<script src="agents.js?v=202611091035"></script>
+<script src="commun.js?v=202611091048"></script>
+<script src="agents.js?v=202611091048"></script>
 <script>
 let D = { profils: [], envoyees: [], analyses: [], demandes: [], runs: [], collecte24: 0, offresTotal: 0 };
 
@@ -429,13 +429,18 @@ const POLES = {
   pros: { t: "Pôle prospection", c: "#a78bfa" }, com: { t: "Pôle commercial", c: "#f472b6" },
   tech: { t: "Pôle technique", c: "#60a5fa" }, mgt: { t: "Pôle management", c: "#fbbf24" }, cpt: { t: "Pôle comptabilité", c: "#2dd4bf" }
 };
-const COURT = { "A-collecteur": "Collecteur", "B-tri": "Tri par client", "C-chat": "Chat client", "D-analyse": "Analyse DCE", "E-prospection": "Coordinateur", "F-commercial": "Emails", "G-controle": "Contrôleur", "H-comptable": "Comptable" };
-const SOUS_PROS = ["PLACE", "AWS-Achat", "e-marchespublics", "Maximilien", "Klekoon", "e-Bourgogne", "Mégalis Bretagne", "Achat Public"];
-const CADRES = [["pros", 30, 30, 310, 210], ["com", 370, 30, 310, 210], ["tech", 30, 290, 650, 540], ["mgt", 1050, 30, 250, 340], ["cpt", 1050, 420, 250, 410]];
-const POS = { "E-prospection": [185, 150, "pros"], "F-commercial": [525, 150, "com"], "A-collecteur": [130, 420, "tech"], "B-tri": [350, 420, "tech"], "C-chat": [575, 570, "tech"], "D-analyse": [575, 720, "tech"], "G-controle": [1175, 200, "mgt"], "H-comptable": [1175, 610, "cpt"] };
-const HUB = { x: 790, y: 290, w: 200, h: 540 };
+const COURT = { "A-collecteur": "Collecteur", "B-tri": "Tri par client", "C-chat": "Chat client", "D-analyse": "Analyse DCE", "E-prospection": "Coordinateur", "F-commercial": "Emails", "G-controle": "Contrôleur", "H-comptable": "Comptable",
+  "E1-place": "PLACE", "E2-aws": "AWS-Achat", "E3-emp": "e-march.pub", "E4-maximilien": "Maximilien", "E5-klekoon": "Klekoon", "E6-ebourgogne": "e-Bourgogne", "E7-megalis": "Mégalis Br.", "E8-achatpublic": "Achat Public" };
+const CADRES = [["pros", 30, 30, 310, 210], ["com", 370, 30, 310, 210], ["tech", 30, 290, 650, 916], ["mgt", 1050, 30, 250, 340], ["cpt", 1050, 420, 250, 786]];
+const POS = { "E-prospection": [185, 150, "pros"], "F-commercial": [525, 150, "com"], "A-collecteur": [130, 420, "tech"], "B-tri": [350, 420, "tech"], "C-chat": [575, 570, "tech"], "D-analyse": [575, 720, "tech"], "G-controle": [1175, 200, "mgt"], "H-comptable": [1175, 610, "cpt"],
+  "E1-place": [130, 900, "tech"], "E2-aws": [350, 900, "tech"], "E3-emp": [130, 990, "tech"], "E4-maximilien": [350, 990, "tech"], "E5-klekoon": [130, 1080, "tech"], "E6-ebourgogne": [350, 1080, "tech"], "E7-megalis": [130, 1170, "tech"], "E8-achatpublic": [350, 1170, "tech"] };
+const HUB = { x: 790, y: 290, w: 200, h: 916 };
+const SOUS_PROS = ["E1-place", "E2-aws", "E3-emp", "E4-maximilien", "E5-klekoon", "E6-ebourgogne", "E7-megalis", "E8-achatpublic"];
 const LIENS = [
-  { de: "E-prospection", vers: "A-collecteur", lib: "offres consolidées", pts: [[185, 186], [185, 300], [130, 300], [130, 384]], fin: "d", et: [160, 300] },
+  { de: "E-prospection", vers: "A-collecteur", lib: "vérifie les 8 sous-agents", pts: [[185, 186], [240, 186], [240, 850]], fin: "d", et: [240, 500], controle: true },
+  ...SOUS_PROS.map((code, i) => { const [x, y] = POS[code], bord = x < 250 ? -1 : 1, jog = x + bord * 100;
+    return { de: code, vers: "A-collecteur", lib: i === 0 ? "offres" : "", et: i === 0 ? [90, 500] : undefined,
+      pts: [[x + bord * 80, y], [jog, y], [jog, 500], [130, 500], [130, 456]], fin: "u" }; }),
   { de: "F-commercial", vers: "CLIENTS", lib: "inscriptions", pts: [[611, 150], [890, 150], [890, 284]], fin: "d", et: [745, 150] },
   { de: "A-collecteur", vers: "B-tri", lib: "offres", pts: [[216, 420], [262, 420]], fin: "r", et: [240, 420] },
   { de: "B-tri", vers: "CLIENTS", lib: "veille du matin", pts: [[436, 420], [784, 420]], fin: "r", et: [640, 420] },
@@ -500,12 +505,8 @@ function rendreAgents() {
   ).join("") : `<p class="vide">Aucune prévue.</p>`;
   const defs = `<defs><filter id="lueur" x="-200%" y="-200%" width="500%" height="500%"><feGaussianBlur stdDeviation="2" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>`;
   const cadres = CADRES.map(([k, x, y, w, h]) => { const n = Object.values(POS).filter(p => p[2] === k).length;
-    const etiquette = k === "pros" ? "1 + 8 sous-agents" : n + " agent" + (n > 1 ? "s" : "");
-    const sousPros = k === "pros" ? `<foreignObject x="${x + 14}" y="${y + 150}" width="${w - 28}" height="${h - 158}">
-        <div xmlns="http://www.w3.org/1999/xhtml" style="font:8.5px/1.3 Inter,system-ui,sans-serif;color:#8A93A6">+8 sous-agents (plan) : ${esc(SOUS_PROS.join(" · "))} — détail : page Architecture.</div>
-      </foreignObject>` : "";
     return `<g><rect x="${x}" y="${y}" width="${w}" height="${h}" rx="18" fill="#FFFFFF" stroke="#E9ECF1"/>${grip(x + 16, y + 17)}
-      <text x="${x + 34}" y="${y + 26}" fill="#111827" font-size="12.5" font-weight="600">${POLES[k].t}</text>${pillSvg(x + w - 14, y + 13, etiquette, "rgba(52,120,246,.12)", "#3478F6")}${sousPros}${coin(x + w - 9, y + h - 9)}</g>`; }).join("");
+      <text x="${x + 34}" y="${y + 26}" fill="#111827" font-size="12.5" font-weight="600">${POLES[k].t}</text>${pillSvg(x + w - 14, y + 13, n + " agent" + (n > 1 ? "s" : ""), "rgba(52,120,246,.12)", "#3478F6")}${coin(x + w - 9, y + h - 9)}</g>`; }).join("");
   const liens = LIENS.map((l, i) => {
     const { d, L } = trace(l.pts, l.rayon || 14), on = !l.controle && estActif(etatDe(l.de)) && estActif(etatDe(l.vers));
     const larg = l.lib.length * 5.8 + 18, [ex, ey] = l.et || [0, 0], veille = l.controle && estActif(etatDe(l.de));
