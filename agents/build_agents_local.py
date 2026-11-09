@@ -269,8 +269,77 @@ const nouvelles = c.candidats.filter(x => !connus.has(x.siret)).slice(0, c.cible
 return [{ json: { debut: c.debut, lus: c.lus, candidats_vus: c.candidats.length, nouvelles, erreur: c.erreur } }];
 """
 
-F_JOURNAL = r"""
+F_ENRICHIR = r"""
+// Pour chaque nouvelle entreprise : secteur + dirigeant via l'API officielle et
+// gratuite recherche-entreprises.api.gouv.fr (à partir du SIRET, pas de clé requise),
+// puis site web + email via une recherche web "best effort" (non garantie : à vérifier
+// manuellement avant tout contact commercial).
+const PAUSE_MS = 250;
 const c = $('Garder les nouvelles').first().json;
+const attendre = ms => new Promise(r => setTimeout(r, ms));
+const emailRe = /[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/i;
+const emailBannis = /noreply|no-reply|example\.|sentry|wixpress|godaddy/i;
+const extraireEmail = html => {
+  if (!html) return null;
+  const mailtos = [...String(html).matchAll(/mailto:([^"'?\s]+)/gi)].map(m => m[1]);
+  const textuels = String(html).match(new RegExp(emailRe, 'gi')) || [];
+  const tous = [...mailtos, ...textuels].filter(e => emailRe.test(e) && !emailBannis.test(e));
+  return tous[0] || null;
+};
+const extraireLien = html => {
+  const liens = [...String(html || '').matchAll(/<a[^>]+class="result__a"[^>]+href="([^"]+)"/gi)].map(m => m[1]);
+  for (const lien of liens) {
+    try {
+      const brut = decodeURIComponent((lien.match(/uddg=([^&]+)/) || [])[1] || lien);
+      const u = new URL(brut.startsWith('http') ? brut : 'https:' + brut);
+      if (!/duckduckgo|google|bing|annuaire-entreprises|pagesjaunes|societe\.com|pappers|linkedin|facebook/i.test(u.hostname)) return u.origin;
+    } catch (e) {}
+  }
+  return null;
+};
+
+const nouvelles = [];
+for (const ent of c.nouvelles) {
+  let secteur = null, dirigeant = null, site_web = null, email = null;
+  try {
+    const r = await this.helpers.httpRequest({ method: 'GET', url: 'https://recherche-entreprises.api.gouv.fr/search',
+      qs: { q: ent.siret, page: 1, per_page: 1 }, json: true, timeout: 8000 });
+    const res = (r.results || [])[0];
+    if (res) {
+      secteur = res.activite_principale_naf25 || res.activite_principale || null;
+      const d = (res.dirigeants || [])[0];
+      dirigeant = d ? `${d.prenoms || ''} ${d.nom || ''}`.trim() || null : ((res.dirigeants_personnes_morales || [])[0]?.denomination || null);
+    }
+  } catch (e) {}
+  try {
+    const q = encodeURIComponent(`${ent.nom} ${ent.ville || ''} site officiel`);
+    const sr = await this.helpers.httpRequest({ method: 'GET', url: `https://html.duckduckgo.com/html/?q=${q}`,
+      timeout: 8000, headers: { 'User-Agent': 'Mozilla/5.0' } });
+    site_web = extraireLien(sr);
+    if (site_web) {
+      try {
+        const page = await this.helpers.httpRequest({ method: 'GET', url: site_web, timeout: 8000, headers: { 'User-Agent': 'Mozilla/5.0' } });
+        email = extraireEmail(page);
+      } catch (e) {}
+      if (!email) {
+        for (const chemin of ['/contact', '/contact-us', '/mentions-legales', '/nous-contacter']) {
+          try {
+            const p2 = await this.helpers.httpRequest({ method: 'GET', url: site_web + chemin, timeout: 6000, headers: { 'User-Agent': 'Mozilla/5.0' } });
+            email = extraireEmail(p2);
+            if (email) break;
+          } catch (e) {}
+        }
+      }
+    }
+  } catch (e) {}
+  nouvelles.push({ ...ent, secteur, dirigeant, site_web, email });
+  await attendre(PAUSE_MS);
+}
+return [{ json: { ...c, nouvelles } }];
+"""
+
+F_JOURNAL = r"""
+const c = $('Enrichir (secteur, dirigeant, email)').first().json;
 const erreurs = $input.all().map(i => i.json).filter(x => x && x.error);
 let statut = 'ok', message = null;
 if (c.erreur) { statut = 'erreur'; message = c.erreur; }
@@ -293,10 +362,11 @@ f_nodes = [
     sb_check("f3", "Lire les entreprises connues", [440, 0],
              SUPABASE_URL + "/rest/v1/entreprises?select=siret&siret=in.({{ $json.candidats.map(c => c.siret).join(',') || '0' }})&limit=5000"),
     code("f4", "Garder les nouvelles", [660, 0], F_FILTRER),
-    sb_http("f5", "Enregistrer les entreprises", [880, 0], "POST", SUPABASE_URL + "/rest/v1/entreprises?on_conflict=siret",
+    code("f4b", "Enrichir (secteur, dirigeant, email)", [880, 0], F_ENRICHIR),
+    sb_http("f5", "Enregistrer les entreprises", [1100, 0], "POST", SUPABASE_URL + "/rest/v1/entreprises?on_conflict=siret",
             body_expr="={{ JSON.stringify($json.nouvelles.length ? $json.nouvelles : []) }}", prefer="resolution=merge-duplicates,return=minimal"),
-    code("f6", "Préparer le journal", [1100, 0], F_JOURNAL),
-    sb_http("f7", "Écrire le journal", [1320, 0], "POST", SUPABASE_URL + "/rest/v1/agent_runs",
+    code("f6", "Préparer le journal", [1320, 0], F_JOURNAL),
+    sb_http("f7", "Écrire le journal", [1540, 0], "POST", SUPABASE_URL + "/rest/v1/agent_runs",
             body_expr="={{ JSON.stringify($json) }}", prefer="return=minimal"),
 ]
 agent_f = {"name": "Lumen – Agent F : prospection commerciale", "nodes": f_nodes,
@@ -505,6 +575,6 @@ json.dump(agent_b, open(os.path.join(OUT, "n8n_agent_B_tri_ollama.json"), "w", e
 json.dump(agent_f, open(os.path.join(OUT, "n8n_agent_F_commercial.json"), "w", encoding="utf-8"), ensure_ascii=False, indent=2)
 for nm, js in [("a_collecte", A_COLLECTE), ("a_journal", A_JOURNAL), ("a_reperes", A_REPERES), ("a_journal_coord", A_JOURNAL_COORD),
                ("b_reglages", B_REGLAGES), ("b_preparer", B_PREPARER), ("b_lire", B_LIRE), ("b_lignes", B_LIGNES), ("b_emails", B_EMAILS), ("b_journal", B_JOURNAL),
-               ("f_cherche", F_CHERCHE), ("f_filtrer", F_FILTRER), ("f_journal", F_JOURNAL)]:
+               ("f_cherche", F_CHERCHE), ("f_filtrer", F_FILTRER), ("f_enrichir", F_ENRICHIR), ("f_journal", F_JOURNAL)]:
     open(os.path.join(OUT, f"_chk_{nm}.js"), "w").write("async function f(){" + js + "}")
 print("ok")

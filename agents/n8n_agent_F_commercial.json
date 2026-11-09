@@ -84,12 +84,25 @@
       }
     },
     {
+      "id": "f4b",
+      "name": "Enrichir (secteur, dirigeant, email)",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        880,
+        0
+      ],
+      "parameters": {
+        "jsCode": "// Pour chaque nouvelle entreprise : secteur + dirigeant via l'API officielle et\n// gratuite recherche-entreprises.api.gouv.fr (à partir du SIRET, pas de clé requise),\n// puis site web + email via une recherche web \"best effort\" (non garantie : à vérifier\n// manuellement avant tout contact commercial).\nconst PAUSE_MS = 250;\nconst c = $('Garder les nouvelles').first().json;\nconst attendre = ms => new Promise(r => setTimeout(r, ms));\nconst emailRe = /[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,}/i;\nconst emailBannis = /noreply|no-reply|example\\.|sentry|wixpress|godaddy/i;\nconst extraireEmail = html => {\n  if (!html) return null;\n  const mailtos = [...String(html).matchAll(/mailto:([^\"'?\\s]+)/gi)].map(m => m[1]);\n  const textuels = String(html).match(new RegExp(emailRe, 'gi')) || [];\n  const tous = [...mailtos, ...textuels].filter(e => emailRe.test(e) && !emailBannis.test(e));\n  return tous[0] || null;\n};\nconst extraireLien = html => {\n  const liens = [...String(html || '').matchAll(/<a[^>]+class=\"result__a\"[^>]+href=\"([^\"]+)\"/gi)].map(m => m[1]);\n  for (const lien of liens) {\n    try {\n      const brut = decodeURIComponent((lien.match(/uddg=([^&]+)/) || [])[1] || lien);\n      const u = new URL(brut.startsWith('http') ? brut : 'https:' + brut);\n      if (!/duckduckgo|google|bing|annuaire-entreprises|pagesjaunes|societe\\.com|pappers|linkedin|facebook/i.test(u.hostname)) return u.origin;\n    } catch (e) {}\n  }\n  return null;\n};\n\nconst nouvelles = [];\nfor (const ent of c.nouvelles) {\n  let secteur = null, dirigeant = null, site_web = null, email = null;\n  try {\n    const r = await this.helpers.httpRequest({ method: 'GET', url: 'https://recherche-entreprises.api.gouv.fr/search',\n      qs: { q: ent.siret, page: 1, per_page: 1 }, json: true, timeout: 8000 });\n    const res = (r.results || [])[0];\n    if (res) {\n      secteur = res.activite_principale_naf25 || res.activite_principale || null;\n      const d = (res.dirigeants || [])[0];\n      dirigeant = d ? `${d.prenoms || ''} ${d.nom || ''}`.trim() || null : ((res.dirigeants_personnes_morales || [])[0]?.denomination || null);\n    }\n  } catch (e) {}\n  try {\n    const q = encodeURIComponent(`${ent.nom} ${ent.ville || ''} site officiel`);\n    const sr = await this.helpers.httpRequest({ method: 'GET', url: `https://html.duckduckgo.com/html/?q=${q}`,\n      timeout: 8000, headers: { 'User-Agent': 'Mozilla/5.0' } });\n    site_web = extraireLien(sr);\n    if (site_web) {\n      try {\n        const page = await this.helpers.httpRequest({ method: 'GET', url: site_web, timeout: 8000, headers: { 'User-Agent': 'Mozilla/5.0' } });\n        email = extraireEmail(page);\n      } catch (e) {}\n      if (!email) {\n        for (const chemin of ['/contact', '/contact-us', '/mentions-legales', '/nous-contacter']) {\n          try {\n            const p2 = await this.helpers.httpRequest({ method: 'GET', url: site_web + chemin, timeout: 6000, headers: { 'User-Agent': 'Mozilla/5.0' } });\n            email = extraireEmail(p2);\n            if (email) break;\n          } catch (e) {}\n        }\n      }\n    }\n  } catch (e) {}\n  nouvelles.push({ ...ent, secteur, dirigeant, site_web, email });\n  await attendre(PAUSE_MS);\n}\nreturn [{ json: { ...c, nouvelles } }];"
+      }
+    },
+    {
       "id": "f5",
       "name": "Enregistrer les entreprises",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        880,
+        1100,
         0
       ],
       "parameters": {
@@ -132,11 +145,11 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        1100,
+        1320,
         0
       ],
       "parameters": {
-        "jsCode": "const c = $('Garder les nouvelles').first().json;\nconst erreurs = $input.all().map(i => i.json).filter(x => x && x.error);\nlet statut = 'ok', message = null;\nif (c.erreur) { statut = 'erreur'; message = c.erreur; }\nelse if (erreurs.length) { statut = 'erreur'; message = 'Enregistrement dans Supabase impossible : ' + JSON.stringify(erreurs[0].error).slice(0, 300); }\nelse if (!c.nouvelles.length) statut = 'vide';\nreturn [{ json: { agent: 'F-commercial', debut: c.debut, fin: new Date().toISOString(), statut, entrees: c.lus, sorties: c.nouvelles.length,\n  details: { candidats_vus: c.candidats_vus }, message } }];"
+        "jsCode": "const c = $('Enrichir (secteur, dirigeant, email)').first().json;\nconst erreurs = $input.all().map(i => i.json).filter(x => x && x.error);\nlet statut = 'ok', message = null;\nif (c.erreur) { statut = 'erreur'; message = c.erreur; }\nelse if (erreurs.length) { statut = 'erreur'; message = 'Enregistrement dans Supabase impossible : ' + JSON.stringify(erreurs[0].error).slice(0, 300); }\nelse if (!c.nouvelles.length) statut = 'vide';\nreturn [{ json: { agent: 'F-commercial', debut: c.debut, fin: new Date().toISOString(), statut, entrees: c.lus, sorties: c.nouvelles.length,\n  details: { candidats_vus: c.candidats_vus }, message } }];"
       }
     },
     {
@@ -145,7 +158,7 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        1320,
+        1540,
         0
       ],
       "parameters": {
@@ -218,6 +231,17 @@
       ]
     },
     "Garder les nouvelles": {
+      "main": [
+        [
+          {
+            "node": "Enrichir (secteur, dirigeant, email)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Enrichir (secteur, dirigeant, email)": {
       "main": [
         [
           {
