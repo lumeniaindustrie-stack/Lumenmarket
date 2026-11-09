@@ -18,7 +18,10 @@
 const { chromium } = require('playwright');
 
 const BASE = 'https://www.marches-publics.info';
-const FENETRE = ' < 30'; // "30 derniers jours" — recouvrement large, le upsert sur avis_id dédoublonne.
+// Le site refuse d'afficher les résultats au-delà d'un certain volume ("Veuillez préciser votre
+// recherche") : il faut donc filtrer par date ET par département, pas seulement par date.
+const FENETRE = ' < 8'; // "8 derniers jours" — recouvrement suffisant pour une veille quotidienne, le upsert sur avis_id dédoublonne.
+const DEPARTEMENTS_IDR = '4,5,6,13,83,84'; // Région PACA (04,05,06,13,83,84) — zone de Lumen (voir config.js DEPARTEMENTS_ACCUEIL).
 
 // Devine l'année complète à partir d'une date "JJ/MM/AA" (le site n'utilise que 2 chiffres).
 function dateIso(jjmmaa) {
@@ -44,6 +47,7 @@ async function main() {
   try {
     await page.goto(`${BASE}/Annonces/rechercher`, { waitUntil: 'domcontentloaded', timeout: 30000 });
     await page.selectOption('#dateParution', FENETRE);
+    await page.selectOption('select[name="IDR"]', DEPARTEMENTS_IDR);
     await Promise.all([
       page.waitForNavigation({ waitUntil: 'domcontentloaded', timeout: 30000 }),
       page.click('#sub')
