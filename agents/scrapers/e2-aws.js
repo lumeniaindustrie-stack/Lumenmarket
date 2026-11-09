@@ -45,11 +45,11 @@ async function main() {
   const erreurs = [];
   let lignes = [];
   try {
-    await page.goto(`${BASE}/Annonces/rechercher`, { waitUntil: 'domcontentloaded', timeout: 30000 });
+    await page.goto(`${BASE}/Annonces/rechercher`, { waitUntil: 'domcontentloaded', timeout: 60000 });
     await page.selectOption('#dateParution', FENETRE);
     await page.selectOption('select[name="IDR"]', DEPARTEMENTS_IDR);
     await Promise.all([
-      page.waitForNavigation({ waitUntil: 'domcontentloaded', timeout: 30000 }),
+      page.waitForNavigation({ waitUntil: 'domcontentloaded', timeout: 60000 }),
       page.click('#sub')
     ]);
 
@@ -75,7 +75,7 @@ async function main() {
         const nbLots = objet.match(/Marché alloti\s*:\s*(\d+)\s*lots?/i)?.[1] || null;
         objet = objet.replace(/^\[réf\.\s*[^\]]*\]\s*/i, '').replace(/\[Marché alloti[^\]]*\]\s*$/i, '').trim();
         const href = bloc.querySelector('a[href^="/Annonces/"][href$=".htm"]')?.getAttribute('href') || null;
-        out.push({ href, acheteur, cp, objet, type, pub, lim: lim ? lim[0] : null, limH: lim?.[2] || null, limM: lim?.[3] || null });
+        out.push({ href, acheteur, cp, objet, type, pub, lim: lim ? lim[1] : null, limH: lim?.[2] || null, limM: lim?.[3] || null });
       });
       return out;
     });
@@ -88,7 +88,8 @@ async function main() {
   const offres = lignes.filter(l => l.href).map(l => {
     const id = l.href.replace(/^\/Annonces\//, '').replace(/\.htm$/, '');
     const dep = departementDe(l.cp);
-    const limite = l.lim ? `${dateIso(l.lim)}T${(l.limH || '12').padStart(2, '0')}:${(l.limM || '00').padStart(2, '0')}:00+01:00` : null;
+    const limIso = l.lim ? dateIso(l.lim) : null;
+    const limite = limIso ? `${limIso}T${(l.limH || '12').padStart(2, '0')}:${(l.limM || '00').padStart(2, '0')}:00+01:00` : null;
     return {
       avis_id: `AWS-${id}`,
       objet: l.objet.slice(0, 1000),
