@@ -197,10 +197,11 @@ function rendre() {
   const jours = joursDe(P), parJour = Object.fromEntries(jours.map(j => [j, []]));
   runs.forEach(r => { const k = cleJour(r.debut); if (parJour[k]) parJour[k].push(r); });
   const lib = k => new Date(k + "T12:00:00").toLocaleDateString("fr-FR", { weekday: "short", day: "numeric", month: "long" });
-  const ratioLib = code === "A-collecteur" ? "% d'avis gardés" : code === "B-tri" ? "offres par client" : "sorties par entrée";
-  const ratio = rs => { const e = rs.reduce((s, r) => s + (r.entrees || 0), 0), s = rs.reduce((t, r) => t + (r.sorties || 0), 0); return e ? (code === "A-collecteur" ? s / e * 100 : s / e) : null; };
+  const PCT = code === "A-collecteur" || code === "E9-boamp"; // ratio exprimé en % plutôt qu'en valeur brute
+  const ratioLib = code === "A-collecteur" ? "sous-agents à jour" : code === "E9-boamp" ? "d'avis gardés" : code === "B-tri" ? "offres par client" : "sorties par entrée";
+  const ratio = rs => { const e = rs.reduce((s, r) => s + (r.entrees || 0), 0), s = rs.reduce((t, r) => t + (r.sorties || 0), 0); return e ? (PCT ? s / e * 100 : s / e) : null; };
   const ratioTot = ratio(runs);
-  const fmtRatio = v => v == null ? "–" : code === "A-collecteur" ? Math.round(v) + " %" : v.toLocaleString("fr-FR", { maximumFractionDigits: 1 });
+  const fmtRatio = v => v == null ? "–" : PCT ? Math.round(v) + " %" : v.toLocaleString("fr-FR", { maximumFractionDigits: 1 });
   const parHeure = [...Array(24)].map((_, h) => runs.filter(r => new Date(r.debut).getHours() === h).length);
   const chrono = [...runs].reverse().filter(r => duree(r) != null);
   const ok = runs.filter(r => r.statut === "ok").length, vide = runs.filter(r => r.statut === "vide").length;
@@ -239,7 +240,7 @@ function rendre() {
         <div class="legende"><span><i style="background:${COUL.vert}"></i>Réussies</span><span><i style="background:${COUL.gris}"></i>Rien à faire</span><span><i style="background:${COUL.rouge}"></i>Erreurs</span></div></div>
       <div class="carte c4"><div class="w-tete"><span class="grip"></span><h2>Heures d'activité</h2><span class="pill">par heure</span></div><p class="sous">Exécutions selon l'heure de la journée</p><div class="graph petit" id="g-heures"></div></div>
       <div class="carte c6"><div class="w-tete"><span class="grip"></span><h2>Durée d'exécution</h2><span class="pill">${P} jours</span></div><div class="valeur">${fmtDuree(S.duree)}<u>en moyenne</u></div><div class="graph petit" id="g-duree"></div></div>
-      <div class="carte c6"><div class="w-tete"><span class="grip"></span><h2>Rendement</h2><span class="pill">${P} jours</span></div><div class="valeur">${fmtRatio(ratioTot)}<u>${code === "A-collecteur" ? "d'avis gardés" : esc(ratioLib)}</u></div><div class="graph petit" id="g-ratio"></div></div>
+      <div class="carte c6"><div class="w-tete"><span class="grip"></span><h2>Rendement</h2><span class="pill">${P} jours</span></div><div class="valeur">${fmtRatio(ratioTot)}<u>${esc(ratioLib)}</u></div><div class="graph petit" id="g-ratio"></div></div>
       <div class="carte c12"><div class="w-tete"><span class="grip"></span><h2>Activité</h2><span class="pill">jour × heure</span></div><p class="sous">Nombre de passages selon le jour de la semaine et l'heure</p><div class="carte-activite" id="g-activite"></div></div>
       ${specifique}
       <div class="carte c12"><div class="w-tete"><span class="grip"></span><h2>Journal des exécutions</h2><span class="pill">20 dernières</span></div><p class="sous">Les 20 plus récentes de la période</p>

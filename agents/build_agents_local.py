@@ -71,7 +71,11 @@ function normaliser(r) {
 """
 
 # =====================================================================
-#  AGENT A : COLLECTEUR
+#  AGENT E9 : BOAMP (ex "Agent A" — même logique, déplacée dans la série des
+#  sous-agents plateformes E1-E8 : le BOAMP est traité comme une 9ème source,
+#  au même titre que PLACE, AWS-Achat, etc. Seule différence : une API
+#  officielle légère plutôt qu'un scraping Playwright, donc un rythme plus
+#  rapide (toutes les 2 h, comme avant).
 # =====================================================================
 A_COLLECTE = r"""
 // ===== RÉGLAGES =====
@@ -107,22 +111,84 @@ let statut = 'ok', message = null;
 if (c.erreur) { statut = 'erreur'; message = c.erreur; }
 else if (erreurs.length) { statut = 'erreur'; message = 'Enregistrement dans Supabase impossible : ' + JSON.stringify(erreurs[0].error).slice(0, 300); }
 else if (!c.nb) statut = 'vide';
-return [{ json: { agent: 'A-collecteur', debut: c.debut, fin: new Date().toISOString(), statut, entrees: c.lus, sorties: statut === 'erreur' ? 0 : c.nb,
+return [{ json: { agent: 'E9-boamp', debut: c.debut, fin: new Date().toISOString(), statut, entrees: c.lus, sorties: statut === 'erreur' ? 0 : c.nb,
   details: { avis_disponibles: c.total, paquets: $input.all().length }, message } }];
 """
 
-a_nodes = [
-    {"id": "a1", "name": "Toutes les 2 heures", "type": "n8n-nodes-base.scheduleTrigger", "typeVersion": 1.2, "position": [0, 0],
+e9_nodes = [
+    {"id": "e9-1", "name": "Toutes les 2 heures", "type": "n8n-nodes-base.scheduleTrigger", "typeVersion": 1.2, "position": [0, 0],
      "parameters": {"rule": {"interval": [{"field": "cronExpression", "expression": "0 6-20/2 * * *"}]}}},
-    code("a2", "Collecter le BOAMP", [220, 0], A_COLLECTE),
-    sb_http("a3", "Enregistrer les offres", [440, 0], "POST", SUPABASE_URL + "/rest/v1/offres?on_conflict=avis_id",
+    code("e9-2", "Collecter le BOAMP", [220, 0], A_COLLECTE),
+    sb_http("e9-3", "Enregistrer les offres", [440, 0], "POST", SUPABASE_URL + "/rest/v1/offres?on_conflict=avis_id",
             body_expr="={{ JSON.stringify($json.lignes.length ? $json.lignes : []) }}", prefer="resolution=merge-duplicates,return=minimal"),
-    code("a4", "Préparer le journal", [660, 0], A_JOURNAL),
-    sb_http("a5", "Écrire le journal", [880, 0], "POST", SUPABASE_URL + "/rest/v1/agent_runs",
+    code("e9-4", "Préparer le journal", [660, 0], A_JOURNAL),
+    sb_http("e9-5", "Écrire le journal", [880, 0], "POST", SUPABASE_URL + "/rest/v1/agent_runs",
             body_expr="={{ JSON.stringify($json) }}", prefer="return=minimal"),
 ]
-agent_a = {"name": "Lumen – Agent A : collecteur des offres", "nodes": a_nodes,
-           "connections": chain([n["name"] for n in a_nodes]), "settings": {"executionOrder": "v1"}, "pinData": {}}
+agent_e9 = {"name": "Lumen – Agent E9 : BOAMP", "nodes": e9_nodes,
+            "connections": chain([n["name"] for n in e9_nodes]), "settings": {"executionOrder": "v1"}, "pinData": {}}
+
+# =====================================================================
+#  AGENT A : COORDINATEUR DE LA COLLECTE
+#  Ne récupère plus rien lui-même : vérifie toutes les 3 h que les 9 sous-
+#  agents (BOAMP + 8 plateformes) ont bien tourné, et consigne un journal
+#  consolidé. "entrées" = les 9 sous-agents suivis (constant) ; "sorties" =
+#  combien d'entre eux sont à jour (ni en erreur, ni sans passage récent).
+#  Le total d'offres actuellement en base est noté à part, dans le détail
+#  du journal, plutôt que comme "sorties" : sinon il faudrait le resommer
+#  à chaque passage et il gonflerait dans le graphique de production,
+#  exactement le malentendu repéré sur l'agent A avant cette refonte.
+# =====================================================================
+SOUS_AGENTS_COLLECTE = ["E9-boamp", "E1-place", "E2-aws", "E3-emp", "E4-maximilien", "E5-klekoon", "E6-ebourgogne", "E7-megalis", "E8-achatpublic"]
+
+A_REPERES = r"""
+const CODES = """ + json.dumps(SOUS_AGENTS_COLLECTE) + r""";
+return [{ json: { debut: new Date().toISOString(), since: new Date(Date.now() - 48 * 36e5).toISOString(),
+  codes: CODES, filtre: 'agent=in.(' + CODES.join(',') + ')' } }];
+"""
+
+A_JOURNAL_COORD = r"""
+const runs = $('Lire les 9 sous-agents').all().map(i => i.json);
+const R = $('Repères').first().json, CODES = R.codes;
+const parAgent = {};
+for (const r of runs) { if (!parAgent[r.agent]) parAgent[r.agent] = r; } // déjà trié du plus récent au plus ancien
+const manquants = CODES.filter(c => !parAgent[c]);
+const enErreur = CODES.filter(c => parAgent[c] && parAgent[c].statut === 'erreur');
+const aJour = CODES.length - manquants.length - enErreur.length;
+let total = null;
+try {
+  const cr = ($('Compter les offres').first().json.headers || {})['content-range'] || '';
+  const m = /\/(\d+)$/.exec(cr); total = m ? Number(m[1]) : null;
+} catch (e) {}
+let statut = 'ok', message = null;
+if (manquants.length === CODES.length) { statut = 'vide'; message = "Aucun des 9 sous-agents n'a encore de passage."; }
+else if (enErreur.length) { statut = 'erreur'; message = enErreur.length + ' sous-agent(s) en erreur : ' + enErreur.join(', '); }
+else if (manquants.length) { message = manquants.length + ' sous-agent(s) sans passage récent (48 h) : ' + manquants.join(', '); }
+return [{ json: { agent: 'A-collecteur', debut: R.debut, fin: new Date().toISOString(), statut,
+  entrees: CODES.length, sorties: aJour, details: { manquants, en_erreur: enErreur, offres_en_base: total }, message } }];
+"""
+
+def sb_count(id_, name, pos, path_expr):
+    return {"id": id_, "name": name, "type": "n8n-nodes-base.httpRequest", "typeVersion": 4.2, "position": pos,
+            "parameters": {"method": "GET", "url": "=" + path_expr,
+                "authentication": "predefinedCredentialType", "nodeCredentialType": "supabaseApi",
+                "sendHeaders": True, "headerParameters": {"parameters": [{"name": "Prefer", "value": "count=exact"}]},
+                "options": {"timeout": 30000, "response": {"response": {"fullResponse": True, "neverError": True}}}},
+            "credentials": SB_CRED, "alwaysOutputData": True, "continueOnFail": True}
+
+a_coord_nodes = [
+    {"id": "ac1", "name": "Toutes les 3 heures", "type": "n8n-nodes-base.scheduleTrigger", "typeVersion": 1.2, "position": [0, 0],
+     "parameters": {"rule": {"interval": [{"field": "cronExpression", "expression": "0 */3 * * *"}]}}},
+    code("ac2", "Repères", [220, 0], A_REPERES),
+    sb_http("ac3", "Lire les 9 sous-agents", [440, 0], "GET",
+            SUPABASE_URL + "/rest/v1/agent_runs?{{ $json.filtre }}&debut=gte.{{ $json.since }}&select=agent,debut,statut&order=debut.desc&limit=500"),
+    sb_count("ac4", "Compter les offres", [660, 0], SUPABASE_URL + "/rest/v1/offres?select=avis_id&limit=1"),
+    code("ac5", "Préparer le journal", [880, 0], A_JOURNAL_COORD),
+    sb_http("ac6", "Écrire le journal", [1100, 0], "POST", SUPABASE_URL + "/rest/v1/agent_runs",
+            body_expr="={{ JSON.stringify($json) }}", prefer="return=minimal"),
+]
+agent_a = {"name": "Lumen – Agent A : coordinateur de la collecte", "nodes": a_coord_nodes,
+           "connections": chain([n["name"] for n in a_coord_nodes]), "settings": {"executionOrder": "v1"}, "pinData": {}}
 
 # =====================================================================
 #  AGENT B : TRI PAR CLIENT (Ollama)
@@ -321,9 +387,10 @@ b_conn["Préparer le journal"] = {"main": [[C("Écrire le journal")]]}
 agent_b = {"name": "Lumen – Agent B : tri des offres par client (Ollama)", "nodes": b_nodes, "connections": b_conn,
            "settings": {"executionOrder": "v1"}, "pinData": {}}
 
+json.dump(agent_e9, open(os.path.join(OUT, "n8n_agent_E9_boamp.json"), "w", encoding="utf-8"), ensure_ascii=False, indent=2)
 json.dump(agent_a, open(os.path.join(OUT, "n8n_agent_A_collecteur.json"), "w", encoding="utf-8"), ensure_ascii=False, indent=2)
 json.dump(agent_b, open(os.path.join(OUT, "n8n_agent_B_tri_ollama.json"), "w", encoding="utf-8"), ensure_ascii=False, indent=2)
-for nm, js in [("a_collecte", A_COLLECTE), ("a_journal", A_JOURNAL), ("b_reglages", B_REGLAGES), ("b_preparer", B_PREPARER),
-               ("b_lire", B_LIRE), ("b_lignes", B_LIGNES), ("b_emails", B_EMAILS), ("b_journal", B_JOURNAL)]:
+for nm, js in [("a_collecte", A_COLLECTE), ("a_journal", A_JOURNAL), ("a_reperes", A_REPERES), ("a_journal_coord", A_JOURNAL_COORD),
+               ("b_reglages", B_REGLAGES), ("b_preparer", B_PREPARER), ("b_lire", B_LIRE), ("b_lignes", B_LIGNES), ("b_emails", B_EMAILS), ("b_journal", B_JOURNAL)]:
     open(os.path.join(OUT, f"_chk_{nm}.js"), "w").write("async function f(){" + js + "}")
 print("ok")

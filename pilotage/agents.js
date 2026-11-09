@@ -1,11 +1,11 @@
 /* Lumen Pilotage : description des agents, partagée par le tableau de bord et la page d'analytics */
 const AGENTS = [
-  { code: "A-collecteur", nom: "Agent A", titre: "Collecteur", pole: "Pôle technique", role: "Récupère toutes les offres publiques du BOAMP, toutes les 2 heures de 6 h à 20 h.", rythme: 3, entree: "avis lus", sortie: "offres stockées", heures: [6, 21] },
+  { code: "A-collecteur", nom: "Agent A", titre: "Coordinateur de la collecte", pole: "Pôle technique", role: "Vérifie toutes les 3 heures que les 9 sous-agents de collecte (BOAMP + 8 plateformes de profils acheteurs) ont bien tourné, et consigne un journal consolidé. Ne récupère plus rien lui-même : voir l'agent E9 pour le BOAMP.", rythme: 5, entree: "sous-agents suivis", sortie: "sous-agents à jour" },
   { code: "B-tri", nom: "Agent B", titre: "Tri par client", pole: "Pôle technique", role: "Note les nouvelles offres pour chaque client et envoie la veille du matin.", rythme: 26, entree: "clients traités", sortie: "offres envoyées", jours: [1, 2, 3, 4, 5] },
   { code: "C-chat", nom: "Agent C", titre: "Chat client", pole: "Pôle technique", role: "Répond aux questions des clients dans le menu Assistant de leur espace, à partir de leurs offres et des offres ouvertes de leur zone.", rythme: 2, entree: "questions", sortie: "réponses", heures: [8, 23] },
   { code: "D-analyse", nom: "Agent D", titre: "Analyse de dossiers", pole: "Pôle technique", role: "Lit les dossiers de consultation déposés par les clients et rend pièces, critères, risques et avis, sur le site et par email.", rythme: 2, entree: "dossiers reçus", sortie: "analyses rendues", heures: [8, 23] },
-  { code: "E-consolidation", nom: "Agent E", titre: "Coordinateur collecte", pole: "Pôle technique", role: "Pilote 8 sous-agents dédiés chacun à une plateforme de profils acheteurs (PLACE, AWS-Achat, e-marchespublics, Maximilien, Klekoon, e-Bourgogne, Mégalis Bretagne, Achat Public), regroupe leurs offres et vérifie qu'ils ont bien fonctionné. Purement technique : n'a rien à voir avec la prospection commerciale (agent F).", avenir: "Phase 3", entree: "offres des 8 sous-agents", sortie: "offres consolidées" },
   { code: "F-commercial", nom: "Agent F", titre: "Emails et relances", pole: "Pôle commercial", role: "Envoie les emails de prospection et les relances.", avenir: "Phase 3", entree: "prospects", sortie: "emails envoyés" },
+  { code: "E9-boamp", nom: "Agent E9", titre: "BOAMP", pole: "Pôle technique", role: "Interroge l'API officielle du BOAMP (marchés au-dessus d'environ 90 000 € HT, la source principale), toutes les 2 heures de 6 h à 20 h.", rythme: 3, entree: "avis lus", sortie: "offres stockées", heures: [6, 21] },
   { code: "E1-place", nom: "Agent E1", titre: "PLACE", pole: "Pôle technique", role: "Scrape le profil acheteur de l'État (PLACE) et ajoute les offres trouvées à la base.", rythme: 26, entree: "avis lus", sortie: "offres stockées" },
   { code: "E2-aws", nom: "Agent E2", titre: "AWS-Achat", pole: "Pôle technique", role: "Scrape les consultations publiées sur marches-publics.info (AWS-Achat), très répandu dans les communes.", rythme: 26, entree: "avis lus", sortie: "offres stockées" },
   { code: "E3-emp", nom: "Agent E3", titre: "e-marchespublics", pole: "Pôle technique", role: "Scrape les consultations publiées sur e-marchespublics (éditeur Agysoft).", rythme: 26, entree: "avis lus", sortie: "offres stockées" },
@@ -18,10 +18,11 @@ const AGENTS = [
   { code: "H-comptable", nom: "Agent H", titre: "Comptable", pole: "Pôle comptabilité", role: "Suit les recettes, les dépenses et la marge.", avenir: "Phase 4", entree: "opérations", sortie: "rapports" }
 ];
 const TACHES = {
-  "A-collecteur": ["Interroge le BOAMP, la source officielle des marchés publics", "Garde uniquement les vrais appels d'offres (pas les attributions ni les rectificatifs)", "Calcule le montant, le lieu, la durée et le nombre de lots", "Range chaque offre dans la base, sans doublon"],
+  "A-collecteur": ["Vérifie toutes les 3 h que les 9 sous-agents de collecte (BOAMP + 8 plateformes) ont bien tourné", "Repère les sous-agents en erreur ou sans passage récent (48 h)", "Compte le nombre total d'offres actuellement en base", "Écrit un journal consolidé"],
+  "E9-boamp": ["Interroge le BOAMP, la source officielle des marchés publics", "Garde uniquement les vrais appels d'offres (pas les attributions ni les rectificatifs)", "Calcule le montant, le lieu, la durée et le nombre de lots", "Range chaque offre dans la base, sans doublon"],
   "C-chat": ["Regarde toutes les 15 secondes si un client a posé une question", "Relit son profil, les offres qu'on lui a proposées et cherche les offres ouvertes de sa zone", "Fait répondre l'IA (Ollama) en s'appuyant uniquement sur ces offres", "Écrit la réponse dans l'espace du client"],
   "D-analyse": ["Regarde toutes les 20 secondes si un client a déposé un dossier", "Remet les pièces dans l'ordre (règlement de consultation d'abord)", "Fait analyser le dossier par l'IA : pièces, critères, risques, avis", "Enregistre l'analyse dans l'espace du client, efface le texte du dossier et l'envoie par email"],
-  "G-controle": ["Vérifie que l'agent A collecte bien toutes les 2 heures", "Vérifie que l'agent B a envoyé la veille du matin", "Vérifie qu'Ollama répond", "T'envoie un email au premier problème (sans le répéter pendant 6 h) et un rapport chaque soir à 21 h"],
+  "G-controle": ["Vérifie que le BOAMP (agent E9) collecte bien toutes les 2 heures", "Vérifie que l'agent A a bien consolidé les 9 sous-agents", "Vérifie que l'agent B a envoyé la veille du matin", "Vérifie qu'Ollama répond", "T'envoie un email au premier problème (sans le répéter pendant 6 h) et un rapport chaque soir à 21 h"],
   "B-tri": ["Présélectionne pour chaque client les offres de sa zone, de son activité et de sa taille", "Fait noter chaque offre de 1 à 5 par l'IA (Ollama), avec un résumé", "Range les offres notées 3 ou plus dans le tableau de bord du client", "Envoie l'email de veille du matin"]
 };
 const ICONES = {
@@ -29,7 +30,7 @@ const ICONES = {
   "B-tri": '<path d="M3.6 3.8h16.8a1 1 0 0 1 .78 1.63L14.6 13.6v5.6a1 1 0 0 1-.55.9l-3.1 1.55a1 1 0 0 1-1.45-.9V13.6L2.82 5.43A1 1 0 0 1 3.6 3.8z"/>',
   "C-chat": '<path d="M12 3.2c5.08 0 9.2 3.42 9.2 7.65s-4.12 7.65-9.2 7.65c-.98 0-1.93-.13-2.82-.37l-3.86 2.03c-.63.33-1.35-.23-1.18-.92l.78-3.15C3.65 14.7 2.8 12.86 2.8 10.85 2.8 6.62 6.92 3.2 12 3.2z"/>',
   "D-analyse": '<path d="M6.6 2.4h6.6c.4 0 .78.16 1.06.44l4.4 4.4c.28.28.44.66.44 1.06v4.1a5.6 5.6 0 0 0-8 7.2H6.6a2.1 2.1 0 0 1-2.1-2.1V4.5c0-1.16.94-2.1 2.1-2.1z"/><circle cx="15.6" cy="16.6" r="3.3" fill="none" stroke="currentColor" stroke-width="2.1"/><path d="m18.1 19.1 2.4 2.4" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/>',
-  "E-consolidation": '<circle cx="10.4" cy="10.4" r="6.1" fill="none" stroke="currentColor" stroke-width="2.7"/><path d="m15.1 15.1 5.6 5.6" fill="none" stroke="currentColor" stroke-width="3.1" stroke-linecap="round"/>',
+  "E9-boamp": '<circle cx="10.4" cy="10.4" r="6.1" fill="none" stroke="currentColor" stroke-width="2.7"/><path d="m15.1 15.1 5.6 5.6" fill="none" stroke="currentColor" stroke-width="3.1" stroke-linecap="round"/>',
   "E1-place": '<circle cx="10.4" cy="10.4" r="6.1" fill="none" stroke="currentColor" stroke-width="2.7"/><path d="m15.1 15.1 5.6 5.6" fill="none" stroke="currentColor" stroke-width="3.1" stroke-linecap="round"/>',
   "E2-aws": '<circle cx="10.4" cy="10.4" r="6.1" fill="none" stroke="currentColor" stroke-width="2.7"/><path d="m15.1 15.1 5.6 5.6" fill="none" stroke="currentColor" stroke-width="3.1" stroke-linecap="round"/>',
   "E3-emp": '<circle cx="10.4" cy="10.4" r="6.1" fill="none" stroke="currentColor" stroke-width="2.7"/><path d="m15.1 15.1 5.6 5.6" fill="none" stroke="currentColor" stroke-width="3.1" stroke-linecap="round"/>',
@@ -53,7 +54,8 @@ const ilYa = j => new Date(Date.now() - j * 864e5).toISOString();
 /* Prochain passage prévu d'un agent */
 function prochaine(code) {
   const n = new Date(), d = new Date(n);
-  if (code === "A-collecteur") { for (let i = 1; i <= 48; i++) { d.setTime(n.getTime()); d.setMinutes(0, 0, 0); d.setHours(n.getHours() + i); const h = d.getHours(); if (h >= 6 && h <= 20 && h % 2 === 0) return d; } }
+  if (code === "E9-boamp") { for (let i = 1; i <= 48; i++) { d.setTime(n.getTime()); d.setMinutes(0, 0, 0); d.setHours(n.getHours() + i); const h = d.getHours(); if (h >= 6 && h <= 20 && h % 2 === 0) return d; } }
+  if (code === "A-collecteur") { for (let i = 1; i <= 48; i++) { d.setTime(n.getTime()); d.setMinutes(0, 0, 0); d.setHours(n.getHours() + i); if (d.getHours() % 3 === 0) return d; } }
   if (code === "B-tri") { for (let i = 0; i <= 7; i++) { d.setTime(n.getTime()); d.setDate(n.getDate() + i); d.setHours(6, 45, 0, 0); if (d > n && d.getDay() >= 1 && d.getDay() <= 5) return d; } }
   return null;
 }

@@ -373,12 +373,13 @@ const RW = 196, RH = 58;
 const RNOEUDS = {
   "BOAMP": [16, 200], "A-collecteur": [306, 200], "B-tri": [596, 200], "CLIENTS": [886, 200],
   "C-chat": [1184, 70], "D-analyse": [1184, 200], "H-comptable": [1184, 330],
-  "G-controle": [451, 64], "E-consolidation": [306, 336], "F-commercial": [596, 336]
+  "G-controle": [451, 64], "E9-boamp": [306, 336], "F-commercial": [596, 336]
 };
-// Note : E-consolidation (ex "E-prospection") est purement technique — il regroupe les offres
-// des 8 sous-agents plateformes dans la même base que l'agent A, sans lien avec F-commercial
-// (qui lui s'adresse aux entreprises à prospecter pour Lumen, un sujet totalement indépendant).
-const RLIENS = [["BOAMP", "A-collecteur"], ["A-collecteur", "B-tri"], ["B-tri", "CLIENTS"], ["E-consolidation", "A-collecteur"], ["F-commercial", "CLIENTS"],
+// Le BOAMP est traité comme une 9ème plateforme (agent E9), au même titre que les 8 sous-
+// agents scrapers : BOAMP (source externe) → E9-boamp (le récupère) → A-collecteur (vérifie
+// les 9 sous-agents et agrège). Pas de lien avec F-commercial, qui lui s'adresse aux
+// entreprises à prospecter pour Lumen — un sujet totalement indépendant.
+const RLIENS = [["BOAMP", "E9-boamp"], ["E9-boamp", "A-collecteur"], ["A-collecteur", "B-tri"], ["B-tri", "CLIENTS"], ["F-commercial", "CLIENTS"],
   ["CLIENTS", "C-chat"], ["CLIENTS", "D-analyse"], ["CLIENTS", "H-comptable"], ["G-controle", "A-collecteur", "sup"], ["G-controle", "B-tri", "sup"]];
 const IC_BOAMP = '<path d="M12 2.5a9.5 9.5 0 1 0 0 19 9.5 9.5 0 0 0 0-19zm0 2c.9 0 2.2 1.9 2.7 5.5H9.3C9.8 6.4 11.1 4.5 12 4.5zm-2.9.6A13.6 13.6 0 0 0 7.3 10H4.8a7.5 7.5 0 0 1 4.3-4.9zm5.8 0A7.5 7.5 0 0 1 19.2 10h-2.5a13.6 13.6 0 0 0-1.8-4.9zM4.6 12h2.6c0 .7 0 1.4.1 2H4.8a7.4 7.4 0 0 1-.2-2zm4.6 0h5.6l-.1 2H9.3zm7.6 0h2.6c0 .7-.1 1.4-.2 2h-2.5l.1-2zM4.8 16h2.5c.4 1.9 1 3.5 1.8 4.9A7.5 7.5 0 0 1 4.8 16zm4.5 0h5.4c-.5 3.2-1.8 5.5-2.7 5.5s-2.2-2.3-2.7-5.5zm7.4 0h2.5a7.5 7.5 0 0 1-4.3 4.9c.8-1.4 1.4-3 1.8-4.9z"/>';
 function rendreReseau() {
@@ -454,19 +455,19 @@ const POLES = {
   com: { t: "Pôle commercial", c: "#f472b6" },
   tech: { t: "Pôle technique", c: "#60a5fa" }, mgt: { t: "Pôle management", c: "#fbbf24" }, cpt: { t: "Pôle comptabilité", c: "#2dd4bf" }
 };
-const COURT = { "A-collecteur": "Collecteur", "B-tri": "Tri par client", "C-chat": "Chat client", "D-analyse": "Analyse DCE", "E-consolidation": "Coordinateur", "F-commercial": "Emails", "G-controle": "Contrôleur", "H-comptable": "Comptable",
-  "E1-place": "PLACE", "E2-aws": "AWS-Achat", "E3-emp": "e-march.pub", "E4-maximilien": "Maximilien", "E5-klekoon": "Klekoon", "E6-ebourgogne": "e-Bourgogne", "E7-megalis": "Mégalis Br.", "E8-achatpublic": "Achat Public" };
+const COURT = { "A-collecteur": "Coordinateur", "B-tri": "Tri par client", "C-chat": "Chat client", "D-analyse": "Analyse DCE", "F-commercial": "Emails", "G-controle": "Contrôleur", "H-comptable": "Comptable",
+  "E9-boamp": "BOAMP", "E1-place": "PLACE", "E2-aws": "AWS-Achat", "E3-emp": "e-march.pub", "E4-maximilien": "Maximilien", "E5-klekoon": "Klekoon", "E6-ebourgogne": "e-Bourgogne", "E7-megalis": "Mégalis Br.", "E8-achatpublic": "Achat Public" };
 const CADRES = [["com", 30, 30, 310, 210], ["tech", 30, 290, 650, 916], ["mgt", 1050, 30, 250, 340], ["cpt", 1050, 420, 250, 786]];
-// E-consolidation (ex "E-prospection") est purement technique : il coordonne les 8 sous-agents
-// plateformes juste au-dessus d'eux, dans le pôle technique — pas de pôle "prospection" séparé,
-// qui n'a pas de sens ici (la vraie prospection commerciale, c'est l'agent F, pôle commercial).
+// Le BOAMP (agent E9) est une 9ème plateforme comme les autres, pas un cas à part : A-collecteur
+// ne récupère plus rien lui-même, il ne fait que vérifier les 9 sous-agents et agréger leurs
+// offres — pas de pôle "prospection" séparé (la vraie prospection commerciale, c'est l'agent F,
+// pôle commercial, un sujet indépendant).
 const POS = { "F-commercial": [185, 150, "com"], "A-collecteur": [130, 420, "tech"], "B-tri": [350, 420, "tech"], "C-chat": [575, 570, "tech"], "D-analyse": [575, 720, "tech"], "G-controle": [1175, 200, "mgt"], "H-comptable": [1175, 610, "cpt"],
-  "E-consolidation": [240, 810, "tech"],
+  "E9-boamp": [240, 810, "tech"],
   "E1-place": [130, 900, "tech"], "E2-aws": [350, 900, "tech"], "E3-emp": [130, 990, "tech"], "E4-maximilien": [350, 990, "tech"], "E5-klekoon": [130, 1080, "tech"], "E6-ebourgogne": [350, 1080, "tech"], "E7-megalis": [130, 1170, "tech"], "E8-achatpublic": [350, 1170, "tech"] };
 const HUB = { x: 790, y: 290, w: 200, h: 916 };
-const SOUS_PROS = ["E1-place", "E2-aws", "E3-emp", "E4-maximilien", "E5-klekoon", "E6-ebourgogne", "E7-megalis", "E8-achatpublic"];
+const SOUS_PROS = ["E1-place", "E2-aws", "E3-emp", "E4-maximilien", "E5-klekoon", "E6-ebourgogne", "E7-megalis", "E8-achatpublic", "E9-boamp"];
 const LIENS = [
-  { de: "E-consolidation", vers: "A-collecteur", lib: "vérifie les 8 sous-agents", pts: [[160, 810], [140, 810], [140, 500], [130, 500], [130, 456]], fin: "u", et: [140, 650] },
   ...SOUS_PROS.map((code, i) => { const [x, y] = POS[code], bord = x < 250 ? -1 : 1, jog = x + bord * 100;
     return { de: code, vers: "A-collecteur", lib: i === 0 ? "offres" : "", et: i === 0 ? [90, 500] : undefined,
       pts: [[x + bord * 80, y], [jog, y], [jog, 500], [130, 500], [130, 456]], fin: "u" }; }),
