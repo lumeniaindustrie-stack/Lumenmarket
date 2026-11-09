@@ -280,25 +280,41 @@ a.ar-svc:hover::after { opacity: 1 }
     $("#ar-db").innerHTML = TABLES.map(([t, desc], i) => { const r = comptes[i];
       return `<a class="ar-table ${r.error ? "ko" : ""}" href="${SUPA}/editor?schema=public" target="_blank" rel="noopener" title="${t} : ${esc(desc)}"><b>${t}</b><strong>${r.error ? (/schema cache|does not exist/.test(r.error.message) ? "table absente" : "accès refusé") : nf(r.count)}</strong><small>${esc(desc)}</small></a>`; }).join("");
     $("#ar-maj").innerHTML = `<i></i>En direct · ${new Date().toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit", second: "2-digit" })}`;
+    runsProspection = runs;
+    rafraichirProspection();
   }
   const $ = s => document.querySelector(s);
 
-  /* ---------- Pôle prospection : plan proposé (pas encore construit) ---------- */
+  /* ---------- Pôle prospection : coordinateur + 8 sous-agents plateformes ---------- */
   const svcPlan = s => `<div class="ar-svc plan" style="--c:#C3862B;--f:#FBF2E3" title="${esc(s.nom)} : ${esc(s.role)} (plan, à construire)">
       <span class="ar-ic">${s.ic}</span><span class="ar-nom">${esc(s.nom)}</span><span class="ar-role">${esc(s.role)}</span>
       <span class="ar-etat"><i></i><span>Plan — à construire</span></span></div>`;
   const PLATEFORMES = [
-    { nom: "PLACE", role: "Profil acheteur de l'État" },
-    { nom: "AWS-Achat", role: "marches-publics.info · très répandu dans les communes" },
-    { nom: "e-marchespublics", role: "Éditeur Agysoft · communes et intercommunalités" },
-    { nom: "Maximilien", role: "Centrale d'achat Île-de-France" },
-    { nom: "Klekoon", role: "Grands comptes publics et hôpitaux" },
-    { nom: "e-Bourgogne", role: "Plateforme régionale Bourgogne-Franche-Comté" },
-    { nom: "Mégalis Bretagne", role: "Plateforme régionale Bretagne" },
-    { nom: "Achat Public", role: "achatpublic.com · collectivités diverses" }
+    { code: "E1-place", nom: "PLACE", role: "Profil acheteur de l'État" },
+    { code: "E2-aws", nom: "AWS-Achat", role: "marches-publics.info · très répandu dans les communes" },
+    { code: "E3-emp", nom: "e-marchespublics", role: "Éditeur Agysoft · communes et intercommunalités" },
+    { code: "E4-maximilien", nom: "Maximilien", role: "Centrale d'achat Île-de-France" },
+    { code: "E5-klekoon", nom: "Klekoon", role: "Grands comptes publics et hôpitaux" },
+    { code: "E6-ebourgogne", nom: "e-Bourgogne", role: "Plateforme régionale Bourgogne-Franche-Comté" },
+    { code: "E7-megalis", nom: "Mégalis Bretagne", role: "Plateforme régionale Bretagne" },
+    { code: "E8-achatpublic", nom: "Achat Public", role: "achatpublic.com · collectivités diverses" }
   ];
-  $("#pole-princ").innerHTML = svcPlan({ nom: "Agent E — Coordinateur collecte", role: "Regroupe les offres des 8 sous-agents et vérifie qu'ils ont bien fonctionné (comme G-contrôleur, mais pour ce pôle)", ic: ICO.hub });
-  $("#pole-grille").innerHTML = PLATEFORMES.map(p => svcPlan({ ...p, ic: ICO.scrape })).join("");
+  function carteSousAgent(p, ic) {
+    const ag = AGENTS.find(a => a.code === p.code);
+    if (ag.avenir) return svcPlan({ nom: p.nom, role: p.role, ic });
+    const e = sante(ag, runsProspection);
+    const cl = e.cle === "erreur" ? "ko" : e.cle === "retard" ? "att" : "ok";
+    return svc({ nom: p.nom, role: p.role, ic, c: "#2F6BF2", f: "#EAF1FF", url: `agent.html?a=${encodeURIComponent(p.code)}`, etat: e.txt + (e.der ? " · " + quand(e.der.debut) : ""), cl });
+  }
+  let runsProspection = [];
+  function rafraichirProspection() {
+    const agE = AGENTS.find(a => a.code === "E-prospection");
+    $("#pole-princ").innerHTML = agE.avenir
+      ? svcPlan({ nom: "Agent E — Coordinateur collecte", role: agE.role, ic: ICO.hub })
+      : svc({ nom: "Agent E — Coordinateur collecte", role: agE.role, ic: ICO.hub, c: "#7C3AED", f: "#F3EDFF", url: "agent.html?a=E-prospection", etat: sante(agE, runsProspection).txt, cl: "ok" });
+    $("#pole-grille").innerHTML = PLATEFORMES.map(p => carteSousAgent(p, ICO.scrape)).join("");
+  }
+  rafraichirProspection();
 
   if (res.moi) { rafraichir(); setInterval(rafraichir, 30000); }
 })();
