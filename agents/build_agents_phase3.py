@@ -32,12 +32,16 @@ return [{{ json: {{ debut: new Date().toISOString(), offres: r.offres || [], tot
 
 
 def preparer_journal_agent(agent_code):
+    # c.erreur peut être un échec total (aucune offre) ou partiel (ex. une région sur 14
+    # a buté sur le site source) : on ne marque 'erreur' que quand rien n'a été collecté,
+    # sinon 'ok' avec le message d'avertissement conservé pour garder trace du problème.
     return f"""
 const c = $('Préparer le journal').first().json;
 let statut = 'ok', message = null;
 const erreurs = $input.all().map(i => i.json).filter(x => x && x.error);
-if (c.erreur) {{ statut = 'erreur'; message = c.erreur; }}
-else if (erreurs.length) {{ statut = 'erreur'; message = 'Enregistrement dans Supabase impossible : ' + JSON.stringify(erreurs[0].error).slice(0, 300); }}
+if (erreurs.length) {{ statut = 'erreur'; message = 'Enregistrement dans Supabase impossible : ' + JSON.stringify(erreurs[0].error).slice(0, 300); }}
+else if (c.erreur && !c.total) {{ statut = 'erreur'; message = c.erreur; }}
+else if (c.erreur) {{ message = c.erreur; }}
 else if (!c.total) statut = 'vide';
 return [{{ json: {{ agent: '{agent_code}', debut: c.debut, fin: new Date().toISOString(), statut, entrees: c.total, sorties: statut === 'erreur' ? 0 : c.total, details: {{}}, message }} }}];
 """

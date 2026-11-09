@@ -1,9 +1,8 @@
 /*
  * Agent E3 — e-marchespublics.com (éditeur Agysoft)
  *
- * Le filtre région se fait par une simple URL propre (/appel-offre/<region>/), pas besoin
- * de popup ni de formulaire : on va directement sur la page "Provence-Alpes-Côte d'Azur",
- * qui couvre exactement les départements de la zone de Lumen (04,05,06,13,83,84).
+ * Couverture nationale (toute la France) : liste générale /appel-offre/, déjà triée du
+ * plus récent au plus ancien, sans filtre de région ni de département.
  *
  * Piège repéré en testant en direct : le site affiche un bandeau de consentement cookies
  * qui bloque le rendu du contenu réel jusqu'à ce qu'on clique "Continuer sans accepter" —
@@ -11,9 +10,9 @@
  * clique la vraie flèche ">" comme le ferait un humain, plutôt que d'appeler la fonction
  * JS ou de changer l'URL (un paramètre ?page=N est ignoré par le site).
  *
- * Le nombre total affiché ("1152 appels d'offres", "116 pages") ne reflète PAS le filtre
- * région — c'est un chiffre global du site, pas fiable pour savoir combien de pages lire.
- * On se contente donc des premières pages (recouvrement large, upsert dédoublonne).
+ * Le nombre total affiché ("1152 appels d'offres", "116 pages") n'est pas fiable pour
+ * borner la pagination (il ne change pas selon le filtre) : on se limite donc aux
+ * premières pages (recouvrement large, upsert sur avis_id dédoublonne).
  *
  * Usage : node e3-emp.js
  * Sortie : un objet JSON {offres, total, erreur} sur la sortie standard.
@@ -21,8 +20,8 @@
 const { chromium } = require('playwright');
 
 const BASE = 'https://www.e-marchespublics.com';
-const URL_REGION = `${BASE}/appel-offre/provence-alpes-cote-d-azur/`;
-const MAX_PAGES = 4; // ~40 annonces les plus récentes ; le upsert sur avis_id dédoublonne.
+const URL_NATIONALE = `${BASE}/appel-offre/`;
+const MAX_PAGES = 8; // ~80 annonces les plus récentes à l'échelle nationale ; le upsert sur avis_id dédoublonne.
 
 const MOIS_PREFIXES = [['janv', 1], ['fevr', 2], ['fev', 2], ['mars', 3], ['avr', 4], ['mai', 5], ['juin', 6], ['juil', 7], ['aout', 8], ['sept', 9], ['oct', 10], ['nov', 11], ['dec', 12]];
 function departementDe(cp) {
@@ -44,7 +43,7 @@ async function main() {
   const erreurs = [];
   let toutesLignes = [];
   try {
-    await page.goto(URL_REGION, { waitUntil: 'domcontentloaded', timeout: 60000 });
+    await page.goto(URL_NATIONALE, { waitUntil: 'domcontentloaded', timeout: 60000 });
     await page.evaluate(() => {
       const lien = Array.from(document.querySelectorAll('a,button,div,span')).find(el => el.textContent.trim().startsWith('Continuer sans accepter'));
       if (lien) lien.click();

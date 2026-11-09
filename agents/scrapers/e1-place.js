@@ -1,17 +1,15 @@
 /*
  * Agent E1 — PLACE (marches-publics.gouv.fr, plate-forme des achats de l'État)
  *
- * Même famille logicielle (Atexo/AWS) que marches-publics.info (agent E2), mais pas le
- * même filtre : ici la case "Lieu d'exécution" est un sélecteur carte/arbre en JS qui
- * écrit deux champs cachés sur le formulaire (idsSelectedGeoN2, numSelectedGeoN2) — on
- * les remplit directement avec les identifiants internes des départements de la zone de
- * Lumen (trouvés en inspectant la popup de sélection), sans passer par la popup elle-même.
+ * Couverture nationale (toute la France) : contrairement à marches-publics.info (agent
+ * E2), ce site ne force aucun filtre avant d'afficher les résultats — on peut lancer la
+ * recherche avec les critères par défaut (aucun filtre géographique) et lire les
+ * premières pages, déjà triées du plus récent au plus ancien (le upsert sur avis_id
+ * dédoublonne d'un passage à l'autre).
  *
  * Le filtre "date de mise en ligne" du formulaire n'a, lui, aucun effet mesurable (testé
  * en direct : même nombre de résultats avec une fenêtre de 3 jours ou de 8 jours) — on ne
- * s'y fie donc pas. Les résultats sont déjà triés du plus récent au plus ancien : on se
- * contente de lire les premières pages (recouvrement large, le upsert sur avis_id
- * dédoublonne).
+ * s'y fie donc pas.
  *
  * Usage : node e1-place.js
  * Sortie : un objet JSON {offres, total, erreur} sur la sortie standard.
@@ -23,11 +21,7 @@
 const { chromium } = require('playwright');
 
 const BASE = 'https://www.marches-publics.gouv.fr';
-// Identifiants internes (pas les codes postaux) des départements de la zone de Lumen,
-// trouvés dans la popup "Lieu d'exécution" : 04,05,06,13,83,84 → 296..301.
-const GEO_IDS = '296,297,298,299,300,301';
-const GEO_NUMS = '04,05,06,13,83,84';
-const MAX_PAGES = 4; // ~80 annonces les plus récentes ; le upsert dédoublonne d'un passage à l'autre.
+const MAX_PAGES = 8; // ~160 annonces les plus récentes à l'échelle nationale ; le upsert dédoublonne d'un passage à l'autre.
 
 // Abréviations françaises de mois, longueur variable selon le mois ("Janv.", "Fév.", "Mars", "Avr.", ...) :
 // on enlève les accents et le point puis on teste des préfixes, plutôt que de supposer une longueur fixe.
@@ -59,12 +53,6 @@ async function main() {
   let toutesLignes = [];
   try {
     await page.goto(`${BASE}/?page=Entreprise.EntrepriseAdvancedSearch`, { waitUntil: 'domcontentloaded', timeout: 60000 });
-    // Champs cachés (type="hidden") : Playwright refuse .fill() sur un champ non visible,
-    // on écrit donc directement la valeur par script, comme vérifié manuellement.
-    await page.evaluate(({ ids, nums }) => {
-      document.querySelector('#ctl0_CONTENU_PAGE_AdvancedSearch_idsSelectedGeoN2').value = ids;
-      document.querySelector('#ctl0_CONTENU_PAGE_AdvancedSearch_numSelectedGeoN2').value = nums;
-    }, { ids: GEO_IDS, nums: GEO_NUMS });
     await Promise.all([
       page.waitForNavigation({ waitUntil: 'domcontentloaded', timeout: 60000 }),
       page.click('#ctl0_CONTENU_PAGE_AdvancedSearch_lancerRecherche')
