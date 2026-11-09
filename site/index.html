@@ -25,9 +25,10 @@
 .ctas .btn{height:46px;padding:0 22px;font-size:.98rem}
 .reassure{display:flex;flex-wrap:wrap;gap:8px 22px;margin-top:22px;color:#4B5262;font-size:.9rem}
 .reassure span::before{content:"✓";color:var(--blue);margin-right:7px;font-weight:700}
-.sources{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 10px;margin-top:16px;padding-top:14px;border-top:1px solid var(--line);font-size:.78rem;color:var(--muted)}
-.sources-label{font-weight:600;letter-spacing:.02em;text-transform:uppercase;font-size:.7rem;color:#9AA2B1}
-.sources-liste{color:var(--muted)}
+.sources{margin-top:24px;padding-top:18px;border-top:1px solid var(--line)}
+.sources-label{display:block;font-weight:600;letter-spacing:.02em;text-transform:uppercase;font-size:.7rem;color:#9AA2B1;margin-bottom:10px}
+.sources-grille{display:flex;flex-wrap:wrap;border-radius:12px;overflow:hidden;border:1px solid var(--blue-deep);background:var(--blue-deep)}
+.source-tuile{background:var(--blue-deep);color:#fff;font-weight:600;font-size:.82rem;letter-spacing:-.01em;padding:12px 18px;white-space:nowrap;border-right:1px solid rgba(255,255,255,.14);border-bottom:1px solid rgba(255,255,255,.14)}
 
 /* panneau des offres */
 .live{background:#fff;border:1px solid var(--line);border-radius:14px;overflow:hidden;box-shadow:0 18px 40px -24px rgba(16,24,40,.3)}
@@ -168,7 +169,12 @@ section{padding-block:76px}
           <a class="btn alt" href="#fonctionnement">Voir comment ça marche</a>
         </div>
         <div class="reassure"><span>1 semaine offerte</span><span>Sans carte bancaire</span><span>Sans engagement</span></div>
-        <div class="sources"><span class="sources-label">Sources officielles suivies</span><span class="sources-liste">BOAMP · PLACE · AWS-Achat · e-marchespublics · Maximilien · Klekoon · e-Bourgogne · Mégalis Bretagne · Achat Public</span></div>
+        <div class="sources">
+          <span class="sources-label">Sources officielles suivies</span>
+          <div class="sources-grille">
+            <span class="source-tuile">BOAMP</span><span class="source-tuile">PLACE</span><span class="source-tuile">AWS-Achat</span><span class="source-tuile">e-marchespublics</span><span class="source-tuile">Maximilien</span><span class="source-tuile">Klekoon</span><span class="source-tuile">e-Bourgogne</span><span class="source-tuile">Mégalis Bretagne</span><span class="source-tuile">Achat Public</span>
+          </div>
+        </div>
       </div>
 
       <aside class="live" aria-label="Derniers appels d'offres publiés">
