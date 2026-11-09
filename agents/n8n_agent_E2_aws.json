@@ -31,7 +31,7 @@
         0
       ],
       "parameters": {
-        "command": "node \"C:\\Lumenmarket\\agents\\scrapers\\e2-aws.js\""
+        "command": "node \"C:\\Users\\marin_3s4sfng\\Desktop\\Projet\\Lumenmarket\\Lument_agents\\E2-aws\\e2-aws.js\""
       }
     },
     {

@@ -13,12 +13,12 @@ OUT = os.path.dirname(os.path.abspath(__file__))
 S = SUPABASE_URL + "/rest/v1/"
 
 # Chemin du script sur TON PC : à corriger pour qu'il pointe vers ton dossier Lumenmarket.
-CHEMIN_REPO = r"C:\Lumenmarket"
+CHEMIN_SCRIPTS = r"C:\Users\marin_3s4sfng\Desktop\Projet\Lumenmarket\Lument_agents"
 
 
-def commande(script):
+def commande(dossier, script):
     return {"id": "cmd", "name": "Lancer le navigateur", "type": "n8n-nodes-base.executeCommand", "typeVersion": 1, "position": [220, 0],
-            "parameters": {"command": f'node "{CHEMIN_REPO}\\agents\\scrapers\\{script}"'}}
+            "parameters": {"command": f'node "{CHEMIN_SCRIPTS}\\{dossier}\\{script}"'}}
 
 
 def journal(agent_code):
@@ -43,11 +43,11 @@ return [{{ json: {{ agent: '{agent_code}', debut: c.debut, fin: new Date().toISO
 """
 
 
-def sous_agent(agent_code, nom_agent, script, heure):
+def sous_agent(agent_code, nom_agent, dossier, script, heure):
     nodes = [
         {"id": "trig", "name": "Toutes les 24 heures", "type": "n8n-nodes-base.scheduleTrigger", "typeVersion": 1.2, "position": [0, 0],
          "parameters": {"rule": {"interval": [{"field": "cronExpression", "expression": f"0 {heure} * * *"}]}}},
-        {**commande(script), "position": [220, 0]},
+        {**commande(dossier, script), "position": [220, 0]},
         code("prep", "Préparer le journal", [440, 0], journal(agent_code)),
         sb_http("ecrire", "Enregistrer les offres", [660, 0], "POST", S + "offres?on_conflict=avis_id",
                 body_expr="={{ JSON.stringify($json.offres) }}", prefer="resolution=merge-duplicates,return=minimal"),
@@ -61,7 +61,7 @@ def sous_agent(agent_code, nom_agent, script, heure):
 
 
 if __name__ == "__main__":
-    e2 = sous_agent("E2-aws", "E2 : AWS-Achat (marches-publics.info)", "e2-aws.js", 5)
+    e2 = sous_agent("E2-aws", "E2 : AWS-Achat (marches-publics.info)", "E2-aws", "e2-aws.js", 5)
     with open(os.path.join(OUT, "n8n_agent_E2_aws.json"), "w", encoding="utf-8") as f:
         json.dump(e2, f, ensure_ascii=False, indent=2)
     print("Écrit : n8n_agent_E2_aws.json")
