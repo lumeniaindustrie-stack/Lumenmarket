@@ -191,6 +191,118 @@ agent_a = {"name": "Lumen – Agent A : coordinateur de la collecte", "nodes": a
            "connections": chain([n["name"] for n in a_coord_nodes]), "settings": {"executionOrder": "v1"}, "pinData": {}}
 
 # =====================================================================
+#  AGENT F : PROSPECTION COMMERCIALE
+#  Cherche chaque jour des entreprises qui répondent effectivement à des
+#  marchés publics (donc des clientes potentielles pour Lumen), partout en
+#  France. Source : les avis d'ATTRIBUTION du BOAMP (même dataset que le
+#  BOAMP-collecteur E9, mais nature != "APPEL_OFFRE") — ces avis nomment
+#  l'entreprise qui a remporté le marché (titulaire/attributaire), ce qui
+#  est exactement le signal recherché, et c'est une source officielle,
+#  gratuite, déjà utilisée dans ce projet.
+#
+#  Ne fait QUE découvrir et enregistrer ces entreprises dans la table
+#  "entreprises" (statut "à qualifier") — pas d'envoi d'email pour
+#  l'instant, voir discussion avec l'utilisateur. Plafonné à 100 nouvelles
+#  entreprises par jour (dédoublonnées par SIRET).
+#
+#  ATTENTION : l'exploration exacte des champs "titulaire/SIRET" dans le
+#  JSON brut des avis d'attribution n'a pas pu être testée en direct depuis
+#  cet environnement (pas d'accès réseau au BOAMP). L'extraction ci-dessous
+#  recherche ces informations de façon tolérante (n'importe quelle clé qui
+#  ressemble à "siret"/"denomination"/"titulaire", à n'importe quel niveau
+#  d'imbrication), sur le même principe que normaliser() pour les avis
+#  d'appel d'offres. À vérifier au premier passage réel dans n8n : si le
+#  nombre d'entreprises trouvées reste à 0 alors que des avis sont bien
+#  lus, regarder le détail d'un avis d'attribution brut (onglet "Output"
+#  du nœud "Chercher les attributions BOAMP") pour ajuster les motifs de
+#  recherche.
+# =====================================================================
+F_CHERCHE = r"""
+// ===== RÉGLAGES =====
+const JOURS = 10;          // avis d'attribution publiés ces 10 derniers jours
+const MAX_PAGES = 30;      // 100 avis par page
+const CIBLE = 100;         // nouvelles entreprises à trouver par jour
+// =====================
+const arr = v => Array.isArray(v) ? v : (v == null || v === '' ? [] : [v]);
+const chercher = (o, test, out = []) => { if (o && typeof o === 'object') for (const k in o) { if (test(k, o[k])) out.push(o[k]); chercher(o[k], test, out); } return out; };
+const estSiret = v => typeof v === 'string' && /^\d{9,14}$/.test(v.replace(/\s/g, ''));
+
+const debut = new Date().toISOString();
+const since = new Date(Date.now() - JOURS * 864e5).toISOString().slice(0, 10);
+// "APPEL_OFFRE" est la seule nature déjà bien identifiée (avis d'appel à candidature) ;
+// tout le reste (attributions, rectificatifs sans titulaire, etc.) est donc inclus ici,
+// et on filtre ensuite sur la présence réelle d'un SIRET pour ne garder que les
+// vraies attributions à une entreprise.
+const where = `nature!="APPEL_OFFRE" AND dateparution>=date'${since}'`;
+const base = 'https://boamp-datadila.opendatasoft.com/api/explore/v2.1/catalog/datasets/boamp/records';
+let lus = 0, total = 0; const candidats = []; let erreur = null;
+try {
+  for (let page = 0; page < MAX_PAGES; page++) {
+    const j = await this.helpers.httpRequest({ method: 'GET', url: base, qs: { where, order_by: 'dateparution desc', limit: 100, offset: page * 100 }, json: true, timeout: 30000 });
+    const res = j.results || []; total = j.total_count || total; lus += res.length;
+    for (const r of res) {
+      let d = {}; try { d = typeof r.donnees === 'string' ? JSON.parse(r.donnees) : (r.donnees || {}); } catch (e) {}
+      const sirets = chercher(d, (k, v) => /siret/i.test(k) && estSiret(v));
+      const siret = sirets[0]; if (!siret) continue;
+      const noms = chercher(d, (k, v) => /denomination|raisonsociale|nomtitulaire|nomattributaire/i.test(k) && typeof v === 'string' && v.trim());
+      const nom = (noms[0] || '').trim(); if (!nom) continue;
+      const villes = chercher(d, (k, v) => /^ville$/i.test(k) && typeof v === 'string');
+      const vals = chercher(d, (k, v) => /^(valeur|valeurHaute|montant)$/i.test(k) && typeof v !== 'object').map(Number).filter(n => isFinite(n) && n > 1);
+      const cp = r.code_departement, dep = arr(cp)[0] ? (/^\d$/.test(arr(cp)[0]) ? '0' + arr(cp)[0] : String(arr(cp)[0])) : null;
+      candidats.push({ siret: siret.replace(/\s/g, ''), siren: siret.replace(/\s/g, '').slice(0, 9), nom: nom.slice(0, 300),
+        ville: (villes[0] || '').slice(0, 120) || null, departement: dep, source_marche: String(r.objet || '').slice(0, 500),
+        montant_marche: vals[0] || null, date_attribution: r.dateparution || null });
+    }
+    if (res.length < 100 || lus >= total) break;
+  }
+} catch (e) { erreur = 'Lecture du BOAMP (attributions) impossible : ' + (e.message || e); }
+const vus = new Set(); const uniques = candidats.filter(c => !vus.has(c.siret) && vus.add(c.siret));
+return [{ json: { debut, lus, total, candidats: uniques, cible: CIBLE, erreur } }];
+"""
+
+F_FILTRER = r"""
+// Enlève les entreprises déjà connues (table "entreprises") et plafonne à la cible du jour.
+const c = $('Chercher les attributions BOAMP').first().json;
+const connus = new Set($('Lire les entreprises connues').all().map(i => i.json).filter(x => x && x.siret).map(x => x.siret));
+const nouvelles = c.candidats.filter(x => !connus.has(x.siret)).slice(0, c.cible)
+  .map(x => ({ ...x, statut: 'à qualifier', trouve_le: new Date().toISOString() }));
+return [{ json: { debut: c.debut, lus: c.lus, candidats_vus: c.candidats.length, nouvelles, erreur: c.erreur } }];
+"""
+
+F_JOURNAL = r"""
+const c = $('Garder les nouvelles').first().json;
+const erreurs = $input.all().map(i => i.json).filter(x => x && x.error);
+let statut = 'ok', message = null;
+if (c.erreur) { statut = 'erreur'; message = c.erreur; }
+else if (erreurs.length) { statut = 'erreur'; message = 'Enregistrement dans Supabase impossible : ' + JSON.stringify(erreurs[0].error).slice(0, 300); }
+else if (!c.nouvelles.length) statut = 'vide';
+return [{ json: { agent: 'F-commercial', debut: c.debut, fin: new Date().toISOString(), statut, entrees: c.lus, sorties: c.nouvelles.length,
+  details: { candidats_vus: c.candidats_vus }, message } }];
+"""
+
+def sb_check(id_, name, pos, path_expr):
+    # Variante de sb_http qui ne doit jamais faire échouer la branche suivante, même sur
+    # une liste de SIRET vide (où l'URL contiendrait "siret=in.()", invalide côté Postgrest).
+    n = sb_http(id_, name, pos, "GET", path_expr)
+    return n
+
+f_nodes = [
+    {"id": "f1", "name": "Chaque jour à 5 h", "type": "n8n-nodes-base.scheduleTrigger", "typeVersion": 1.2, "position": [0, 0],
+     "parameters": {"rule": {"interval": [{"field": "cronExpression", "expression": "0 5 * * *"}]}}},
+    code("f2", "Chercher les attributions BOAMP", [220, 0], F_CHERCHE),
+    sb_check("f3", "Lire les entreprises connues", [440, 0],
+             SUPABASE_URL + "/rest/v1/entreprises?select=siret&siret=in.({{ $json.candidats.map(c => c.siret).join(',') || '0' }})&limit=5000"),
+    code("f4", "Garder les nouvelles", [660, 0], F_FILTRER),
+    sb_http("f5", "Enregistrer les entreprises", [880, 0], "POST", SUPABASE_URL + "/rest/v1/entreprises?on_conflict=siret",
+            body_expr="={{ JSON.stringify($json.nouvelles.length ? $json.nouvelles : []) }}", prefer="resolution=merge-duplicates,return=minimal"),
+    code("f6", "Préparer le journal", [1100, 0], F_JOURNAL),
+    sb_http("f7", "Écrire le journal", [1320, 0], "POST", SUPABASE_URL + "/rest/v1/agent_runs",
+            body_expr="={{ JSON.stringify($json) }}", prefer="return=minimal"),
+]
+agent_f = {"name": "Lumen – Agent F : prospection commerciale", "nodes": f_nodes,
+           "connections": chain([n["name"] for n in f_nodes]), "settings": {"executionOrder": "v1"}, "pinData": {}}
+
+# =====================================================================
 #  AGENT B : TRI PAR CLIENT (Ollama)
 # =====================================================================
 B_REGLAGES = r"""
@@ -390,7 +502,9 @@ agent_b = {"name": "Lumen – Agent B : tri des offres par client (Ollama)", "no
 json.dump(agent_e9, open(os.path.join(OUT, "n8n_agent_E9_boamp.json"), "w", encoding="utf-8"), ensure_ascii=False, indent=2)
 json.dump(agent_a, open(os.path.join(OUT, "n8n_agent_A_collecteur.json"), "w", encoding="utf-8"), ensure_ascii=False, indent=2)
 json.dump(agent_b, open(os.path.join(OUT, "n8n_agent_B_tri_ollama.json"), "w", encoding="utf-8"), ensure_ascii=False, indent=2)
+json.dump(agent_f, open(os.path.join(OUT, "n8n_agent_F_commercial.json"), "w", encoding="utf-8"), ensure_ascii=False, indent=2)
 for nm, js in [("a_collecte", A_COLLECTE), ("a_journal", A_JOURNAL), ("a_reperes", A_REPERES), ("a_journal_coord", A_JOURNAL_COORD),
-               ("b_reglages", B_REGLAGES), ("b_preparer", B_PREPARER), ("b_lire", B_LIRE), ("b_lignes", B_LIGNES), ("b_emails", B_EMAILS), ("b_journal", B_JOURNAL)]:
+               ("b_reglages", B_REGLAGES), ("b_preparer", B_PREPARER), ("b_lire", B_LIRE), ("b_lignes", B_LIGNES), ("b_emails", B_EMAILS), ("b_journal", B_JOURNAL),
+               ("f_cherche", F_CHERCHE), ("f_filtrer", F_FILTRER), ("f_journal", F_JOURNAL)]:
     open(os.path.join(OUT, f"_chk_{nm}.js"), "w").write("async function f(){" + js + "}")
 print("ok")
