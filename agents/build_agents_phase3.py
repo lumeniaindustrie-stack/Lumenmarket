@@ -72,6 +72,7 @@ AGENTS = [
     ("E5-klekoon", "E5 : Klekoon (klekoon.com)", "E5-klekoon", "e5-klekoon.js", 7, "n8n_agent_E5_klekoon.json"),
     ("E6-ebourgogne", "E6 : e-Bourgogne / Ternum BFC (marches.ternum-bfc.fr)", "E6-ebourgogne", "e6-ebourgogne.js", 8, "n8n_agent_E6_ebourgogne.json"),
     ("E7-megalis", "E7 : Mégalis Bretagne (marches.megalis.bretagne.bzh)", "E7-megalis", "e7-megalis.js", 9, "n8n_agent_E7_megalis.json"),
+    ("E8-achatpublic", "E8 : achatpublic.com / Marchés Online", "E8-achatpublic", "e8-achatpublic.js", 10, "n8n_agent_E8_achatpublic.json"),
 ]
 
 if __name__ == "__main__":
