@@ -136,7 +136,7 @@
           <div class="ag-mapping">
             <div class="w carte-w">
               <div class="w-tete"><span class="grip"></span><h2>Pôles et liaisons</h2><span class="pill" id="ag-pill"></span></div>
-              <div class="defile"><svg id="schema" viewBox="0 0 1330 1248" role="group" aria-label="Carte des agents et de leurs liaisons"></svg></div>
+              <div class="defile"><svg id="schema" viewBox="0 0 1330 1010" role="group" aria-label="Carte des agents et de leurs liaisons"></svg></div>
               <!-- Légende -->
               <div class="ag-legende">
                 <span class="ag-leg-item"><i class="ag-leg-dot" style="background:var(--vert)"></i>Actif</span>
@@ -457,32 +457,29 @@ const POLES = {
 };
 const COURT = { "A-collecteur": "Coordinateur", "B-tri": "Tri par client", "C-chat": "Chat client", "D-analyse": "Analyse DCE", "F-commercial": "Prospection", "K-prospection": "Envoi emails", "R-demandes": "Demandes", "G-controle": "Contrôleur", "H-comptable": "Comptable",
   "E9-boamp": "BOAMP", "E1-place": "PLACE", "E2-aws": "AWS-Achat", "E3-emp": "e-march.pub", "E4-maximilien": "Maximilien", "E5-klekoon": "Klekoon", "E6-ebourgogne": "e-Bourgogne", "E7-megalis": "Mégalis Br.", "E8-achatpublic": "Achat Public" };
-const CADRES = [["com", 30, 30, 650, 210], ["tech", 30, 290, 650, 916], ["mgt", 1050, 30, 250, 340], ["cpt", 1050, 420, 250, 786]];
-// Le BOAMP (agent E9) est une 9ème plateforme comme les autres, pas un cas à part : A-collecteur
-// ne récupère plus rien lui-même, il ne fait que vérifier les 9 sous-agents et agréger leurs
-// offres — pas de pôle "prospection" séparé (la vraie prospection commerciale, c'est l'agent F,
-// pôle commercial, un sujet indépendant).
-const POS = { "F-commercial": [140, 150, "com"], "K-prospection": [350, 150, "com"], "R-demandes": [560, 150, "com"], "A-collecteur": [130, 420, "tech"], "B-tri": [350, 420, "tech"], "C-chat": [575, 570, "tech"], "D-analyse": [575, 720, "tech"], "G-controle": [1175, 200, "mgt"], "H-comptable": [1175, 610, "cpt"],
-  "E9-boamp": [240, 810, "tech"],
-  "E1-place": [130, 900, "tech"], "E2-aws": [350, 900, "tech"], "E3-emp": [130, 990, "tech"], "E4-maximilien": [350, 990, "tech"], "E5-klekoon": [130, 1080, "tech"], "E6-ebourgogne": [350, 1080, "tech"], "E7-megalis": [130, 1170, "tech"], "E8-achatpublic": [350, 1170, "tech"] };
-const HUB = { x: 790, y: 290, w: 200, h: 916 };
-const SOUS_PROS = ["E1-place", "E2-aws", "E3-emp", "E4-maximilien", "E5-klekoon", "E6-ebourgogne", "E7-megalis", "E8-achatpublic", "E9-boamp"];
+// Disposition de la carte (coordonnées du dessin, en pixels). Trois colonnes : pôles commercial et
+// technique à gauche, les clients au centre, management et comptabilité à droite. Les 9 plateformes de
+// collecte sont regroupées dans un cadre relié au coordinateur par un seul trait : aucun croisement.
+const CADRES = [["com", 30, 30, 650, 200], ["tech", 30, 260, 650, 730], ["mgt", 1040, 30, 260, 200], ["cpt", 1040, 260, 260, 200]];
+const SOUS_PROS = ["E9-boamp", "E1-place", "E2-aws", "E3-emp", "E4-maximilien", "E5-klekoon", "E6-ebourgogne", "E7-megalis", "E8-achatpublic"];
+const COLLECTE = { x: 45, y: 670, w: 620, h: 300 };
+const POS = { "F-commercial": [140, 115, "com"], "K-prospection": [360, 115, "com"], "R-demandes": [580, 115, "com"],
+  "A-collecteur": [140, 340, "tech"], "B-tri": [360, 340, "tech"], "C-chat": [580, 470, "tech"], "D-analyse": [580, 590, "tech"],
+  "G-controle": [1170, 115, "mgt"], "H-comptable": [1170, 345, "cpt"],
+  ...Object.fromEntries(SOUS_PROS.map((c, i) => [c, [140 + (i % 3) * 220, 745 + Math.floor(i / 3) * 90, "tech"]])) };
+const HUB = { x: 760, y: 260, w: 200, h: 730 };
 const LIENS = [
-  ...SOUS_PROS.map((code, i) => { const [x, y] = POS[code], bord = x < 250 ? -1 : 1, jog = x + bord * 100;
-    return { de: code, vers: "A-collecteur", lib: i === 0 ? "offres" : "", et: i === 0 ? [90, 500] : undefined,
-      pts: [[x + bord * 80, y], [jog, y], [jog, 500], [130, 500], [130, 456]], fin: "u" }; }),
-  { de: "F-commercial", vers: "K-prospection", lib: "fiches qualifiées", pts: [[220, 150], [270, 150]], fin: "r", et: [245, 185] },
-  { de: "K-prospection", vers: "CLIENTS", lib: "inscriptions", pts: [[350, 186], [350, 262], [890, 262], [890, 284]], fin: "d", et: [620, 262] },
-  { de: "CLIENTS", vers: "R-demandes", lib: "demandes", pts: [[940, 284], [940, 150], [640, 150]], fin: "l", et: [790, 150] },
-  { de: "A-collecteur", vers: "B-tri", lib: "offres", pts: [[216, 420], [262, 420]], fin: "r", et: [240, 420] },
-  { de: "B-tri", vers: "CLIENTS", lib: "veille du matin", pts: [[436, 420], [784, 420]], fin: "r", et: [640, 420] },
-  { de: "B-tri", vers: "C-chat", lib: "offres triées", pts: [[436, 420], [470, 420], [470, 570], [487, 570]], fin: "r", et: [470, 505], rayon: 8 },
-  { de: "C-chat", vers: "CLIENTS", lib: "questions / réponses", pts: [[661, 570], [784, 570]], fin: "r", deux: true, et: [722, 570] },
-  { de: "D-analyse", vers: "CLIENTS", lib: "dossiers / analyses", pts: [[661, 720], [784, 720]], fin: "r", deux: true, et: [722, 720] },
-  { de: "CLIENTS", vers: "H-comptable", lib: "abonnements", pts: [[996, 610], [1087, 610]], fin: "r", et: [1042, 610] },
-  { de: "G-controle", vers: "A-collecteur", lib: "", pts: [[1255, 200], [1316, 200], [1316, 852], [130, 852], [130, 462]], fin: "u", controle: true },
-  { de: "G-controle", vers: "B-tri", lib: "surveille A et B", pts: [[1255, 200], [1316, 200], [1316, 852], [350, 852], [350, 462]], fin: "u", controle: true, et: [830, 852] },
-  { de: "G-controle", vers: "H-comptable", lib: "rapports", pts: [[1175, 240], [1175, 414]], fin: "d", controle: true, et: [1175, 395] }
+  { de: "F-commercial", vers: "K-prospection", lib: "fiches", pts: [[220, 115], [280, 115]], fin: "r", et: [250, 115] },
+  { de: "K-prospection", vers: "CLIENTS", lib: "inscriptions", pts: [[360, 151], [360, 245], [830, 245], [830, 260]], fin: "d", et: [600, 245], rayon: 8 },
+  { de: "CLIENTS", vers: "R-demandes", lib: "demandes", pts: [[900, 260], [900, 115], [660, 115]], fin: "l", et: [780, 115] },
+  { de: "E9-boamp", vers: "A-collecteur", lib: "offres des 9 plateformes", pts: [[140, COLLECTE.y], [140, 376]], fin: "u", et: [140, 520] },
+  { de: "A-collecteur", vers: "B-tri", lib: "offres", pts: [[220, 340], [280, 340]], fin: "r", et: [250, 340] },
+  { de: "B-tri", vers: "CLIENTS", lib: "veille du matin", pts: [[440, 340], [760, 340]], fin: "r", et: [620, 340] },
+  { de: "B-tri", vers: "C-chat", lib: "offres triées", pts: [[360, 376], [360, 470], [500, 470]], fin: "r", et: [360, 425], rayon: 10 },
+  { de: "C-chat", vers: "CLIENTS", lib: "échanges", pts: [[660, 470], [760, 470]], fin: "r", deux: true, et: [710, 446] },
+  { de: "D-analyse", vers: "CLIENTS", lib: "analyses", pts: [[660, 590], [760, 590]], fin: "r", deux: true, et: [710, 566] },
+  { de: "CLIENTS", vers: "H-comptable", lib: "abonnements", pts: [[960, 345], [1090, 345]], fin: "r", et: [1015, 321] },
+  { de: "G-controle", vers: "H-comptable", lib: "rapports", pts: [[1112, 151], [1112, 309]], fin: "d", controle: true, et: [1112, 245] }
 ];
 const DEMI = 80; // demi-largeur d'une carte d'agent
 function trace(pts, r = 14) {
@@ -571,8 +568,14 @@ function rendreAgents() {
     <text x="${cx}" y="${H.y + 248}" text-anchor="middle" fill="#64748B" font-size="12.5">client${actifs.length > 1 ? "s" : ""} actif${actifs.length > 1 ? "s" : ""}</text>
     <line x1="${H.x + 18}" x2="${H.x + H.w - 18}" y1="${H.y + 300}" y2="${H.y + 300}" stroke="#E5EAF2"/>
     ${ligne(H.y + 336, "Abonnés", ab)}${ligne(H.y + 366, "En essai", es)}${ligne(H.y + 396, "Revenu", nf(ab * (CFG.PRIX || 99)) + " €/mois")}
-    ${[[cx, H.y], [cx + 50, H.y], [H.x, 420], [H.x, 570], [H.x, 720], [H.x + H.w, 610]].map(([x, y]) => `<circle class="port" cx="${x}" cy="${y}" r="4"/>`).join("")}${coin(H.x + H.w - 9, H.y + H.h - 9)}</g>`;
-  svg.innerHTML = defs + cadres + liens + hub + noeuds;
+    ${[[830, H.y], [900, H.y], [H.x, 340], [H.x, 470], [H.x, 590], [H.x + H.w, 345]].map(([x, y]) => `<circle class="port" cx="${x}" cy="${y}" r="4"/>`).join("")}${coin(H.x + H.w - 9, H.y + H.h - 9)}</g>`;
+  const C = COLLECTE;
+  const collecte = `<g><rect x="${C.x}" y="${C.y}" width="${C.w}" height="${C.h}" rx="14" fill="#F8FAFC" stroke="#DCE3EE" stroke-dasharray="5 4"/>
+    <text x="${C.x + 18}" y="${C.y + 24}" fill="#475569" font-size="12" font-weight="600">Collecte des offres</text>
+    <text x="${C.x + C.w - 18}" y="${C.y + 24}" fill="#94A3B8" font-size="11" text-anchor="end">BOAMP + 8 plateformes acheteurs</text></g>`;
+  const [gx, gy] = POS["G-controle"];
+  const noteG = `<text x="${gx - 38}" y="${gy + 60}" fill="#94A3B8" font-size="11">Surveille la collecte (A)</text><text x="${gx - 38}" y="${gy + 75}" fill="#94A3B8" font-size="11">et le tri des offres (B)</text>`;
+  svg.innerHTML = defs + cadres + collecte + liens + hub + noeuds + noteG;
 
   // colonne de droite : liste des agents et état
   $("#palette").innerHTML = AGENTS.map(ag => { const e = etats[ag.code], on = estActif(e), pc = POLES[POS[ag.code][2]].c;
