@@ -1,0 +1,607 @@
+{
+  "name": "Lumen – Agent K : Prospection par email",
+  "nodes": [
+    {
+      "id": "k1",
+      "name": "Toutes les 5 minutes",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        0
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "*/5 * * * *"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "k2",
+      "name": "Lire les entreprises",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        220,
+        0
+      ],
+      "parameters": {
+        "method": "GET",
+        "url": "=https://jsmffmtzoauvqltshiyg.supabase.co/rest/v1/entreprises?select=*&email_valide=eq.true&date_envoi=is.null&limit=1000",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "supabaseApi",
+        "options": {
+          "timeout": 60000
+        }
+      },
+      "credentials": {
+        "supabaseApi": {
+          "id": "",
+          "name": "Supabase Lumen"
+        }
+      },
+      "alwaysOutputData": true,
+      "continueOnFail": true
+    },
+    {
+      "id": "k3",
+      "name": "Lire les offres ouvertes nouvelles",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        440,
+        0
+      ],
+      "parameters": {
+        "method": "GET",
+        "url": "=https://jsmffmtzoauvqltshiyg.supabase.co/rest/v1/offres?select=avis_id,objet,acheteur,departements,lieu,type_marche,descripteurs,montant,parution,limite,url,lumen_collecte_le&limite=gt.{{ $now.toISO() }}&lumen_collecte_le=gte.{{ $now.minus({days:7}).toISO() }}&order=lumen_collecte_le.desc&limit=1000",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "supabaseApi",
+        "options": {
+          "timeout": 60000
+        }
+      },
+      "credentials": {
+        "supabaseApi": {
+          "id": "",
+          "name": "Supabase Lumen"
+        }
+      },
+      "alwaysOutputData": true,
+      "continueOnFail": true
+    },
+    {
+      "id": "k4",
+      "name": "Compter les envois du jour",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        660,
+        0
+      ],
+      "parameters": {
+        "method": "GET",
+        "url": "=https://jsmffmtzoauvqltshiyg.supabase.co/rest/v1/entreprises?select=id&date_envoi=gte.{{ $now.startOf('day').toISO() }}&limit=1000",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "supabaseApi",
+        "options": {
+          "timeout": 60000
+        }
+      },
+      "credentials": {
+        "supabaseApi": {
+          "id": "",
+          "name": "Supabase Lumen"
+        }
+      },
+      "alwaysOutputData": true,
+      "continueOnFail": true
+    },
+    {
+      "id": "k5",
+      "name": "Associer et limiter à 10",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        900,
+        0
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "const L=$('Lire les entreprises'),O=$('Lire les offres ouvertes nouvelles'),S=$('Compter les envois du jour');\nif([L,O,S].some(n=>n.all().some(i=>i.json?.error)))throw new Error('Erreur Supabase : vérifier credentials et colonnes.');\nconst leads=L.all().map(i=>i.json||{}).filter(x=>x.email&&x.siren), sent=S.all().map(i=>i.json||{}).filter(x=>x.id).length, slots=Math.max(0,10-sent); if(!slots)return [];\nconst now=Date.now(), offers=O.all().map(i=>i.json||{}).filter(o=>o.avis_id&&Date.parse(o.limite||'')>now&&Date.parse(o.lumen_collecte_le||o.parution||'')>now-604800000);\nconst norm=s=>String(s||'').toLowerCase().normalize('NFD').replace(/[\\u0300-\\u036f]/g,'').replace(/[^a-z0-9]+/g,' ').trim(), dep=s=>String(s||'').trim().toUpperCase().replace(/^([0-9])$/,'0$1');\nconst rg={'ARA':'01 03 07 15 26 38 42 43 63 69 73 74','BFC':'21 25 39 58 70 71 89 90','BRE':'22 29 35 56','CVL':'18 28 36 37 41 45','COR':'2A 2B','GES':'08 10 51 52 54 55 57 67 68 88','HDF':'02 59 60 62 80','IDF':'75 77 78 91 92 93 94 95','NOR':'14 27 50 61 76','NAQ':'16 17 19 23 24 33 40 47 64 79 86 87','OCC':'09 11 12 30 31 32 34 46 48 65 66 81 82','PDL':'44 49 53 72 85','PAC':'04 05 06 13 83 84'}, region=d=>Object.entries(rg).find(([,v])=>v.split(' ').includes(dep(d)))?.[0];\nconst words=s=>new Set(norm(s).split(' ').filter(w=>w.length>3&&!['entreprise','activite','marche','public','travaux','service'].includes(w)));\nconst platform=u=>{u=String(u||'').toLowerCase();return u.includes('boamp.fr')?'BOAMP':u.includes('marches-publics.gouv.fr')?'PLACE':u.includes('aws-achat')||u.includes('marches-publics.info')?'AWS-Achat':u.includes('e-marchespublics.com')?'e-marchespublics.com':u.includes('maximilien')?'Maximilien':u.includes('klekoon')?'Klekoon':u.includes('ternum-bfc')||u.includes('e-bourgogne')?'la plateforme Bourgogne-Franche-Comté':u.includes('megalis.bretagne')?'Mégalis Bretagne':u.includes('achatpublic.com')?'achatpublic.com':null};\nconst out=[];let n=0;for(const e of leads){if(n>=slots)break;const last=Date.parse(e.offres_verifiees_le||'')||0,fresh=offers.filter(o=>Date.parse(o.lumen_collecte_le||o.parution||'')>last);if(!fresh.length)continue;\nconst ed=dep(e.departement||e.code_departement), ew=words([e.domaine_activite,e.secteur,e.code_naf,e.activite_principale,e.nom].join(' '));\nconst ms=fresh.map(o=>{const ds=(Array.isArray(o.departements)?o.departements:String(o.departements||'').split(/[,; ]+/)).map(dep), ow=words([o.objet,o.descripteurs,o.type_marche,o.acheteur,o.lieu].join(' '));let k=0;for(const w of ew)if(ow.has(w))k++;const same=ds.includes(ed),near=ds.some(d=>region(d)&&region(d)===region(ed));return{o,ds,k,g:same?2:near?1:0}}).filter(x=>x.k&&x.g).sort((a,b)=>(b.k*10+b.g)-(a.k*10+a.g));\nif(!ms.length){out.push({json:{action:'non_envoye',id:e.id,checkedAt:new Date(Math.max(...fresh.map(o=>Date.parse(o.lumen_collecte_le||o.parution)))).toISOString()}});continue}\nconst x=ms[0], p=platform(x.o.url)||'BOAMP', p2=platform(ms[1]?.o.url), dir=String(e.dirigeant||'').trim(), co=e.nom||e.raison_sociale||'votre entreprise';\nout.push({json:{action:'send',entreprise_id:e.id,siren:e.siren,email:e.email,entreprise:co,dirigeant:dir,activite:e.domaine_activite||e.secteur||e.code_naf||'votre domaine',offer_id:x.o.avis_id,offer_object:x.o.objet||'Non précisé',offer_context:[x.o.objet,x.o.type_marche,x.o.lieu].filter(Boolean).join(' — '),offer_department:x.ds.join(', ')||x.o.lieu||ed,amount:x.o.montant==null||x.o.montant===''?'montant non indiqué':String(x.o.montant),deadline:x.o.limite,platforms:p2&&p2!==p?p+' et '+p2:p,subject:dir?dir.split(/\\s+/)[0]+', une offre de marché public pour '+co:co+', une offre de marché public qui pourrait vous intéresser'}});n++}return out;"
+      }
+    },
+    {
+      "id": "k6",
+      "name": "Offre adaptée ?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1140,
+        0
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "c1",
+              "leftValue": "={{ $json.action }}",
+              "rightValue": "send",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "k7",
+      "name": "Noter non envoyé",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1380,
+        220
+      ],
+      "parameters": {
+        "method": "PATCH",
+        "url": "=https://jsmffmtzoauvqltshiyg.supabase.co/rest/v1/entreprises?id=eq.{{ $json.id }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "supabaseApi",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Prefer",
+              "value": "return=minimal"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({statut:'non_envoye',offres_verifiees_le:$json.checkedAt}) }}",
+        "options": {
+          "timeout": 60000
+        }
+      },
+      "credentials": {
+        "supabaseApi": {
+          "id": "",
+          "name": "Supabase Lumen"
+        }
+      },
+      "continueOnFail": true,
+      "alwaysOutputData": true
+    },
+    {
+      "id": "k8a",
+      "name": "Préparer résumé IA",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1380,
+        -100
+      ],
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const x=$input.item.json;return {json:{...x,openaiBody:{model:'gpt-4o-mini',temperature:0.2,messages:[{role:'system',content:'Résume en une phrase de 25 à 45 mots cette offre pour cette entreprise. Reste strictement factuel et n’invente rien.'},{role:'user',content:JSON.stringify({entreprise:x.entreprise,activité:x.activite,offre:x.offer_context,objet:x.offer_object,lieu:x.offer_department,date_limite:x.deadline})}]}}};"
+      }
+    },
+    {
+      "id": "k8b",
+      "name": "Résumer avec OpenAI",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1620,
+        -100
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.openai.com/v1/chat/completions",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify($json.openaiBody) }}",
+        "options": {
+          "timeout": 60000
+        }
+      },
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "",
+          "name": "OpenAI Header Auth"
+        }
+      }
+    },
+    {
+      "id": "k8c",
+      "name": "Composer le mail final",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1860,
+        -100
+      ],
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const r=$input.item.json,x=$('Préparer résumé IA').item.json,res=String(r.choices?.[0]?.message?.content||'').trim();if(!res)throw new Error('Résumé OpenAI manquant.');const h=x.dirigeant?'Bonjour '+x.dirigeant.trim().split(/\\s+/)[0]+',':'Bonjour,',amt=x.amount||'montant non indiqué',date=x.deadline||'Non précisée';const LOGO='https://lumen-marches.pages.dev/logo-signature.png';const t=[h,'',\"J’ai repéré une opportunité de marché public dans le \"+x.offer_department+\" qui pourrait correspondre à l’activité de \"+x.entreprise+\" :\",'', 'Objet : '+x.offer_object,'Résumé : '+res,'Département : '+x.offer_department,'Montant : '+amt,'Date limite : '+date,'',\"Lumen surveille les marchés publics liés au domaine de \"+x.activite+\" sur \"+x.platforms+\". Les offres correspondant à votre activité vous sont envoyées par email dès leur publication. Vous pouvez gagner jusqu’à 6 heures de veille par semaine et repérer les offres plus rapidement !\",'',\"Découvrez Lumen avec 7 jours d’essai gratuit :\", 'Commencer mon essai gratuit : https://lumen-marches.pages.dev/','',\"Bien cordialement,\", 'Sauzay Marin','Fondateur de Lumen','',\"Pour ne plus recevoir de messages de Lumen, répondez simplement « STOP ».\"];const esc=s=>String(s).replace(/[&<>\"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;'}[c]));const signature='<table cellpadding=\"0\" cellspacing=\"0\" style=\"margin-top:18px;border-top:1px solid #e5e7eb;padding-top:14px\"><tr><td style=\"vertical-align:middle;padding-right:14px\"><img src=\"'+LOGO+'\" alt=\"Lumen Marchés\" width=\"130\" style=\"display:block;border:0\"></td><td style=\"vertical-align:middle;border-left:1px solid #e5e7eb;padding-left:14px;font-family:Arial,sans-serif;font-size:13px;color:#111\"><b>Sauzay Marin</b><br>Fondateur de Lumen Marchés<br><a href=\"https://lumen-marches.pages.dev/\" style=\"color:#2350C4;text-decoration:none\">lumen-marches.pages.dev</a></td></tr></table>';return {json:{...x,textContent:t.join('\\n'),htmlContent:'<html><body style=\"font-family:Arial,sans-serif;font-size:14px;color:#111\"><p>'+esc(h)+'</p><p>J’ai repéré une opportunité de marché public dans le '+esc(x.offer_department)+' qui pourrait correspondre à l’activité de '+esc(x.entreprise)+' :</p><ul><li>Objet : '+esc(x.offer_object)+'</li><li>Résumé : '+esc(res)+'</li><li>Département : '+esc(x.offer_department)+'</li><li>Montant : '+esc(amt)+'</li><li>Date limite : '+esc(date)+'</li></ul><p>Lumen surveille les marchés publics liés au domaine de '+esc(x.activite)+' sur '+esc(x.platforms)+'. Les offres correspondant à votre activité vous sont envoyées par email dès leur publication. Vous pouvez gagner jusqu’à <b>6 heures de veille par semaine</b> et repérer les offres plus rapidement !</p><p>Découvrez Lumen avec <b>7 jours d’essai gratuit</b> :<br><a href=\"https://lumen-marches.pages.dev/\">Commencer mon essai gratuit</a></p><p>Pour ne plus recevoir de messages de Lumen, répondez simplement « STOP ».</p>'+signature+'</body></html>'}};"
+      }
+    },
+    {
+      "id": "k8d",
+      "name": "Envoyer avec Brevo",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2100,
+        -100
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.brevo.com/v3/smtp/email",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "accept",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({sender:{name:'Sauzay Marin — Lumen',email:'REMPLACER_PAR_EMAIL_EXPEDITEUR_VERIFIE'},to:[{email:$json.email,name:$json.dirigeant||$json.entreprise}],subject:$json.subject,htmlContent:$json.htmlContent,textContent:$json.textContent,tags:['lumen-prospection-k']}) }}",
+        "options": {
+          "timeout": 60000
+        }
+      },
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "",
+          "name": "Brevo API Header Auth"
+        }
+      }
+    },
+    {
+      "id": "k8e",
+      "name": "Enregistrer l’envoi",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2340,
+        -100
+      ],
+      "parameters": {
+        "method": "PATCH",
+        "url": "=https://jsmffmtzoauvqltshiyg.supabase.co/rest/v1/entreprises?id=eq.{{ $('Composer le mail final').item.json.entreprise_id }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "supabaseApi",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Prefer",
+              "value": "return=minimal"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({date_envoi:$now.toISO(),statut:'envoyé',offre_id:$('Composer le mail final').item.json.offer_id,objet_email:$('Composer le mail final').item.json.subject,brevo_message_id:$json.messageId||null}) }}",
+        "options": {
+          "timeout": 60000
+        }
+      },
+      "credentials": {
+        "supabaseApi": {
+          "id": "",
+          "name": "Supabase Lumen"
+        }
+      }
+    },
+    {
+      "id": "k9",
+      "name": "Retours Brevo (webhook)",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        440
+      ],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "lumen-k-brevo-events-9c7d3e11f2",
+        "responseMode": "onReceived",
+        "options": {}
+      }
+    },
+    {
+      "id": "k10",
+      "name": "Filtrer le destinataire introuvable",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        240,
+        440
+      ],
+      "parameters": {
+        "jsCode": "const r=$input.first().json||{},b=r.body||r,event=String(b.event||b.type||'').toLowerCase(),reason=String(b.reason||b.error||b.response||'').toLowerCase(),email=String(b.email||b.to||'').trim().toLowerCase();if(!['hardbounce','invalid_email'].includes(event)||!email||!/recipient|mailbox|unknown user|user unknown|not found|does not exist|invalid address/.test(reason))return [];return [{json:{email,bounce_type:'recipient_not_found'}}];"
+      }
+    },
+    {
+      "id": "k11",
+      "name": "Retrouver le SIREN du rebond",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        480,
+        440
+      ],
+      "parameters": {
+        "method": "GET",
+        "url": "=https://jsmffmtzoauvqltshiyg.supabase.co/rest/v1/entreprises?select=siren,email&email=eq.{{ encodeURIComponent($json.email) }}&limit=1",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "supabaseApi",
+        "options": {
+          "timeout": 60000
+        }
+      },
+      "credentials": {
+        "supabaseApi": {
+          "id": "",
+          "name": "Supabase Lumen"
+        }
+      },
+      "alwaysOutputData": true,
+      "continueOnFail": true
+    },
+    {
+      "id": "k12",
+      "name": "Préparer la demande de remplacement",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        720,
+        440
+      ],
+      "parameters": {
+        "jsCode": "const rows=$input.all().map(i=>i.json||{}).filter(x=>x.siren);if(!rows.length)return [];const b=$('Filtrer le destinataire introuvable').first().json;return [{json:{siren:rows[0].siren,email:b.email,bounce_type:'recipient_not_found'}}];"
+      }
+    },
+    {
+      "id": "k13",
+      "name": "Appeler le webhook Agent F",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        960,
+        440
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "https://REMPLACER_PAR_URL_WEBHOOK_PRODUCTION_AGENT_F",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify($json) }}",
+        "options": {
+          "timeout": 60000
+        }
+      },
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "",
+          "name": "Agent F webhook header"
+        }
+      },
+      "continueOnFail": true
+    }
+  ],
+  "connections": {
+    "Toutes les 5 minutes": {
+      "main": [
+        [
+          {
+            "node": "Lire les entreprises",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Lire les entreprises": {
+      "main": [
+        [
+          {
+            "node": "Lire les offres ouvertes nouvelles",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Lire les offres ouvertes nouvelles": {
+      "main": [
+        [
+          {
+            "node": "Compter les envois du jour",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Compter les envois du jour": {
+      "main": [
+        [
+          {
+            "node": "Associer et limiter à 10",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Associer et limiter à 10": {
+      "main": [
+        [
+          {
+            "node": "Préparer résumé IA",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Noter non envoyé",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Préparer résumé IA": {
+      "main": [
+        [
+          {
+            "node": "Résumer avec OpenAI",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Résumer avec OpenAI": {
+      "main": [
+        [
+          {
+            "node": "Composer le mail final",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Composer le mail final": {
+      "main": [
+        [
+          {
+            "node": "Envoyer avec Brevo",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Envoyer avec Brevo": {
+      "main": [
+        [
+          {
+            "node": "Enregistrer l’envoi",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Retours Brevo (webhook)": {
+      "main": [
+        [
+          {
+            "node": "Filtrer le destinataire introuvable",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filtrer le destinataire introuvable": {
+      "main": [
+        [
+          {
+            "node": "Retrouver le SIREN du rebond",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Retrouver le SIREN du rebond": {
+      "main": [
+        [
+          {
+            "node": "Préparer la demande de remplacement",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Préparer la demande de remplacement": {
+      "main": [
+        [
+          {
+            "node": "Appeler le webhook Agent F",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "timezone": "Europe/Paris"
+  },
+  "pinData": {}
+}
