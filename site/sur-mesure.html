@@ -128,7 +128,8 @@ $("#f-demande").addEventListener("submit", async ev => {
     local.set("lumen_demande", { prenom: d.nom.split(" ")[0], offre: d.offre });
     location.href = "merci.html";
   } catch (e) {
-    st.classList.add("err"); st.innerHTML = `La demande n'a pas pu être envoyée. Réessayez, ou écrivez-nous à <a href="mailto:${esc(CFG.EMAIL)}">${esc(CFG.EMAIL)}</a>.`;
+    const detail = e && (e.message || e.code) ? ` (détail : ${esc(String(e.message || e.code).slice(0, 160))})` : "";
+    st.classList.add("err"); st.innerHTML = `La demande n'a pas pu être envoyée. Réessayez, ou écrivez-nous à <a href="mailto:${esc(CFG.EMAIL)}">${esc(CFG.EMAIL)}</a>.${detail}`;
     $("#go").disabled = false;
   }
 });
