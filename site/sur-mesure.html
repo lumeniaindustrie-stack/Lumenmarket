@@ -54,8 +54,7 @@ textarea{min-height:170px;resize:vertical;line-height:1.5}
     <div class="field full"><span class="lbl" id="l-offre">Votre demande concerne</span>
       <div class="choix" role="radiogroup" aria-labelledby="l-offre">
         <label><input type="radio" name="offre" value="agents" checked><span>Des agents IA sur mesure<small>Automatiser une ou plusieurs tâches de l'entreprise</small></span></label>
-        <label><input type="radio" name="offre" value="accompagnement"><span>L'accompagnement personnalisé<small>500 € HT, en plus de l'abonnement Lumen Marchés</small></span></label>
-        <label><input type="radio" name="offre" value="diagnostic"><span>Le diagnostic IA sur place<small>300 € HT : un ingénieur vient repérer ce que l'IA peut automatiser chez vous</small></span></label>
+        <label><input type="radio" name="offre" value="diagnostic"><span>Demander un diagnostic<small>300 € HT : un ingénieur IA Lumen vient dans votre entreprise repérer ce que l'IA peut automatiser</small></span></label>
       </div>
     </div>
     <div class="field full"><label for="besoin">Ce que vous voulez automatiser</label>
@@ -85,7 +84,11 @@ textarea{min-height:170px;resize:vertical;line-height:1.5}
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
 <script src="commun.js"></script>
 <script>
-{ const o = new URLSearchParams(location.search).get("offre"); if (o === "accompagnement" || o === "diagnostic") $(`input[value="${o}"]`).checked = true; }
+{ const o = new URLSearchParams(location.search).get("offre");
+  if (o === "diagnostic") $('input[value="diagnostic"]').checked = true;
+  // Lien « Demander l'accompagnement » de l'espace client : l'option n'est plus dans la liste, on précise la demande dans le texte
+  if (o === "accompagnement" && !$("#besoin").value) $("#besoin").value = "Je souhaite l'accompagnement personnalisé (500 € HT) : ";
+}
 // Si le client est connecté, on pré-remplit avec son profil
 if (Compte.semblerConnecte()) Compte.session().then(s => s && Compte.charger()).then(d => {
   if (!d?.profil) return; const p = d.profil;
