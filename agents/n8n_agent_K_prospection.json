@@ -496,6 +496,17 @@
       "main": [
         [
           {
+            "node": "Offre adaptée ?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Offre adaptée ?": {
+      "main": [
+        [
+          {
             "node": "Préparer résumé IA",
             "type": "main",
             "index": 0
