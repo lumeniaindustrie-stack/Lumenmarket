@@ -455,14 +455,14 @@ const POLES = {
   com: { t: "Pôle commercial", c: "#f472b6" },
   tech: { t: "Pôle technique", c: "#60a5fa" }, mgt: { t: "Pôle management", c: "#fbbf24" }, cpt: { t: "Pôle comptabilité", c: "#2dd4bf" }
 };
-const COURT = { "A-collecteur": "Coordinateur", "B-tri": "Tri par client", "C-chat": "Chat client", "D-analyse": "Analyse DCE", "F-commercial": "Prospection", "K-prospection": "Envoi emails", "G-controle": "Contrôleur", "H-comptable": "Comptable",
+const COURT = { "A-collecteur": "Coordinateur", "B-tri": "Tri par client", "C-chat": "Chat client", "D-analyse": "Analyse DCE", "F-commercial": "Prospection", "K-prospection": "Envoi emails", "R-demandes": "Demandes", "G-controle": "Contrôleur", "H-comptable": "Comptable",
   "E9-boamp": "BOAMP", "E1-place": "PLACE", "E2-aws": "AWS-Achat", "E3-emp": "e-march.pub", "E4-maximilien": "Maximilien", "E5-klekoon": "Klekoon", "E6-ebourgogne": "e-Bourgogne", "E7-megalis": "Mégalis Br.", "E8-achatpublic": "Achat Public" };
 const CADRES = [["com", 30, 30, 650, 210], ["tech", 30, 290, 650, 916], ["mgt", 1050, 30, 250, 340], ["cpt", 1050, 420, 250, 786]];
 // Le BOAMP (agent E9) est une 9ème plateforme comme les autres, pas un cas à part : A-collecteur
 // ne récupère plus rien lui-même, il ne fait que vérifier les 9 sous-agents et agréger leurs
 // offres — pas de pôle "prospection" séparé (la vraie prospection commerciale, c'est l'agent F,
 // pôle commercial, un sujet indépendant).
-const POS = { "F-commercial": [185, 150, "com"], "K-prospection": [405, 150, "com"], "A-collecteur": [130, 420, "tech"], "B-tri": [350, 420, "tech"], "C-chat": [575, 570, "tech"], "D-analyse": [575, 720, "tech"], "G-controle": [1175, 200, "mgt"], "H-comptable": [1175, 610, "cpt"],
+const POS = { "F-commercial": [140, 150, "com"], "K-prospection": [350, 150, "com"], "R-demandes": [560, 150, "com"], "A-collecteur": [130, 420, "tech"], "B-tri": [350, 420, "tech"], "C-chat": [575, 570, "tech"], "D-analyse": [575, 720, "tech"], "G-controle": [1175, 200, "mgt"], "H-comptable": [1175, 610, "cpt"],
   "E9-boamp": [240, 810, "tech"],
   "E1-place": [130, 900, "tech"], "E2-aws": [350, 900, "tech"], "E3-emp": [130, 990, "tech"], "E4-maximilien": [350, 990, "tech"], "E5-klekoon": [130, 1080, "tech"], "E6-ebourgogne": [350, 1080, "tech"], "E7-megalis": [130, 1170, "tech"], "E8-achatpublic": [350, 1170, "tech"] };
 const HUB = { x: 790, y: 290, w: 200, h: 916 };
@@ -471,8 +471,9 @@ const LIENS = [
   ...SOUS_PROS.map((code, i) => { const [x, y] = POS[code], bord = x < 250 ? -1 : 1, jog = x + bord * 100;
     return { de: code, vers: "A-collecteur", lib: i === 0 ? "offres" : "", et: i === 0 ? [90, 500] : undefined,
       pts: [[x + bord * 80, y], [jog, y], [jog, 500], [130, 500], [130, 456]], fin: "u" }; }),
-  { de: "F-commercial", vers: "K-prospection", lib: "fiches qualifiées", pts: [[265, 150], [325, 150]], fin: "r", et: [295, 185] },
-  { de: "K-prospection", vers: "CLIENTS", lib: "inscriptions", pts: [[485, 150], [890, 150], [890, 284]], fin: "d", et: [700, 150] },
+  { de: "F-commercial", vers: "K-prospection", lib: "fiches qualifiées", pts: [[220, 150], [270, 150]], fin: "r", et: [245, 185] },
+  { de: "K-prospection", vers: "CLIENTS", lib: "inscriptions", pts: [[350, 186], [350, 262], [890, 262], [890, 284]], fin: "d", et: [620, 262] },
+  { de: "CLIENTS", vers: "R-demandes", lib: "demandes", pts: [[940, 284], [940, 150], [640, 150]], fin: "l", et: [790, 150] },
   { de: "A-collecteur", vers: "B-tri", lib: "offres", pts: [[216, 420], [262, 420]], fin: "r", et: [240, 420] },
   { de: "B-tri", vers: "CLIENTS", lib: "veille du matin", pts: [[436, 420], [784, 420]], fin: "r", et: [640, 420] },
   { de: "B-tri", vers: "C-chat", lib: "offres triées", pts: [[436, 420], [470, 420], [470, 570], [487, 570]], fin: "r", et: [470, 505], rayon: 8 },
@@ -570,7 +571,7 @@ function rendreAgents() {
     <text x="${cx}" y="${H.y + 248}" text-anchor="middle" fill="#64748B" font-size="12.5">client${actifs.length > 1 ? "s" : ""} actif${actifs.length > 1 ? "s" : ""}</text>
     <line x1="${H.x + 18}" x2="${H.x + H.w - 18}" y1="${H.y + 300}" y2="${H.y + 300}" stroke="#E5EAF2"/>
     ${ligne(H.y + 336, "Abonnés", ab)}${ligne(H.y + 366, "En essai", es)}${ligne(H.y + 396, "Revenu", nf(ab * (CFG.PRIX || 99)) + " €/mois")}
-    ${[[cx, H.y], [H.x, 420], [H.x, 570], [H.x, 720], [H.x + H.w, 610]].map(([x, y]) => `<circle class="port" cx="${x}" cy="${y}" r="4"/>`).join("")}${coin(H.x + H.w - 9, H.y + H.h - 9)}</g>`;
+    ${[[cx, H.y], [cx + 50, H.y], [H.x, 420], [H.x, 570], [H.x, 720], [H.x + H.w, 610]].map(([x, y]) => `<circle class="port" cx="${x}" cy="${y}" r="4"/>`).join("")}${coin(H.x + H.w - 9, H.y + H.h - 9)}</g>`;
   svg.innerHTML = defs + cadres + liens + hub + noeuds;
 
   // colonne de droite : liste des agents et état
