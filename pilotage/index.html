@@ -442,7 +442,7 @@ function rendreClients() {
 $("#c-filtre").addEventListener("input", rendreClients);
 
 function rendreDemandes() {
-  $("#d-liste").innerHTML = D.demandes.length ? D.demandes.map(d => `<tr><td>${jour(d.cree_le)}</td><td>${esc(d.offre)}</td><td>${esc(d.entreprise)}<br><span class="muted">${esc(d.taille || "")}</span></td>
+  $("#d-liste").innerHTML = D.demandes.length ? D.demandes.map(d => `<tr><td>${jour(d.cree_le)}</td><td>${esc(({ diagnostic: "Diagnostic IA (300 €)", agents: "Agents sur mesure", accompagnement: "Accompagnement (500 €)" })[d.offre] || d.offre)}</td><td>${esc(d.entreprise)}<br><span class="muted">${esc(d.taille || "")}</span></td>
     <td>${esc(d.nom)}<br><a href="mailto:${esc(d.email)}">${esc(d.email)}</a><br>${esc(d.telephone || "")}${d.rappel ? `<br><span class="muted">${esc(d.rappel)}</span>` : ""}</td>
     <td style="max-width:420px">${esc(d.besoin)}${d.outils ? `<br><span class="muted">Outils : ${esc(d.outils)}</span>` : ""}</td><td><span class="tag ${d.statut === "à rappeler" ? "att" : ""}">${esc(d.statut)}</span></td></tr>`).join("")
     : `<tr><td colspan="6" class="vide">Aucune demande pour l'instant.</td></tr>`;
