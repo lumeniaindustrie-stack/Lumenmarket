@@ -472,9 +472,10 @@
               <div class="field"><label for="p-siren">SIREN</label><input id="p-siren" inputmode="numeric" maxlength="11"></div>
               <div class="field"><label for="p-email">Email de connexion</label><input id="p-email" disabled></div>
               <div class="field"><label for="p-telephone">Téléphone</label><input id="p-telephone" type="tel"></div>
+              <div class="field full" id="p-veille-bloc" hidden><label for="p-veille">Email de réception des offres <small>(facultatif)</small></label><input id="p-veille" type="email" autocomplete="off"><small>La veille quotidienne est envoyée à cette adresse. Laissez vide pour la recevoir sur l'email de connexion, qui reste celui de votre compte.</small></div>
               <div class="field full"><label for="p-metiers">Activité</label><input id="p-metiers"><small>Exemple : électricité, génie climatique</small></div>
               <div class="field full"><label for="p-mots">Mots-clés suivis</label><input id="p-mots"><small>Séparés par des virgules</small></div>
-              <div class="field"><label for="p-deps">Départements</label><input id="p-deps"><small id="p-deps-noms"></small></div>
+              <div class="field"><label for="p-deps">Départements où vous intervenez</label><input id="p-deps" placeholder="Vide : toute la France"><small id="p-deps-noms"></small></div>
               <div class="field curseur"><label for="pm-curseur">Montant minimum des marchés</label>
           <output class="curseur-valeur" id="pm-sortie" for="pm-curseur">Pas de minimum</output>
           <input type="range" id="pm-curseur" value="0">
@@ -853,6 +854,8 @@ function rendreProfil() {
   $("#m-user").value = c.email || "";
   $("#p-telephone").value = c.telephone || ""; $("#p-metiers").value = c.metiers || ""; $("#p-mots").value = c.mots_cles || "";
   $("#p-deps").value = c.departements || ""; $("#p-deps").dispatchEvent(new Event("input"));
+  // Adresse de réception : seulement si la colonne existe (supabase_inscription_v2.sql exécuté)
+  $("#p-veille-bloc").hidden = !("email_veille" in c); $("#p-veille").value = c.email_veille || "";
   $("#p-montant").regler(c.montant_min || 0);
   const t = typesProfil(); $$("#p-types input").forEach(i => i.checked = !t.length || t.includes(i.value));
   $("#p-suppr").textContent = CFG.EMAIL; $("#p-suppr").href = `mailto:${CFG.EMAIL}?subject=${encodeURIComponent("Supprimer mon compte – " + (c.entreprise || c.email))}`;
@@ -874,20 +877,23 @@ function rendreProfil() {
 }
 
 brancherCurseur("pm-curseur", "p-montant", "pm-sortie");
-$("#p-deps").addEventListener("input", () => { const c = parseDeps($("#p-deps").value); $("#p-deps-noms").textContent = c.map(nomDep).join(", "); });
+$("#p-deps").addEventListener("input", () => { const c = parseDeps($("#p-deps").value); $("#p-deps-noms").textContent = c.length ? c.map(nomDep).join(", ") : "Aucun département : les offres de toute la France sont proposées."; });
 $("#f-profil").addEventListener("submit", async ev => {
   ev.preventDefault();
   const st = $("#p-status"); st.className = "status";
   const deps = parseDeps($("#p-deps").value), siren = $("#p-siren").value.replace(/\s/g, ""), types = $$("#p-types input:checked").map(i => i.value);
   const err = !$("#p-entreprise").value.trim() ? "Indiquez le nom de l'entreprise." : siren && !/^\d{9}$/.test(siren) ? "Le SIREN compte 9 chiffres."
-    : !deps.length ? "Indiquez au moins un département." : deps.some(d => !DEPTS[d]) ? "Un des numéros de département n'existe pas." : !types.length ? "Cochez au moins un type de marché." : null;
-  if (err) { st.classList.add("err"); st.textContent = err; return; }
+    : deps.some(d => !DEPTS[d]) ? "Un des numéros de département n'existe pas." : !types.length ? "Cochez au moins un type de marché." : null;
+  const veille = $("#p-veille").value.trim().toLowerCase(), avecVeille = !$("#p-veille-bloc").hidden;
+  const err2 = err || (avecVeille && veille && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(veille) ? "L'email de réception des offres n'est pas valide." : null);
+  if (err2) { st.classList.add("err"); st.textContent = err2; return; }
   $("#p-go").disabled = true; st.textContent = "Enregistrement…";
   try {
     session.compte = { ...session.compte, ...await Compte.majProfil({
       entreprise: $("#p-entreprise").value.trim(), siren: siren || null, telephone: $("#p-telephone").value.trim(),
       metiers: $("#p-metiers").value.trim(), mots_cles: $("#p-mots").value.trim(), departements: deps.join(", "),
-      types: types.join(", "), montant_min: $("#p-montant").value ? Number($("#p-montant").value) : null }) };
+      types: types.join(", "), montant_min: $("#p-montant").value ? Number($("#p-montant").value) : null,
+      ...(avecVeille ? { email_veille: veille && veille !== String(session.compte.email || "").toLowerCase() ? veille : null } : {}) }) };
     st.classList.add("ok"); st.textContent = "Profil enregistré. Il sera utilisé dès la prochaine veille.";
     rendreAccueil();
   } catch (e) { st.classList.add("err"); st.textContent = traduireErreur(e); }
