@@ -20,13 +20,13 @@ const EMAIL_ADMIN = 'lumeniaindustrie@gmail.com';   // qui reçoit les nouvelles
 const demandes = $input.all().map(i => i.json).filter(d => d && d.id && d.email);
 if (!demandes.length) return [];
 const esc = s => String(s ?? '').replace(/[&<>"]/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[ch]));
-const LOGO = 'https://lumen-marches.pages.dev/logo-signature.png';
+const LOGO = 'https://lumen-marches.pages.dev/logo-signature.png?v=2';
 const LIB = { diagnostic: 'Diagnostic IA sur place (300 € HT)', agents: 'Autre demande (agent IA, automatisation…)', ia_locale: 'Installation d\'une IA locale (sur devis)', accompagnement: 'Accompagnement personnalisé (500 € HT)' };
 const ligne = (k, v) => v ? `<tr><td style="padding:5px 12px 5px 0;color:#6B7280;vertical-align:top;white-space:nowrap;">${esc(k)}</td><td style="padding:5px 0;color:#171A21;">${esc(v)}</td></tr>` : '';
 const cadre = (contenu) => `<!doctype html><html><body style="margin:0;padding:0;background:#F6F7F9;font-family:Arial,Helvetica,sans-serif;">
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#F6F7F9;padding:28px 0;"><tr><td align="center">
 <table role="presentation" width="600" cellpadding="0" cellspacing="0" style="background:#FFFFFF;border-radius:14px;overflow:hidden;border:1px solid #E6E8EC;">
-<tr><td style="padding:22px 32px;border-bottom:1px solid #E6E8EC;"><img src="${LOGO}" width="130" height="40" alt="Lumen Marchés" style="display:block;border:0;width:130px;height:40px;"></td></tr>
+<tr><td style="padding:22px 32px;border-bottom:1px solid #E6E8EC;"><img src="${LOGO}" width="180" height="29" alt="Lumen Marchés" style="display:block;border:0;width:180px;height:29px;"></td></tr>
 <tr><td style="padding:28px 32px;font-size:15px;line-height:1.6;color:#171A21;">${contenu}</td></tr>
 <tr><td style="background:#F6F7F9;padding:16px 32px;border-top:1px solid #E6E8EC;"><p style="margin:0;font-size:12px;color:#6B7280;">Lumen IA, SIRET 985 215 474 00018 · lumeniaindustrie@gmail.com · 06 50 93 85 52</p></td></tr>
 </table></td></tr></table></body></html>`;
