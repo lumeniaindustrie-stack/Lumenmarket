@@ -15,7 +15,7 @@ alter table public.demandes add column if not exists notifie_le timestamptz;   -
 -- Formes et tailles autorisées
 alter table public.demandes drop constraint if exists demandes_formes;
 alter table public.demandes add constraint demandes_formes check (
-  offre in ('agents', 'diagnostic', 'accompagnement')
+  offre in ('agents', 'diagnostic', 'ia_locale', 'accompagnement')
   and length(email) <= 200 and email ~ '^[^\s@]+@[^\s@]+\.[^\s@]+$'
   and length(besoin) between 30 and 4000
   and coalesce(length(entreprise), 0) <= 200 and coalesce(length(nom), 0) <= 120

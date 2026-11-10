@@ -21,7 +21,7 @@ const demandes = $input.all().map(i => i.json).filter(d => d && d.id && d.email)
 if (!demandes.length) return [];
 const esc = s => String(s ?? '').replace(/[&<>"]/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[ch]));
 const LOGO = 'https://lumen-marches.pages.dev/logo-signature.png';
-const LIB = { diagnostic: 'Diagnostic IA sur place (300 € HT)', agents: 'Agents IA sur mesure', accompagnement: 'Accompagnement personnalisé (500 € HT)' };
+const LIB = { diagnostic: 'Diagnostic IA sur place (300 € HT)', agents: 'Agents IA sur mesure', ia_locale: 'Installation d\'une IA locale (sur devis)', accompagnement: 'Accompagnement personnalisé (500 € HT)' };
 const ligne = (k, v) => v ? `<tr><td style="padding:5px 12px 5px 0;color:#6B7280;vertical-align:top;white-space:nowrap;">${esc(k)}</td><td style="padding:5px 0;color:#171A21;">${esc(v)}</td></tr>` : '';
 const cadre = (contenu) => `<!doctype html><html><body style="margin:0;padding:0;background:#F6F7F9;font-family:Arial,Helvetica,sans-serif;">
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#F6F7F9;padding:28px 0;"><tr><td align="center">
@@ -48,7 +48,7 @@ for (const d of demandes) {
   out.push({ json: { to: d.email, replyTo: 'lumeniaindustrie@gmail.com', subject: d.offre === 'diagnostic' ? 'Votre demande de diagnostic IA est bien reçue' : 'Votre demande est bien reçue',
     html: cadre(`<p style="margin:0 0 16px;">Bonjour${prenom ? ' ' + esc(prenom) : ''},</p>
       <p style="margin:0 0 16px;">Merci pour votre demande${d.offre === 'diagnostic' ? ' de <b>diagnostic IA sur place (300 € HT)</b>' : ''}. Nous l'avons bien reçue et nous vous recontactons rapidement${d.rappel ? ', de préférence ' + esc(String(d.rappel).toLowerCase()) : ''}, au ${esc(d.telephone || 'numéro indiqué')}.</p>
-      ${d.offre === 'diagnostic' ? `<p style="margin:0 0 16px;">Lors de cet échange, nous fixerons ensemble la date de passage de l'ingénieur dans vos locaux et les tâches à observer en priorité.</p>` : `<p style="margin:0 0 16px;">Lors de cet échange, nous préciserons votre besoin pour vous proposer une solution chiffrée, sans engagement.</p>`}
+      ${d.offre === 'diagnostic' ? `<p style="margin:0 0 16px;">Lors de cet échange, nous fixerons ensemble la date de passage de l'ingénieur dans vos locaux et les tâches à observer en priorité.</p>` : d.offre === 'ia_locale' ? `<p style="margin:0 0 16px;">Lors de cet échange, nous ferons le point sur vos usages, le volume de documents et le nombre d'utilisateurs, pour vous proposer un serveur et un modèle d'IA adaptés, avec un devis détaillé.</p>` : `<p style="margin:0 0 16px;">Lors de cet échange, nous préciserons votre besoin pour vous proposer une solution chiffrée, sans engagement.</p>`}
       <p style="margin:0 0 6px;font-size:13px;color:#6B7280;">Votre message :</p>
       <p style="margin:0 0 18px;background:#F6F7F9;border-radius:8px;padding:12px 14px;font-size:14px;white-space:pre-wrap;">${esc(d.besoin)}</p>
       <p style="margin:0;">Bien cordialement,<br><b>Marin Sauzay</b><br>Fondateur de Lumen</p>`) } });

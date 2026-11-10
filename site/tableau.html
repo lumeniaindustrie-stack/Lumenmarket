@@ -271,7 +271,8 @@
 @media (max-width:640px){ .pgrid{grid-template-columns:1fr} }
 .kv.big{grid-template-columns:repeat(auto-fit,minmax(240px,1fr));padding:20px;gap:20px}
 .kv.big dd{font-weight:500}
-.abo-grille{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:18px;align-items:stretch;max-width:1120px}
+.abo-grille{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px;align-items:stretch;max-width:1000px}
+@media (max-width:760px){ .abo-grille{grid-template-columns:1fr} }
 .abo{padding:26px;display:flex;flex-direction:column;gap:16px}
 .abo .pied{margin-top:auto}
 .abo .type{font-size:.78rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--blue)}
@@ -549,6 +550,7 @@
           <div class="panel abo" id="abo"></div>
           <div class="panel abo" id="abo-accomp"></div>
           <div class="panel abo" id="abo-diag"></div>
+          <div class="panel abo" id="abo-local"></div>
         </div>
       </section>
     </main>
@@ -929,6 +931,13 @@ function rendreProfil() {
     <p class="muted">Un ingénieur IA Lumen vient dans vos locaux, observe votre façon de travailler et repère les tâches qu'un agent IA peut prendre en charge.</p>
     <ul><li>Les tâches répétitives à automatiser, classées par temps gagné</li><li>Un plan d'action chiffré pour mettre l'IA en place chez vous</li><li>Ensuite, si vous le souhaitez, nous construisons et installons les agents</li></ul>
     <div class="pied"><a class="btn alt" href="sur-mesure.html?offre=diagnostic">Demander un diagnostic</a></div>`;
+  $("#abo-local").innerHTML = `
+    <span class="type">Vos données restent chez vous</span>
+    <h2 style="font-size:1.3rem">IA locale dans votre entreprise</h2>
+    <div class="amount">Sur devis <small>selon vos besoins</small></div>
+    <p class="muted">Une intelligence artificielle installée sur votre propre serveur, dans vos locaux : vos documents et vos données ne partent jamais sur internet.</p>
+    <ul><li>Nous vous conseillons pour l'achat du serveur adapté à vos usages et à votre budget</li><li>Nous choisissons le modèle d'IA le mieux adapté à vos besoins</li><li>Nous l'installons sur le serveur et le mettons en service</li></ul>
+    <div class="pied"><a class="btn alt" href="sur-mesure.html?offre=ia_locale">Demander un devis</a></div>`;
 }
 
 brancherCurseur("pm-curseur", "p-montant", "pm-sortie");
