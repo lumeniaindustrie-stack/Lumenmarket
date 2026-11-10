@@ -43,6 +43,16 @@ const Demo = {
   }
 };
 
+// Colonnes des analyses. Les nouvelles (analyse automatique) n'existent qu'après supabase_analyse_v2.sql :
+// si la base n'est pas encore à jour, on relit avec les anciennes colonnes plutôt que de bloquer l'espace client.
+const COLS_ANALYSE = "id,cree_le,objet,decision,statut,resultat,message,mode,avis_id,avis_objet";
+const COLS_ANALYSE_ANCIEN = "id,cree_le,objet,decision,statut,resultat,message";
+async function lireAnalyses(requete) {
+  const r = await requete(COLS_ANALYSE);
+  if (r.error && /column|42703|does not exist/i.test(String(r.error.message) + " " + r.error.code)) return requete(COLS_ANALYSE_ANCIEN);
+  return r;
+}
+
 const Compte = {
   async session() {
     if (SB) { const { data } = await SB.auth.getSession(); return data.session; }
@@ -76,7 +86,7 @@ const Compte = {
     const [p, m, a, s] = await Promise.all([
       SB.from("profils").select("*").single(),
       SB.from("offres_envoyees").select("*").order("date_envoi", { ascending: false }).limit(200),
-      SB.from("analyses").select("id,cree_le,objet,decision,statut,resultat,message").order("cree_le", { ascending: false }).limit(50),
+      lireAnalyses(cols => SB.from("analyses").select(cols).order("cree_le", { ascending: false }).limit(50)),
       SB.from("offres_suivies").select("*")
     ]);
     if (p.error) throw p.error;

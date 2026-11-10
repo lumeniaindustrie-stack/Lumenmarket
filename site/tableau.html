@@ -194,6 +194,44 @@
 .bar{height:6px;background:var(--sheet-2);border-radius:4px;overflow:hidden;grid-column:1/-1}
 .bar span{display:block;height:100%;background:var(--blue);border-radius:4px}
 
+/* analyse complète (v2) */
+.verdict-bloc{display:grid;gap:4px;justify-items:end}
+.verdict-bloc small{color:var(--muted);font-size:.8rem}
+.sommaire{display:flex;gap:6px;flex-wrap:wrap;padding:12px 20px;border-bottom:1px solid var(--line);background:var(--sheet-2)}
+.sommaire button{background:#fff;border:1px solid var(--line);border-radius:999px;padding:4px 11px;font-size:.8rem;color:var(--ink)}
+.sommaire button:hover{border-color:var(--blue);color:var(--blue)}
+.result-body .block{scroll-margin-top:80px}
+.result-body .block h4{font-size:.9rem;margin:0 0 8px}
+.enbref{border-radius:12px;padding:16px 18px;display:grid;gap:10px;line-height:1.6}
+.enbref.v-go{background:var(--ok-f);color:var(--ink)} .enbref.v-mid{background:var(--accent-f);color:var(--ink)} .enbref.v-no{background:var(--bad-f);color:var(--ink)}
+.deux{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px}
+.plus,.moins,.puces,.sous{margin:0;padding-left:18px;display:grid;gap:5px;font-size:.93rem}
+.plus li::marker{content:"✓  ";color:var(--ok)} .moins li::marker{content:"!  ";color:var(--bad);font-weight:700}
+.frise{list-style:none;margin:0;padding:0;display:grid;gap:0}
+.frise li{display:grid;grid-template-columns:minmax(120px,190px) 1fr;gap:14px;padding:10px 0;border-top:1px solid var(--line)}
+.frise li:first-child{border-top:0}
+.frise .quand{font-weight:600;color:var(--blue);font-size:.92rem}
+.frise p{color:var(--muted);font-size:.9rem;margin:2px 0 0}
+.lignes{display:grid;gap:8px}
+.ligne{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;border:1px solid var(--line);border-radius:10px;padding:11px 13px}
+.ligne p{color:var(--muted);font-size:.9rem;margin:2px 0 0}
+.puce{font-size:.74rem;font-weight:600;padding:3px 9px;border-radius:999px;white-space:nowrap;flex:none}
+.puce.ok{color:var(--ok);background:var(--ok-f)} .puce.mid{color:var(--accent-t);background:var(--accent-f)} .puce.no{color:var(--bad);background:var(--bad-f)}
+.critere{border:1px solid var(--line);border-radius:10px;padding:12px 13px;margin-bottom:8px}
+.critere .row{margin-bottom:6px}
+.critere .sous{color:var(--muted);margin:6px 0}
+.conseil{font-size:.9rem;background:var(--blue-f);border-radius:8px;padding:8px 11px;margin-top:6px}
+.check label small{display:block;color:var(--muted);font-size:.84rem}
+.fichiers{list-style:none;margin:8px 0;padding:0;display:grid;gap:4px;font-size:.88rem}
+.fichiers li::before{margin-right:8px;font-weight:700}
+.fichiers li.lu::before{content:"✓";color:var(--ok)} .fichiers li.nonlu::before{content:"–";color:var(--muted)}
+.fichiers small{color:var(--muted)}
+.a-offre{border:1px solid var(--blue);background:var(--blue-f);border-radius:10px;padding:12px 14px;display:grid;gap:4px}
+.a-offre strong{font-size:.92rem;line-height:1.35}
+.a-offre .link-btn{justify-self:start;font-size:.84rem}
+.btn-analyser svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+@media (max-width:560px){ .frise li{grid-template-columns:1fr;gap:2px} .ligne{flex-direction:column} }
+
 /* questionnaire de première connexion */
 .onb{position:fixed;inset:0;z-index:50;background:#fff;display:flex;flex-direction:column}
 .onb-top{display:flex;justify-content:space-between;align-items:center;gap:16px;padding:16px clamp(18px,4vw,48px);border-bottom:1px solid var(--line)}
@@ -417,9 +455,10 @@
 
       <!-- Analyse -->
       <section class="view" id="v-analyse" aria-labelledby="h-analyse">
-        <div class="vhead"><div><h1 id="h-analyse">Analyser un dossier</h1><p>Téléchargez le dossier de consultation depuis l'avis (lien « Voir l'offre »), puis déposez les PDF ici. L'analyse arrive en quelques minutes, ici et par email.</p></div></div>
+        <div class="vhead"><div><h1 id="h-analyse">Analyser un dossier</h1><p>Cliquez « Analyser » sur une offre : l'agent récupère lui-même l'avis officiel et le dossier de consultation sur la plateforme de l'acheteur, puis les analyse. Vous pouvez aussi déposer les PDF du dossier ici. Le résultat arrive en quelques minutes, ici et par email.</p></div></div>
         <div class="demo-grid">
           <form class="panel apanel" id="f-analyse" novalidate>
+            <div class="a-offre" id="a-offre" hidden><span class="note">Offre liée</span><strong id="a-offre-txt"></strong><span class="note">Les PDF déposés ici seront lus avec l'avis officiel de cette offre.</span><button type="button" class="link-btn" id="a-offre-x">Ne plus lier cette offre</button></div>
             <div class="drop" id="drop">
               <strong>Glissez vos PDF ici</strong>
               <span class="note">règlement de consultation, CCAP, CCTP…</span>
@@ -699,7 +738,7 @@ function carte(o) {
     <div class="carte-pied">
       <span class="carte-quand">${SVG.horloge}${quand}</span>
       ${toDate(o.limite) ? `<button class="ic-btn" data-act="ics" aria-label="Ajouter à mon agenda">${SVG.agenda}</button>` : ""}
-      <button class="ic-btn" data-act="analyser" aria-label="Analyser le dossier">${SVG.analyse}</button>
+      <button class="btn alt btn-analyser" type="button" data-act="analyser" title="L'agent récupère l'avis et le dossier de consultation, puis les analyse">${SVG.analyse}Analyser</button>
       <button class="ic-btn" data-act="demander" aria-label="Demander à l'assistant">${SVG.chat}</button>
       <a class="btn" href="${esc(o.url)}" target="_blank" rel="noopener">Voir l'offre</a>
     </div>
@@ -730,7 +769,7 @@ document.addEventListener("click", e => {
   }
   if (b.dataset.act === "ics") telechargerIcs(o);
   if (b.dataset.act === "demander") { aller("assistant"); lierOffre(o); $("#chat-q").value = "Que penses-tu de cette offre pour nous ? Que faut-il préparer ?"; $("#chat-q").focus(); }
-  if (b.dataset.act === "analyser") { window.open(o.url, "_blank", "noopener"); aller("analyse"); $("#a-status").className = "status"; $("#a-status").textContent = "L'avis s'est ouvert dans un nouvel onglet : téléchargez-y le dossier de consultation, puis déposez les PDF ici."; }
+  if (b.dataset.act === "analyser") analyserOffre(o);
 });
 
 /* ---------- Tableau de bord ---------- */
@@ -914,16 +953,80 @@ $("#f-mdp").addEventListener("submit", async ev => {
 /* ---------- Analyse des dossiers ---------- */
 const verdictClass = d => { d = (d || "").toLowerCase(); return d.includes("pass") || d.includes("no") ? "v-no" : d.includes("tudier") ? "v-mid" : "v-go"; };
 const sevClass = n => { n = (n || "").toLowerCase(); return /^[ée]/.test(n) ? "high" : n.startsWith("m") ? "mid" : "low"; };
-const EXEMPLE_ANALYSE = {
-  acheteur: "Commune (exemple fictif)", objet: "Réhabilitation énergétique d'un groupe scolaire", procedure: "Procédure adaptée (MAPA)",
-  lots: ["Lot 3 : Électricité courants forts et faibles", "Lot 4 : Chauffage, ventilation, climatisation"],
-  date_limite: "Vendredi 4 décembre, 12 h 00", visite: "Obligatoire, attestation à joindre (RC art. 5.3)", duree: "8 mois, dont 1 mois de préparation", montant: "Non communiqué",
-  criteres: [{ critere: "Valeur technique (mémoire)", poids: 60 }, { critere: "Prix", poids: 40 }],
-  pieces: [{ piece: "DC1 / DC2 ou DUME", ref: "RC art. 6.1" }, { piece: "Attestation de visite signée", ref: "RC art. 5.3" }, { piece: "Attestations d'assurance RC et décennale de l'année", ref: "RC art. 6.1" }, { piece: "Mémoire technique (méthodologie, planning, moyens humains)", ref: "RC art. 6.2" }, { piece: "DPGF complétée pour chaque lot", ref: "RC art. 6.2" }],
-  risques: [{ niveau: "élevé", point: "Pénalités de retard élevées", explication: "1/1000e du montant du marché par jour, sans plafond (CCAP art. 14)." }, { niveau: "moyen", point: "Travaux en site occupé", explication: "Interventions limitées aux vacances scolaires (CCTP art. 2.4) : planning serré." }, { niveau: "faible", point: "Retenue de garantie", explication: "5 % remplaçable par une caution bancaire (CCAP art. 8)." }],
-  avis: { decision: "À étudier", raison: "Lots dans votre activité et votre zone, mais la visite obligatoire et le planning en site occupé demandent de mobiliser une équipe rapidement." }
-};
+// Exemple fictif affiché tant que le client n'a lancé aucune analyse
+const EXEMPLE_ANALYSE = {"version": 2, "synthese": {"decision": "À étudier", "adequation": "forte", "en_bref": "La commune remplace la production de chaleur d'un groupe scolaire de 2 400 m² par deux chaudières gaz à condensation, avec régulation et désembouage du réseau. Les travaux doivent se faire pendant les vacances d'été, en site occupé le reste du temps. Le mémoire technique pèse 60 % de la note : la méthode d'intervention en site occupé et le planning feront la différence.", "raison": "Le lot chauffage est en plein dans votre métier et à votre taille, mais la visite obligatoire, l'exigence d'une qualification Qualibat 5312 et le planning très serré sont à valider avant de vous engager.", "points_forts": ["Lot 4 dans votre cœur de métier (génie climatique)", "Montant estimé compatible avec votre chiffre d'affaires", "Chantier dans votre département"], "points_bloquants": ["Qualification Qualibat 5312 (ou équivalent) exigée : absente de votre profil", "Visite obligatoire le 20 novembre : à planifier tout de suite"]}, "identite": {"objet": "Réhabilitation énergétique du groupe scolaire Jules Ferry : remplacement de la production de chaleur", "acheteur": "Commune de Salon-de-Provence (exemple fictif)", "reference": "2026-TRX-045", "procedure": "Procédure adaptée (MAPA), art. R2123-1 du code de la commande publique", "type_marche": "Travaux", "forme": "Marché ordinaire à prix global et forfaitaire, allotissement en 4 lots", "lieu": "Groupe scolaire Jules Ferry, Salon-de-Provence (13)", "duree": "8 mois dont 1 mois de préparation", "reconduction": "Aucune", "montant": "Environ 320 000 € HT pour le lot 4", "variantes": "Interdites ; prestations supplémentaires éventuelles (PSE) : régulation connectée", "groupement_sous_traitance": "Groupement autorisé, conjoint avec mandataire solidaire ; sous-traitance autorisée"}, "calendrier": [{"etape": "Visite obligatoire", "date": "vendredi 20 novembre 2026 à 9 h", "detail": "Sur rendez-vous, attestation à joindre", "ref": "RC art. 5.3"}, {"etape": "Date limite des questions", "date": "vendredi 27 novembre 2026", "detail": "Via la plateforme", "ref": "RC art. 7"}, {"etape": "Date limite de remise des offres", "date": "vendredi 4 décembre 2026 à 12 h", "detail": "Dépôt électronique uniquement", "ref": "Avis, section IV"}, {"etape": "Validité des offres", "date": "120 jours", "detail": "", "ref": "RC art. 4.2"}, {"etape": "Démarrage prévu", "date": "janvier 2027 (préparation), travaux en juillet-août 2027", "detail": "", "ref": "CCAP art. 4"}], "lots": [{"numero": "1", "intitule": "Désamiantage", "montant": "Non précisé dans les documents lus", "pour_vous": "non", "pourquoi": "Hors de votre métier"}, {"numero": "4", "intitule": "Chauffage, ventilation, climatisation", "montant": "≈ 320 k€ HT", "pour_vous": "oui", "pourquoi": "Génie climatique, cœur de votre activité"}, {"numero": "3", "intitule": "Électricité", "montant": "≈ 90 k€ HT", "pour_vous": "partiel", "pourquoi": "Possible en sous-traitance ou en groupement"}], "conditions": [{"exigence": "Chiffre d'affaires minimum", "detail": "500 000 € HT par an sur les 3 derniers exercices", "votre_situation": "conforme", "ref": "RC art. 6.1"}, {"exigence": "Qualification Qualibat 5312 ou équivalent", "detail": "Ou références équivalentes de moins de 5 ans", "votre_situation": "manquant", "ref": "RC art. 6.1"}, {"exigence": "Références similaires", "detail": "3 chantiers de chaufferie de plus de 150 kW en 5 ans", "votre_situation": "à vérifier", "ref": "RC art. 6.1"}, {"exigence": "Assurance décennale", "detail": "Attestation de l'année en cours", "votre_situation": "à vérifier", "ref": "CCAP art. 9"}], "criteres": [{"critere": "Valeur technique", "poids": 60, "sous_criteres": ["Méthodologie en site occupé (25 %)", "Planning détaillé (20 %)", "Moyens humains et matériels (15 %)"], "conseil": "Détaillez la phase d'été jour par jour, les mesures pour maintenir le chauffage pendant la bascule et le nom du chef de chantier. Un planning Gantt clair rapporte des points."}, {"critere": "Prix", "poids": 40, "sous_criteres": [], "conseil": "Prix global et forfaitaire : chiffrez avec soin le désembouage et la mise en service, souvent sous-estimés."}], "pieces_candidature": [{"piece": "DC1 et DC2 ou DUME", "ref": "RC art. 6.1", "conseil": "Le DUME suffit et évite les deux formulaires"}, {"piece": "Attestations d'assurance RC et décennale", "ref": "RC art. 6.1", "conseil": ""}, {"piece": "Liste de références sur 5 ans avec attestations de bonne exécution", "ref": "RC art. 6.1", "conseil": "Choisissez des chaufferies de puissance comparable"}, {"piece": "Certificat Qualibat 5312 ou équivalent", "ref": "RC art. 6.1", "conseil": ""}], "pieces_offre": [{"piece": "Acte d'engagement signé", "ref": "RC art. 6.2", "conseil": ""}, {"piece": "Décomposition du prix global et forfaitaire (DPGF) lot 4", "ref": "RC art. 6.2", "conseil": "Ne modifiez pas la trame du tableur"}, {"piece": "Mémoire technique", "ref": "RC art. 6.2", "conseil": "10 pages maximum"}, {"piece": "Attestation de visite", "ref": "RC art. 5.3", "conseil": "Offre irrecevable sans elle"}], "finances": [{"sujet": "Avance", "detail": "5 % si le marché dépasse 50 000 € HT et 2 mois, sauf renonciation", "ref": "CCAP art. 5.2"}, {"sujet": "Retenue de garantie", "detail": "5 %, remplaçable par une garantie à première demande", "ref": "CCAP art. 8"}, {"sujet": "Délai de paiement", "detail": "30 jours", "ref": "CCAP art. 11"}, {"sujet": "Prix", "detail": "Ferme et actualisable", "ref": "CCAP art. 6"}, {"sujet": "Pénalités de retard", "detail": "1/1000e du montant par jour, sans plafond", "ref": "CCAP art. 14"}], "technique": [{"point": "Production de chaleur", "detail": "2 chaudières gaz à condensation de 150 kW en cascade", "ref": "CCTP art. 3.1"}, {"point": "Régulation", "detail": "Régulation par loi d'eau et gestion à distance", "ref": "CCTP art. 3.4"}, {"point": "Réseau", "detail": "Désembouage complet et équilibrage", "ref": "CCTP art. 3.6"}], "risques": [{"niveau": "élevé", "point": "Pénalités de retard sans plafond", "explication": "Un retard en septembre, à la rentrée, coûterait cher : prévoyez une marge dans le planning.", "ref": "CCAP art. 14"}, {"niveau": "moyen", "point": "Site occupé", "explication": "Interventions limitées aux vacances scolaires.", "ref": "CCTP art. 2.4"}, {"niveau": "faible", "point": "Retenue de garantie", "explication": "Remplaçable par une caution bancaire.", "ref": "CCAP art. 8"}], "questions_acheteur": ["Une solution provisoire de chauffage est-elle attendue en cas de dépassement du planning d'été ?", "La qualification Qualibat 5312 peut-elle être remplacée par des références de chantiers équivalents ?"], "plan_action": [{"quand": "Avant le 18 novembre", "action": "Prendre rendez-vous pour la visite obligatoire"}, {"quand": "Avant le 27 novembre", "action": "Poser les questions à l'acheteur sur la plateforme"}, {"quand": "Avant le 1er décembre", "action": "Finaliser mémoire technique et DPGF"}, {"quand": "Le 3 décembre au plus tard", "action": "Déposer l'offre complète (ne pas attendre le dernier jour)"}], "manquants": ["Plans des locaux techniques non fournis dans les pièces lues"], "sources": {"avis": "BOAMP", "dce_demande": true, "plateforme": "PLACE (État)", "fichiers": [{"nom": "RC.pdf", "lu": true, "pages": 12}, {"nom": "CCAP.pdf", "lu": true, "pages": 18}, {"nom": "CCTP lot 4.docx", "lu": true}, {"nom": "DPGF lot 4.xlsx", "lu": false, "raison": "tableur (bordereau de prix) : non lu, à remplir"}]}};
+/* Analyse complète (version 2) : une page claire, section par section */
+const SITU = { "conforme": ["ok", "Conforme"], "à vérifier": ["mid", "À vérifier"], "a verifier": ["mid", "À vérifier"], "manquant": ["no", "Manquant"] };
+const POURVOUS = { oui: ["ok", "Pour vous"], partiel: ["mid", "En partie"], non: ["no", "Hors activité"] };
+const puce = ([c, t]) => `<span class="puce ${c}">${esc(t)}</span>`;
+const refTxt = r => r ? `<span class="ref">${esc(r)}</span>` : "";
+const nonVide = l => Array.isArray(l) ? l.filter(x => x && (typeof x === "string" ? x.trim() : Object.values(x).some(v => String(v ?? "").trim()))) : [];
+function rendreAnalyseV2(r, exemple) {
+  const sy = r.synthese || {}, id = r.identite || {}, s = r.sources || {};
+  const sections = [];
+  const section = (cle, titre, html) => { if (html) sections.push([cle, titre, html]); };
+
+  section("bref", "En bref", `<div class="enbref ${verdictClass(sy.decision)}">
+      <p>${esc(sy.en_bref)}</p>
+      <p><strong>Notre avis :</strong> ${esc(sy.raison)}</p>
+      <div class="deux">
+        ${nonVide(sy.points_forts).length ? `<div><h4>Points forts</h4><ul class="plus">${nonVide(sy.points_forts).map(x => `<li>${esc(x)}</li>`).join("")}</ul></div>` : ""}
+        ${nonVide(sy.points_bloquants).length ? `<div><h4>Points à lever</h4><ul class="moins">${nonVide(sy.points_bloquants).map(x => `<li>${esc(x)}</li>`).join("")}</ul></div>` : ""}
+      </div></div>`);
+
+  const champs = [["Procédure", id.procedure], ["Type de marché", id.type_marche], ["Forme du marché", id.forme], ["Lieu d'exécution", id.lieu], ["Durée", id.duree], ["Reconduction", id.reconduction],
+    ["Montant estimé", id.montant], ["Variantes", id.variantes], ["Groupement, sous-traitance", id.groupement_sous_traitance], ["Référence", id.reference]].filter(([, v]) => v && String(v).trim());
+  section("marche", "Le marché", champs.length ? `<dl class="kv">${champs.map(([k, v]) => `<div><dt>${k}</dt><dd>${esc(v)}</dd></div>`).join("")}</dl>` : "");
+
+  section("dates", "Calendrier", nonVide(r.calendrier).length ? `<ol class="frise">${nonVide(r.calendrier).map(c => `<li><span class="quand">${esc(c.date || "Non précisé")}</span><div><strong>${esc(c.etape)}</strong>${c.detail ? `<p>${esc(c.detail)}</p>` : ""}${refTxt(c.ref)}</div></li>`).join("")}</ol>` : "");
+
+  section("lots", "Lots", nonVide(r.lots).length ? `<div class="lignes">${nonVide(r.lots).map(l => `<div class="ligne"><div><strong>${l.numero ? "Lot " + esc(l.numero) + " : " : ""}${esc(l.intitule)}</strong><p>${esc([l.montant, l.pourquoi].filter(Boolean).join(" · "))}</p></div>${POURVOUS[String(l.pour_vous || "").toLowerCase()] ? puce(POURVOUS[String(l.pour_vous).toLowerCase()]) : ""}</div>`).join("")}</div>` : "");
+
+  section("conditions", "Conditions pour candidater", nonVide(r.conditions).length ? `<p class="note">Comparées à votre profil Lumen. Complétez votre profil (qualifications, chiffre d'affaires, références) pour une comparaison plus juste.</p>
+    <div class="lignes">${nonVide(r.conditions).map(c => { const k = String(c.votre_situation || "").toLowerCase(); return `<div class="ligne"><div><strong>${esc(c.exigence)}</strong>${c.detail ? `<p>${esc(c.detail)}</p>` : ""}${refTxt(c.ref)}</div>${puce(SITU[k] || ["mid", c.votre_situation || "À vérifier"])}</div>`; }).join("")}</div>` : "");
+
+  section("criteres", "Critères de notation", nonVide(r.criteres).length ? `<div class="crit">${nonVide(r.criteres).map(c => `<div class="critere">
+      <div class="row"><span><strong>${esc(c.critere)}</strong></span><span>${c.poids !== "" && c.poids != null ? esc(c.poids) + " %" : ""}</span><div class="bar"><span style="width:${Math.max(0, Math.min(100, Number(c.poids) || 0))}%"></span></div></div>
+      ${nonVide(c.sous_criteres).length ? `<ul class="sous">${nonVide(c.sous_criteres).map(x => `<li>${esc(x)}</li>`).join("")}</ul>` : ""}
+      ${c.conseil ? `<p class="conseil"><strong>Conseil :</strong> ${esc(c.conseil)}</p>` : ""}</div>`).join("")}</div>` : "");
+
+  const listePieces = (l, pre) => `<ul class="check">${nonVide(l).map((p, i) => `<li><input type="checkbox" id="${pre}${i}"><label for="${pre}${i}">${esc(p.piece)}${refTxt(p.ref)}${p.conseil ? `<small>${esc(p.conseil)}</small>` : ""}</label></li>`).join("")}</ul>`;
+  const pc = nonVide(r.pieces_candidature), po = nonVide(r.pieces_offre);
+  section("pieces", `Pièces à fournir (${pc.length + po.length})`, pc.length + po.length ? `<div class="deux">
+      ${pc.length ? `<div><h4>Dossier de candidature</h4>${listePieces(pc, "pc")}</div>` : ""}
+      ${po.length ? `<div><h4>Offre</h4>${listePieces(po, "po")}</div>` : ""}</div>` : "");
+
+  section("finances", "Clauses financières", nonVide(r.finances).length ? `<dl class="kv">${nonVide(r.finances).map(f => `<div><dt>${esc(f.sujet)}</dt><dd>${esc(f.detail)}${refTxt(f.ref)}</dd></div>`).join("")}</dl>` : "");
+
+  section("technique", "Exigences techniques", nonVide(r.technique).length ? `<div class="lignes">${nonVide(r.technique).map(t => `<div class="ligne"><div><strong>${esc(t.point)}</strong><p>${esc(t.detail)}</p>${refTxt(t.ref)}</div></div>`).join("")}</div>` : "");
+
+  section("risques", "Points à risque", nonVide(r.risques).length ? nonVide(r.risques).map(k => `<div class="risk"><span class="sev ${sevClass(k.niveau)}">${esc(k.niveau)}</span><div><strong>${esc(k.point)}</strong><p>${esc(k.explication)} ${refTxt(k.ref)}</p></div></div>`).join("") : "");
+
+  section("questions", "Questions à poser à l'acheteur", nonVide(r.questions_acheteur).length ? `<ul class="puces">${nonVide(r.questions_acheteur).map(q => `<li>${esc(q)}</li>`).join("")}</ul>` : "");
+
+  section("plan", "Plan d'action", nonVide(r.plan_action).length ? `<ol class="frise">${nonVide(r.plan_action).map(p => `<li><span class="quand">${esc(p.quand)}</span><div>${esc(p.action)}</div></li>`).join("")}</ol>` : "");
+
+  const fichiers = (s.fichiers || []);
+  const lus = [s.avis ? "Avis officiel (" + s.avis + ")" : null, s.pdf_client ? "PDF que vous avez déposés" : null].filter(Boolean);
+  section("sources", "Ce que l'agent a lu", (lus.length || fichiers.length || s.dce_demande || nonVide(r.manquants).length) ? `
+    ${lus.length ? `<p>${lus.map(esc).join(" · ")}</p>` : ""}
+    ${s.dce_demande ? `<p>Dossier de consultation${s.plateforme ? " sur " + esc(s.plateforme) : ""} : ${fichiers.some(f => f.lu) ? "récupéré automatiquement" : "non récupéré" + (s.dce_raison ? " (" + esc(s.dce_raison.replace(/\.$/, "")) + ")" : "")}.${s.avis_url ? ` <a href="${esc(s.avis_url)}" target="_blank" rel="noopener">Ouvrir l'avis</a>` : ""}</p>` : ""}
+    ${fichiers.length ? `<ul class="fichiers">${fichiers.map(f => `<li class="${f.lu ? "lu" : "nonlu"}">${esc(f.nom)}${f.lu ? (f.pages ? ` <small>${f.pages} p.</small>` : "") + (f.tronque ? " <small>(lu en partie)</small>" : "") : ` <small>${esc(f.raison || "non lu")}</small>`}</li>`).join("")}</ul>` : ""}
+    ${nonVide(r.manquants).length ? `<h4>Informations absentes des documents lus</h4><ul class="puces">${nonVide(r.manquants).map(x => `<li>${esc(x)}</li>`).join("")}</ul>` : ""}` : "");
+
+  $("#result").innerHTML = `
+    <div class="result-head"><div style="min-width:0"><span class="badge">${exemple ? "Exemple sur un dossier fictif" : "Votre analyse"}</span>
+      <h3 style="margin-top:10px;font-size:1.3rem">${esc(id.objet)}</h3><p class="note" style="margin-top:4px">${esc(id.acheteur)}</p></div>
+      <div class="verdict-bloc"><span class="verdict ${verdictClass(sy.decision)}">${esc(sy.decision || "Avis non précisé")}</span>${sy.adequation ? `<small>Adéquation ${esc(sy.adequation)}</small>` : ""}</div></div>
+    <nav class="sommaire" aria-label="Sections de l'analyse">${sections.map(([k, t]) => `<button type="button" data-sec="${k}">${esc(t.replace(/ \(\d+\)$/, ""))}</button>`).join("")}</nav>
+    <div class="result-body">
+      ${sections.map(([k, t, h]) => `<section class="block" id="sec-${k}"><h3>${esc(t)}</h3>${h}</section>`).join("")}
+      ${exemple ? "" : `<p class="note">Analyse produite par une IA : elle vous aide à décider et à préparer votre réponse, mais ne remplace pas la lecture du règlement de consultation. Vérifiez toujours les dates et les pièces avant de déposer.</p>`}
+    </div>`;
+  $$("#result [data-sec]").forEach(b => b.onclick = () => $("#sec-" + b.dataset.sec)?.scrollIntoView({ behavior: "smooth", block: "start" }));
+}
 function rendreAnalyse(r, exemple) {
+  if (r && r.version === 2) return rendreAnalyseV2(r, exemple);   // nouvelles analyses
   const crit = (r.criteres || []).map(c => `<div class="row"><span>${esc(c.critere)}</span><span>${esc(c.poids)} %</span><div class="bar"><span style="width:${Math.max(0, Math.min(100, Number(c.poids) || 0))}%"></span></div></div>`).join("");
   $("#result").innerHTML = `
     <div class="result-head"><div style="min-width:0"><span class="badge">${exemple ? "Exemple sur un dossier fictif" : "Votre analyse"}</span>
@@ -971,9 +1074,11 @@ $("#f-analyse").addEventListener("submit", async ev => {
     if (text.replace(/\s/g, "").length < 200) { st.classList.add("err"); st.textContent = "Ces PDF ne contiennent presque pas de texte (documents scannés ?). Envoyez la version d'origine du dossier."; return; }
     if (text.length > 195000) text = text.slice(0, 195000);
     st.textContent = "Envoi du dossier…";
-    const { data, error } = await SB.from("analyses").insert({ texte: text }).select("id,cree_le,statut").single();
+    const lien = offreAnalyse && /^https?:\/\//.test(offreAnalyse.url || "") ? { avis_id: /^[A-Za-z0-9._:-]{1,120}$/.test(String(offreAnalyse.id)) ? String(offreAnalyse.id) : null, avis_url: String(offreAnalyse.url).slice(0, 1000), avis_objet: String(offreAnalyse.objet || "").slice(0, 500) } : {};
+    let { data, error } = await SB.from("analyses").insert({ texte: text, ...lien }).select("id,cree_le,statut").single();
+    if (error && lien.avis_url && error.code !== "P0001") ({ data, error } = await SB.from("analyses").insert({ texte: text }).select("id,cree_le,statut").single());
     if (error) { st.classList.add("err"); st.textContent = error.code === "P0001" ? error.message : traduireErreur(error); return; }
-    session.analyses = [{ ...data, objet: fichiers.map(f => f.name).join(", ").slice(0, 120) }, ...(session.analyses || [])];
+    session.analyses = [{ ...data, avis_objet: offreAnalyse?.objet, objet: offreAnalyse?.objet || fichiers.map(f => f.name).join(", ").slice(0, 120) }, ...(session.analyses || [])];
     majCompteurs(); rendreHistorique(); suivreAnalyse(data.id);
     st.classList.add("ok"); st.textContent = "Dossier envoyé. L'analyse arrive ici en quelques minutes, et par email.";
     fichiers = []; $("#files").innerHTML = ""; $("#pdfs").value = "";
@@ -985,20 +1090,21 @@ function rendreHistorique() {
   const l = (session.analyses || []).filter(a => a.id);
   $("#a-histo-p").hidden = !l.length;
   $("#a-histo").innerHTML = l.map(a => { const [t, c] = libStatut[a.statut || "terminee"] || libStatut.terminee;
-    return `<li><button type="button" data-analyse="${a.id}"><span>${esc(a.objet || "Dossier envoyé")}</span><span class="etat" style="color:${c}">${esc(a.decision || t)}</span><small>${esc(fmtJour(a.cree_le))}</small></button></li>`; }).join("");
+    return `<li><button type="button" data-analyse="${a.id}"><span>${esc(a.objet || a.avis_objet || "Dossier envoyé")}</span><span class="etat" style="color:${c}">${esc(a.decision || t)}</span><small>${esc(fmtJour(a.cree_le))}</small></button></li>`; }).join("");
 }
-function attenteAnalyse(statut) {
-  $("#result").innerHTML = `<div class="attente-analyse"><div class="roue" aria-hidden="true"></div><h3>${statut === "en_cours" ? "L'agent lit votre dossier…" : "Votre dossier est dans la file d'attente…"}</h3>
-    <p class="note">Comptez quelques minutes. Vous pouvez quitter cette page : l'analyse vous sera aussi envoyée par email.</p></div>`;
+function attenteAnalyse(statut, mode) {
+  const auto = mode === "auto";
+  $("#result").innerHTML = `<div class="attente-analyse"><div class="roue" aria-hidden="true"></div><h3>${statut === "en_cours" ? (auto ? "L'agent récupère l'avis et le dossier de consultation, puis les analyse…" : "L'agent lit votre dossier…") : "Votre demande est dans la file d'attente…"}</h3>
+    <p class="note">${auto ? "Comptez 2 à 5 minutes." : "Comptez quelques minutes."} Vous pouvez quitter cette page : l'analyse vous sera aussi envoyée par email.</p></div>`;
 }
 function afficherAnalyse(a) {
   if (a.statut === "terminee" && a.resultat) { rendreAnalyse(a.resultat, false); if (a.message) $("#result .result-body").insertAdjacentHTML("afterbegin", `<p class="note">${esc(a.message)}</p>`); }
   else if (a.statut === "erreur") $("#result").innerHTML = `<div class="attente-analyse"><h3>L'analyse n'a pas abouti</h3><p class="note">${esc(a.message || "Relancez l'analyse dans quelques minutes.")}</p></div>`;
-  else attenteAnalyse(a.statut);
+  else attenteAnalyse(a.statut, a.mode);
 }
 async function suivreAnalyse(id) {
   clearTimeout(suiviAnalyse);
-  const { data } = await SB.from("analyses").select("id,cree_le,objet,decision,statut,resultat,message").eq("id", id).single();
+  const { data } = await lireAnalyses(cols => SB.from("analyses").select(cols).eq("id", id).single());
   if (!data) return;
   session.analyses = (session.analyses || []).map(a => a.id === id ? { ...a, ...data, objet: data.objet || a.objet } : a);
   rendreHistorique(); afficherAnalyse(data);
@@ -1007,6 +1113,38 @@ async function suivreAnalyse(id) {
 }
 $("#a-histo").addEventListener("click", e => { const b = e.target.closest("[data-analyse]"); if (!b) return; const a = session.analyses.find(x => String(x.id) === b.dataset.analyse); if (!a) return;
   if (a.statut === "en_attente" || a.statut === "en_cours") suivreAnalyse(a.id); else afficherAnalyse(a); $("#result").scrollIntoView({ behavior: "smooth", block: "start" }); });
+
+/* ---------- Bouton « Analyser » d'une offre : l'agent récupère lui-même l'avis et le DCE ---------- */
+let offreAnalyse = null;   // offre liée aux PDF déposés
+function lierOffreAnalyse(o) { offreAnalyse = o || null; $("#a-offre").hidden = !o; $("#a-offre-txt").textContent = o ? o.objet : ""; }
+$("#a-offre-x").onclick = () => lierOffreAnalyse(null);
+async function analyserOffre(o, relancer) {
+  aller("analyse"); lierOffreAnalyse(o);
+  const st = $("#a-status"); st.className = "status";
+  if (DEMO || !SB) { st.classList.add("err"); st.textContent = "Mode démonstration : l'analyse automatique fonctionne une fois le site relié à la base."; return; }
+  if (!/^https?:\/\//.test(o.url || "")) { st.classList.add("err"); st.textContent = "Cette offre n'a pas d'adresse en ligne : déposez les PDF du dossier ci-dessus."; return; }
+  const id = /^[A-Za-z0-9._:-]{1,120}$/.test(String(o.id)) ? String(o.id) : null;
+  const memes = (session.analyses || []).filter(a => id && a.avis_id === id);
+  const enCours = memes.find(a => a.statut === "en_attente" || a.statut === "en_cours");
+  if (enCours) { suivreAnalyse(enCours.id); st.textContent = "Cette offre est déjà en cours d'analyse."; return; }
+  const faite = memes.find(a => a.statut === "terminee" && a.resultat);
+  if (faite && !relancer) {
+    afficherAnalyse(faite);
+    st.innerHTML = `Offre déjà analysée le ${esc(fmtJour(faite.cree_le))}. <button type="button" class="link-btn" id="a-relancer">Relancer l'analyse</button>`;
+    $("#a-relancer").onclick = () => analyserOffre(o, true);
+    return;
+  }
+  st.textContent = "Lancement de l'analyse…";
+  const { data, error } = await SB.from("analyses").insert({ mode: "auto", avis_id: id, avis_url: String(o.url).slice(0, 1000), avis_objet: String(o.objet || "").slice(0, 500) }).select("id,cree_le,statut").single();
+  if (error) {
+    st.classList.add("err");
+    st.textContent = error.code === "P0001" ? error.message : /column|permission|mode|avis_/i.test(error.message || "") ? "L'analyse automatique n'est pas encore activée sur votre espace. Déposez les PDF du dossier en attendant." : traduireErreur(error);
+    return;
+  }
+  session.analyses = [{ ...data, mode: "auto", avis_id: id, avis_objet: o.objet }, ...(session.analyses || [])];
+  majCompteurs(); rendreHistorique(); suivreAnalyse(data.id);
+  st.classList.add("ok"); st.textContent = "C'est parti : l'agent récupère l'avis officiel et le dossier de consultation, puis les analyse. Le résultat arrive ici et par email.";
+}
 
 /* ---------- Assistant ---------- */
 let messages = [], offreLiee = null, suiviChat = null, chatCharge = false;
