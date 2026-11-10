@@ -84,11 +84,15 @@ const Compte = {
   },
   async charger() {
     if (DEMO) { const d = Demo.get(); return { profil: d.profil, marches: d.marches, analyses: d.analyses, suivies: d.suivies }; }
+    // Toujours filtrer sur le compte connecté : un administrateur a le droit de lire les lignes de tous les clients.
+    const { data: { session } } = await SB.auth.getSession();
+    const uid = session?.user?.id;
+    if (!uid) throw new Error("Invalid login credentials");
     const [p, m, a, s] = await Promise.all([
-      SB.from("profils").select("*").maybeSingle(),
-      SB.from("offres_envoyees").select("*").order("date_envoi", { ascending: false }).limit(200),
-      lireAnalyses(cols => SB.from("analyses").select(cols).order("cree_le", { ascending: false }).limit(50)),
-      SB.from("offres_suivies").select("*")
+      SB.from("profils").select("*").eq("id", uid).maybeSingle(),
+      SB.from("offres_envoyees").select("*").eq("client_id", uid).order("date_envoi", { ascending: false }).limit(200),
+      lireAnalyses(cols => SB.from("analyses").select(cols).eq("client_id", uid).order("cree_le", { ascending: false }).limit(50)),
+      SB.from("offres_suivies").select("*").eq("client_id", uid)
     ]);
     if (p.error) throw p.error;
     if (!p.data) throw new Error("profil absent");   // compte sans fiche entreprise (création automatique non faite)

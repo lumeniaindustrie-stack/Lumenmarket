@@ -1160,7 +1160,8 @@ function rendreFil() {
   return enAttente;
 }
 async function chargerMessages() {
-  const { data } = await SB.from("messages_chat").select("id,cree_le,role,contenu,avis_id,statut").order("cree_le", { ascending: false }).limit(60);
+  const { data: { session: ses } } = await SB.auth.getSession();   // un administrateur lit les messages de tous : on filtre sur soi
+  const { data } = await SB.from("messages_chat").select("id,cree_le,role,contenu,avis_id,statut").eq("client_id", ses?.user?.id).order("cree_le", { ascending: false }).limit(60);
   messages = (data || []).reverse();
   const attente = rendreFil();
   clearTimeout(suiviChat);
