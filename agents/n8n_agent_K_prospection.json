@@ -340,6 +340,90 @@
       }
     },
     {
+      "id": "k7j",
+      "name": "Journal (non envoyé)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1620,
+        220
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "https://jsmffmtzoauvqltshiyg.supabase.co/rest/v1/agent_runs",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "supabaseApi",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Prefer",
+              "value": "return=minimal"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({agent:'K-prospection', debut:$now.toISO(), fin:$now.toISO(), statut:'vide', entrees:1, sorties:0, details:{entreprise_id:$json.id}, message:null}) }}",
+        "options": {
+          "timeout": 60000
+        }
+      },
+      "credentials": {
+        "supabaseApi": {
+          "id": "",
+          "name": "Supabase Lumen"
+        }
+      },
+      "continueOnFail": true
+    },
+    {
+      "id": "k8j",
+      "name": "Journal (envoi)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2580,
+        -100
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "https://jsmffmtzoauvqltshiyg.supabase.co/rest/v1/agent_runs",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "supabaseApi",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Prefer",
+              "value": "return=minimal"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({agent:'K-prospection', debut:$now.toISO(), fin:$now.toISO(), statut:'ok', entrees:1, sorties:1, details:{entreprise_id:$('Composer le mail final').item.json.entreprise_id, offer_id:$('Composer le mail final').item.json.offer_id}, message:null}) }}",
+        "options": {
+          "timeout": 60000
+        }
+      },
+      "credentials": {
+        "supabaseApi": {
+          "id": "",
+          "name": "Supabase Lumen"
+        }
+      },
+      "continueOnFail": true
+    },
+    {
       "id": "k9",
       "name": "Retours Brevo (webhook)",
       "type": "n8n-nodes-base.webhook",
@@ -559,6 +643,28 @@
         [
           {
             "node": "Enregistrer l’envoi",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Enregistrer l’envoi": {
+      "main": [
+        [
+          {
+            "node": "Journal (envoi)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Noter non envoyé": {
+      "main": [
+        [
+          {
+            "node": "Journal (non envoyé)",
             "type": "main",
             "index": 0
           }
