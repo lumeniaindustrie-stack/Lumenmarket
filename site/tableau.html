@@ -271,7 +271,11 @@
 @media (max-width:640px){ .pgrid{grid-template-columns:1fr} }
 .kv.big{grid-template-columns:repeat(auto-fit,minmax(240px,1fr));padding:20px;gap:20px}
 .kv.big dd{font-weight:500}
-.abo{padding:26px;display:grid;gap:16px;max-width:620px}
+.abo-grille{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:18px;align-items:stretch;max-width:1120px}
+.abo{padding:26px;display:flex;flex-direction:column;gap:16px}
+.abo .pied{margin-top:auto}
+.abo .type{font-size:.78rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--blue)}
+.abo ul{margin:0;padding-left:18px;display:grid;gap:6px;color:var(--muted);font-size:.93rem}
 .abo .amount{font-size:2.2rem;font-weight:600;line-height:1;letter-spacing:-.02em}
 .abo .amount small{font-size:.95rem;font-weight:500;color:var(--muted)}
 
@@ -541,7 +545,11 @@
       <!-- Abonnement -->
       <section class="view" id="v-abonnement" aria-labelledby="h-abo">
         <div class="vhead"><div><h1 id="h-abo">Abonnement</h1></div></div>
-        <div class="panel abo" id="abo"></div>
+        <div class="abo-grille">
+          <div class="panel abo" id="abo"></div>
+          <div class="panel abo" id="abo-accomp"></div>
+          <div class="panel abo" id="abo-diag"></div>
+        </div>
       </section>
     </main>
   </div>
@@ -907,12 +915,20 @@ function rendreProfil() {
       ${essai ? (CFG.STRIPE_ABONNEMENT ? `<a class="btn yellow" href="${esc(CFG.STRIPE_ABONNEMENT)}?prefilled_email=${encodeURIComponent(c.email)}" target="_blank" rel="noopener">S'abonner maintenant</a>` : `<a class="btn yellow" href="mailto:${esc(CFG.EMAIL)}?subject=${encodeURIComponent("Abonnement – " + (c.entreprise || ""))}">S'abonner</a>`) : ""}
       <a class="btn alt" href="mailto:${esc(CFG.EMAIL)}?subject=${encodeURIComponent((essai ? "Arrêter mon essai – " : "Résilier mon abonnement – ") + (c.entreprise || ""))}">${essai ? "Arrêter mon essai" : "Résilier"}</a>
     </div>
-    <p class="note">Sans engagement : l'arrêt prend effet à la fin du mois en cours.</p>
-    <div style="border-top:1px solid var(--line);padding-top:16px;display:grid;gap:8px">
-      <h3>Accompagnement personnalisé, 500 € HT</h3>
-      <p class="muted">Un développeur Lumen disponible par message et par téléphone, qui modifie votre tableau de bord et vos agents sur demande.</p>
-      <p><a href="sur-mesure.html?offre=accompagnement">Demander l'accompagnement</a></p>
-    </div>`;
+    <p class="note pied">Sans engagement : l'arrêt prend effet à la fin du mois en cours.</p>`;
+  $("#abo-accomp").innerHTML = `
+    <span class="type">En option</span>
+    <h2 style="font-size:1.3rem">Accompagnement personnalisé</h2>
+    <div class="amount">500 € <small>HT</small></div>
+    <p class="muted">Un développeur Lumen disponible par message et par téléphone, qui modifie votre tableau de bord et vos agents sur demande.</p>
+    <p class="pied"><a href="sur-mesure.html?offre=accompagnement">Demander l'accompagnement</a></p>`;
+  $("#abo-diag").innerHTML = `
+    <span class="type">Sur place</span>
+    <h2 style="font-size:1.3rem">Diagnostic IA de votre entreprise</h2>
+    <div class="amount">300 € <small>HT, une fois</small></div>
+    <p class="muted">Un ingénieur IA Lumen vient dans vos locaux, observe votre façon de travailler et repère les tâches qu'un agent IA peut prendre en charge.</p>
+    <ul><li>Les tâches répétitives à automatiser, classées par temps gagné</li><li>Un plan d'action chiffré pour mettre l'IA en place chez vous</li><li>Ensuite, si vous le souhaitez, nous construisons et installons les agents</li></ul>
+    <div class="pied"><a class="btn alt" href="sur-mesure.html?offre=diagnostic">Demander un diagnostic</a></div>`;
 }
 
 brancherCurseur("pm-curseur", "p-montant", "pm-sortie");
