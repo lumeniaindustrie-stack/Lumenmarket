@@ -569,12 +569,18 @@ b_conn["Préparer le journal"] = {"main": [[C("Écrire le journal")]]}
 agent_b = {"name": "Lumen – Agent B : tri des offres par client (Ollama)", "nodes": b_nodes, "connections": b_conn,
            "settings": {"executionOrder": "v1"}, "pinData": {}}
 
-json.dump(agent_e9, open(os.path.join(OUT, "n8n_agent_E9_boamp.json"), "w", encoding="utf-8"), ensure_ascii=False, indent=2)
-json.dump(agent_a, open(os.path.join(OUT, "n8n_agent_A_collecteur.json"), "w", encoding="utf-8"), ensure_ascii=False, indent=2)
-json.dump(agent_b, open(os.path.join(OUT, "n8n_agent_B_tri_ollama.json"), "w", encoding="utf-8"), ensure_ascii=False, indent=2)
-json.dump(agent_f, open(os.path.join(OUT, "n8n_agent_F_commercial.json"), "w", encoding="utf-8"), ensure_ascii=False, indent=2)
-for nm, js in [("a_collecte", A_COLLECTE), ("a_journal", A_JOURNAL), ("a_reperes", A_REPERES), ("a_journal_coord", A_JOURNAL_COORD),
-               ("b_reglages", B_REGLAGES), ("b_preparer", B_PREPARER), ("b_lire", B_LIRE), ("b_lignes", B_LIGNES), ("b_emails", B_EMAILS), ("b_journal", B_JOURNAL),
-               ("f_cherche", F_CHERCHE), ("f_filtrer", F_FILTRER), ("f_enrichir", F_ENRICHIR), ("f_journal", F_JOURNAL)]:
-    open(os.path.join(OUT, f"_chk_{nm}.js"), "w").write("async function f(){" + js + "}")
-print("ok")
+# Écriture des fichiers : seulement quand ce script est lancé directement.
+# Les autres générateurs (build_agent_H_stripe.py, build_agent_R_demandes.py) importent ses fonctions
+# sans rien régénérer. ATTENTION : la version de l'Agent B produite ici est ANCIENNE ; l'Agent B à jour
+# (rattrapage, 2 offres par email, 2 emails par jour, nouvelle mise en page) a été modifié directement dans
+# n8n_agent_B_tri_ollama.json. Ne pas relancer ce script sans reporter ces changements, sinon ils seront perdus.
+if __name__ == "__main__":
+    json.dump(agent_e9, open(os.path.join(OUT, "n8n_agent_E9_boamp.json"), "w", encoding="utf-8"), ensure_ascii=False, indent=2)
+    json.dump(agent_a, open(os.path.join(OUT, "n8n_agent_A_collecteur.json"), "w", encoding="utf-8"), ensure_ascii=False, indent=2)
+    json.dump(agent_b, open(os.path.join(OUT, "n8n_agent_B_tri_ollama.json"), "w", encoding="utf-8"), ensure_ascii=False, indent=2)
+    json.dump(agent_f, open(os.path.join(OUT, "n8n_agent_F_commercial.json"), "w", encoding="utf-8"), ensure_ascii=False, indent=2)
+    for nm, js in [("a_collecte", A_COLLECTE), ("a_journal", A_JOURNAL), ("a_reperes", A_REPERES), ("a_journal_coord", A_JOURNAL_COORD),
+                   ("b_reglages", B_REGLAGES), ("b_preparer", B_PREPARER), ("b_lire", B_LIRE), ("b_lignes", B_LIGNES), ("b_emails", B_EMAILS), ("b_journal", B_JOURNAL),
+                   ("f_cherche", F_CHERCHE), ("f_filtrer", F_FILTRER), ("f_enrichir", F_ENRICHIR), ("f_journal", F_JOURNAL)]:
+        open(os.path.join(OUT, f"_chk_{nm}.js"), "w").write("async function f(){" + js + "}")
+    print("ok")
