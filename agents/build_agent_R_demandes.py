@@ -15,7 +15,7 @@ S = SUPABASE_URL + "/rest/v1/"
 
 PREPARER = r"""
 // ===== RÉGLAGE =====
-const EMAIL_ADMIN = 'marinsauzay991@gmail.com';   // qui reçoit les nouvelles demandes
+const EMAIL_ADMIN = 'lumeniaindustrie@gmail.com';   // qui reçoit les nouvelles demandes
 // ===================
 const demandes = $input.all().map(i => i.json).filter(d => d && d.id && d.email);
 if (!demandes.length) return [];
