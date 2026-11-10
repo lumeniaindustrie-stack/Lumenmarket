@@ -125,23 +125,30 @@ const MOTS_ACTIVITE = {
   "électricité": "électri, éclairage, courant faible, borne de recharge",
   "génie climatique": "chauffage, climatisation, ventilation, CVC, pompe à chaleur, chaufferie",
   "plomberie": "plomberie, sanitaire, réseau d'eau",
-  "maçonnerie": "maçonnerie, gros œuvre, gros oeuvre, réhabilitation, démolition",
-  "menuiserie": "menuiserie, fenêtre, porte, serrurerie, métallerie",
-  "peinture": "peinture, revêtement, ravalement, façade",
+  "maçonnerie": "maçonnerie, gros œuvre, gros oeuvre, démolition",
+  "menuiserie": "menuiserie, fenêtres, serrurerie, métallerie",
+  "peinture": "peinture, ravalement, façade, revêtements de sol",
   "plâtrerie": "plâtrerie, cloison, faux plafond, doublage",
   "couverture": "couverture, toiture, étanchéité, charpente",
-  "terrassement": "terrassement, VRD, voirie, assainissement, réseaux",
+  "terrassement": "terrassement, VRD, voirie, assainissement",
   "nettoyage": "nettoyage, propreté, entretien des locaux, vitrerie",
   "espaces verts": "espaces verts, paysager, élagage, tonte, arbres",
   "informatique": "informatique, logiciel, numérique, infogérance, matériel informatique",
   "sécurité": "gardiennage, surveillance, sécurité incendie, vidéoprotection, contrôle d'accès",
-  "transport": "transport, déménagement, logistique, livraison, véhicule",
+  "transport": "transport, déménagement, logistique",
   "restauration": "restauration, repas, traiteur, denrées, alimentaire",
-  "formation": "formation, accompagnement",
-  "études": "études, conseil, assistance à maîtrise d'ouvrage, AMO, audit, maîtrise d'œuvre, diagnostic",
-  "fournitures": "fournitures, mobilier, équipement, matériel",
+  "formation": "formation",
+  "études": "études, assistance à maîtrise d'ouvrage, AMO, maîtrise d'œuvre",
+  "fournitures": "fournitures, mobilier",
   "communication": "communication, impression, imprimerie, signalétique, événementiel"
 };
+// Mots trop généraux : ils apparaissent dans presque tous les avis (« le marché porte sur… ») et ramènent
+// des offres hors activité. Ils sont ignorés dans les recherches, même s'ils figurent dans un ancien profil.
+const MOTS_TROP_LARGES = new Set(["porte", "rehabilitation", "vehicule", "livraison", "equipement", "materiel", "accompagnement", "reseaux", "reseau", "diagnostic", "audit", "revetement", "conseil", "travaux", "services", "prestations", "marche", "entretien", "maintenance", "fourniture"]);
+const sansAccent = s => String(s || "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim();
+const motsUtiles = liste => liste.filter(m => !MOTS_TROP_LARGES.has(sansAccent(m)));
+// Le mot-clé qui a fait remonter une offre (pour expliquer au client pourquoi elle lui est proposée)
+const motTrouve = (objet, mots) => { const t = sansAccent(objet); return mots.find(m => t.includes(sansAccent(m))) || null; };
 const motsAuto = metiers => { const m = String(metiers || "").toLowerCase(); return Object.entries(MOTS_ACTIVITE).filter(([k]) => m.includes(k)).map(([, v]) => v).join(", "); };
 
 /* ---------- Départements ---------- */

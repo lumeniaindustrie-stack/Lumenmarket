@@ -232,6 +232,12 @@
 .btn-analyser svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 @media (max-width:560px){ .frise li{grid-template-columns:1fr;gap:2px} .ligne{flex-direction:column} }
 
+/* explications : pourquoi une offre est proposée, ce qui pilote la veille */
+.carte-pourquoi{font-size:.84rem;color:var(--accent-t);background:var(--accent-f);border-radius:8px;padding:7px 10px;margin:0}
+.p-pilote{grid-column:1/-1;border:1px solid var(--line);border-radius:12px;padding:14px 16px;display:grid;gap:6px;background:var(--sheet-2);margin-top:6px}
+.p-pilote h3{font-size:.95rem}
+.p-pilote p{font-size:.9rem;margin:0}
+.p-alerte{color:var(--accent-t);background:var(--accent-f);border-radius:8px;padding:7px 10px}
 /* questionnaire de première connexion */
 .onb{position:fixed;inset:0;z-index:50;background:#fff;display:flex;flex-direction:column}
 .onb-top{display:flex;justify-content:space-between;align-items:center;gap:16px;padding:16px clamp(18px,4vw,48px);border-bottom:1px solid var(--line)}
@@ -408,7 +414,7 @@
             </div>
             <div class="panel">
               <div class="panel-head"><h2>Ce mois-ci</h2></div>
-              <div class="figs"><div><strong id="f-recues">0</strong><span>offres reçues</span></div><div><strong id="f-suivies">0</strong><span>offres suivies</span></div><div><strong id="f-analyses">0</strong><span>dossiers analysés</span></div></div>
+              <div class="figs"><div><strong id="f-recues">0</strong><span>reçues par la veille</span></div><div><strong id="f-suivies">0</strong><span>offres suivies</span></div><div><strong id="f-analyses">0</strong><span>dossiers analysés</span></div></div>
             </div>
           </div>
         </div>
@@ -529,6 +535,7 @@
               <div class="field full"><span class="lbl" id="l-ptypes">Types de marchés</span>
                 <div class="chips" id="p-types" role="group" aria-labelledby="l-ptypes"><label><input type="checkbox" value="TRAVAUX">Travaux</label><label><input type="checkbox" value="SERVICES">Services</label><label><input type="checkbox" value="FOURNITURES">Fournitures</label></div></div>
             </div>
+            <div class="p-pilote" id="p-pilote" aria-live="polite"></div>
             <div class="pfoot"><button class="btn yellow" type="submit" id="p-go">Enregistrer</button><p class="status" id="p-status" role="status"></p></div>
           </form>
           <form class="panel pform" id="f-mdp" novalidate>
@@ -654,7 +661,8 @@ const enOffre = m => ({
   resume: m.resume || "", score: m.score, recu: m.date_envoi || m.date, type: m.type || ""
 });
 const proposees = () => (session?.marches || []).map(enOffre);
-const motsProfil = () => { const c = session.compte; return [...new Set(String((c.mots_cles || "") + "," + (c.metiers || "")).split(/[,;]+/).map(s => s.trim()).filter(s => s.length > 2))].slice(0, 8).join(", "); };
+const listeMotsProfil = (c = session.compte) => motsUtiles([...new Set(String((c.metiers || "") + "," + (c.mots_cles || "")).split(/[,;]+/).map(s => s.trim()).filter(s => s.length > 2))]);
+const motsProfil = () => listeMotsProfil().slice(0, 8).join(", ");
 const typesProfil = () => String(session.compte.types || "").split(/[,\s]+/).filter(Boolean);
 const estSuivie = id => suivies.some(o => String(o.id) === String(id));
 
@@ -738,6 +746,7 @@ function carte(o) {
       <button class="coeur" data-act="suivre" aria-pressed="${suivie}" aria-label="${suivie ? "Ne plus suivre" : "Suivre cette offre"}">${SVG.coeur}</button></div>
     <p class="carte-lieu">${SVG.pin}<span>${esc(lieu)}</span></p>
     ${o.resume ? `<p class="carte-resume">${esc(o.resume)}</p>` : ""}
+    ${!o.recu && o.motTrouve ? `<p class="carte-pourquoi">Suggestion trouvée avec le mot-clé « ${esc(o.motTrouve)} » : vérifiez que le lot concerné correspond à votre activité.</p>` : ""}
     <dl class="carte-chiffres">
       <div><dt>Montant estimé</dt><dd>${SVG.euro}<span>${esc(o.montant ? o.montantTxt : "Non communiqué")}</span></dd></div>
       <div><dt>Date limite</dt><dd>${SVG.cal}<span>${esc(dateLim)}</span></dd></div>
@@ -804,11 +813,11 @@ function rendreAccueil() {
     $("#dern-titre").textContent = "Dernières offres proposées"; $("#dern-info").hidden = true;
     lister($("#dernieres"), p.slice(0, 8), "");
   } else {
-    $("#dern-titre").textContent = "Offres qui correspondent à votre profil";
-    $("#dern-info").hidden = false; $("#dern-info").textContent = "Votre première veille arrive le prochain matin de semaine. En attendant, voici les offres ouvertes trouvées avec vos mots-clés.";
+    $("#dern-titre").textContent = "Suggestions en attendant votre première veille";
+    $("#dern-info").hidden = false; $("#dern-info").textContent = "Votre première veille arrive le prochain matin de semaine. En attendant, voici des offres ouvertes trouvées par simple recherche de vos mots-clés : elles ne sont pas encore triées par l'IA, et ne comptent donc pas comme offres reçues. Vérifiez à chaque fois le lot qui vous concerne.";
     $("#dernieres").innerHTML = `<p class="empty">Recherche des offres…</p>`;
     chercherOffres({ q: motsProfil(), deps: parseDeps(c.departements), types: typesProfil(), limit: 8 })
-      .then(r => { propositionsAuto = r.offres; lister($("#dernieres"), r.offres, "Aucune offre ouverte ne correspond pour l'instant. Essayez la recherche avec d'autres mots."); rendreEcheances(); })
+      .then(r => { const mots = listeMotsProfil(); r.offres.forEach(o => o.motTrouve = motTrouve(o.objet, mots)); propositionsAuto = r.offres; lister($("#dernieres"), r.offres, "Aucune offre ouverte ne correspond pour l'instant. Essayez la recherche avec d'autres mots."); rendreEcheances(); })
       .catch(() => { $("#dernieres").innerHTML = `<p class="empty">Le BOAMP ne répond pas pour l'instant. Réessayez dans quelques minutes.</p>`; });
   }
   rendreEcheances(); majCompteurs();
@@ -897,6 +906,24 @@ $("#cal-next").onclick = () => { mois.setMonth(mois.getMonth() + 1); rendreCalen
 $("#cal-today").onclick = () => { mois = new Date(); mois.setDate(1); jourSel = cleJour(new Date()); rendreCalendrier(); };
 
 /* ---------- Profil et abonnement ---------- */
+// Résumé de ce qui pilote réellement le tri, avec une alerte si le profil est trop large
+function majPilote() {
+  const c = { metiers: $("#p-metiers").value, mots_cles: $("#p-mots").value };
+  const tous = [...new Set(String(c.metiers + "," + c.mots_cles).split(/[,;]+/).map(s => s.trim()).filter(s => s.length > 2))];
+  const utiles = motsUtiles(tous), ignores = tous.filter(m => !utiles.includes(m));
+  const deps = parseDeps($("#p-deps").value), nbAct = String(c.metiers).split(/[,;]+/).filter(s => s.trim()).length;
+  const alertes = [];
+  if (!deps.length) alertes.push("Aucun département : vous recevez les offres de toute la France. Indiquez les départements où vous intervenez pour des offres plus proches.");
+  if (nbAct >= 3) alertes.push("Vos activités sont variées : la veille est plus large et certaines offres seront moins pertinentes. Ajoutez des mots-clés précis, et des exclusions dans « Présentation de l'entreprise ».");
+  if (!utiles.length) alertes.push("Aucun mot-clé exploitable : ajoutez votre activité ou des mots-clés précis.");
+  $("#p-pilote").innerHTML = `<h3>Ce qui pilote votre veille</h3>
+    <p><strong>Mots recherchés dans les offres :</strong> ${utiles.length ? utiles.map(esc).join(", ") : "aucun"}</p>
+    ${ignores.length ? `<p class="note">Ignorés car trop généraux : ${ignores.map(esc).join(", ")}.</p>` : ""}
+    <p><strong>Zone :</strong> ${deps.length ? deps.map(nomDep).map(esc).join(", ") : "toute la France"}</p>
+    <p class="note">L'IA lit ensuite chaque offre pré-sélectionnée et ne vous envoie que celles qu'elle juge proches de votre activité (pertinence 3/5 ou plus).</p>
+    ${alertes.map(a => `<p class="p-alerte">${esc(a)}</p>`).join("")}`;
+}
+["p-metiers", "p-mots", "p-deps"].forEach(id => $("#" + id).addEventListener("input", majPilote));
 function rendreProfil() {
   const c = session.compte;
   $("#p-entreprise").value = c.entreprise || ""; $("#p-siren").value = c.siren || ""; $("#p-email").value = c.email || "";
@@ -905,6 +932,7 @@ function rendreProfil() {
   $("#p-deps").value = c.departements || ""; $("#p-deps").dispatchEvent(new Event("input"));
   // Adresse de réception : seulement si la colonne existe (supabase_inscription_v2.sql exécuté)
   $("#p-veille-bloc").hidden = !("email_veille" in c); $("#p-veille").value = c.email_veille || "";
+  majPilote();
   $("#p-montant").regler(c.montant_min || 0);
   const t = typesProfil(); $$("#p-types input").forEach(i => i.checked = !t.length || t.includes(i.value));
   $("#p-suppr").textContent = CFG.EMAIL; $("#p-suppr").href = `mailto:${CFG.EMAIL}?subject=${encodeURIComponent("Supprimer mon compte – " + (c.entreprise || c.email))}`;
@@ -1171,9 +1199,15 @@ const lienAuto = t => esc(t).replace(/https?:\/\/[^\s<)]+/g, u => `<a href="${u}
 function rendreFil() {
   const f = $("#fil");
   const html = messages.map(m => `<div class="msg ${m.role}">${m.avis_id && m.role === "client" && index.get(String(m.avis_id)) ? `<span class="sur">À propos de : ${esc(index.get(String(m.avis_id)).objet)}</span>` : ""}${m.role === "agent" ? lienAuto(m.contenu) : esc(m.contenu)}<small>${new Date(m.cree_le).toLocaleString("fr-FR", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" })}</small></div>`).join("");
-  const enAttente = messages.some(m => m.role === "client" && (m.statut === "en_attente" || m.statut === "en_cours"));
-  f.innerHTML = (html || `<div class="msg agent">Bonjour ! Je connais les offres que je vous ai proposées et je peux chercher dans les offres ouvertes de votre zone. Que voulez-vous savoir ?</div>`)
-    + (enAttente ? `<div class="msg agent attente">L'assistant réfléchit…</div>` : "");
+  // Question sans réponse : on prévient au bout de 90 s, et au bout de 5 min on arrête d'attendre et on propose de la reposer
+  const pendante = messages.filter(m => m.role === "client" && (m.statut === "en_attente" || m.statut === "en_cours")).at(-1);
+  const age = pendante ? (Date.now() - new Date(pendante.cree_le)) / 1000 : 0;
+  const enAttente = !!pendante && age < 300;
+  const bulle = !pendante ? "" : age < 90 ? `<div class="msg agent attente">L'assistant réfléchit…</div>`
+    : age < 300 ? `<div class="msg agent attente">L'assistant met plus de temps que d'habitude. La réponse s'affichera ici dès qu'elle sera prête.</div>`
+    : `<div class="msg agent">L'assistant n'a pas pu répondre pour le moment. <button type="button" class="link-btn" id="chat-relancer">Reposer la question</button> ou <a href="mailto:${esc(CFG.EMAIL)}">écrivez-nous</a>.</div>`;
+  f.innerHTML = (html || `<div class="msg agent">Bonjour ! Je connais les offres que je vous ai proposées et je peux chercher dans les offres ouvertes de votre zone. Que voulez-vous savoir ?</div>`) + bulle;
+  if ($("#chat-relancer")) $("#chat-relancer").onclick = () => { $("#chat-q").value = pendante.contenu; if (pendante.avis_id && index.get(String(pendante.avis_id))) lierOffre(index.get(String(pendante.avis_id))); $("#f-chat").requestSubmit(); };
   $("#suggest").hidden = messages.length > 0;
   f.scrollTop = f.scrollHeight;
   return enAttente;
