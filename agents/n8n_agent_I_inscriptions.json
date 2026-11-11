@@ -1,0 +1,298 @@
+{
+  "name": "Lumen – Agent I : alerte nouvelle inscription",
+  "nodes": [
+    {
+      "id": "i1",
+      "name": "Toutes les 2 minutes",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        0
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "*/2 * * * *"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "i2",
+      "name": "Lire les nouveaux comptes",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        220,
+        0
+      ],
+      "parameters": {
+        "method": "GET",
+        "url": "=https://jsmffmtzoauvqltshiyg.supabase.co/rest/v1/profils?alerte_admin_le=is.null&est_admin=not.is.true&order=cree_le.asc&limit=20&select=*",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "supabaseApi",
+        "options": {
+          "timeout": 60000
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        }
+      },
+      "credentials": {
+        "supabaseApi": {
+          "id": "",
+          "name": "Supabase Lumen"
+        }
+      },
+      "alwaysOutputData": true,
+      "continueOnFail": true
+    },
+    {
+      "id": "i3",
+      "name": "Préparer l'alerte",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        440,
+        0
+      ],
+      "parameters": {
+        "jsCode": "// ===== RÉGLAGE =====\nconst EMAIL_ADMIN = 'marinsauzay991@gmail.com';   // qui reçoit l'alerte à chaque nouveau compte\nconst PILOTAGE = 'https://lumenmarket.pages.dev/#clients';\n// ===================\nconst clients = $input.all().map(i => i.json).filter(p => p && p.id && p.email);\nif (!clients.length) return [];\nconst esc = s => String(s ?? '').replace(/[&<>\"]/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '\"': '&quot;' }[ch]));\nconst LOGO = 'https://lumen-marches.pages.dev/logo-signature.png?v=2';\nconst date = s => s ? new Date(s).toLocaleDateString('fr-FR', { timeZone: 'Europe/Paris', day: 'numeric', month: 'long', year: 'numeric' }) : '';\nconst heure = s => s ? new Date(s).toLocaleTimeString('fr-FR', { timeZone: 'Europe/Paris', hour: '2-digit', minute: '2-digit' }) : '';\nconst ligne = (k, v) => v ? `<tr><td style=\"padding:5px 14px 5px 0;color:#6B7280;vertical-align:top;white-space:nowrap;\">${esc(k)}</td><td style=\"padding:5px 0;color:#171A21;\">${esc(v)}</td></tr>` : '';\nconst out = [];\nfor (const p of clients) {\n  const nom = p.entreprise || p.nom || p.email;\n  const zone = String(p.departements || '').trim() || 'Toute la France';\n  const html = `<!doctype html><html><body style=\"margin:0;padding:0;background:#F6F7F9;font-family:Arial,Helvetica,sans-serif;\">\n<table role=\"presentation\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" style=\"background:#F6F7F9;padding:28px 0;\"><tr><td align=\"center\">\n<table role=\"presentation\" width=\"600\" cellpadding=\"0\" cellspacing=\"0\" style=\"background:#FFFFFF;border-radius:14px;overflow:hidden;border:1px solid #E6E8EC;\">\n<tr><td style=\"padding:22px 32px;border-bottom:1px solid #E6E8EC;\"><img src=\"${LOGO}\" width=\"180\" height=\"29\" alt=\"Lumen Marchés\" style=\"display:block;border:0;width:180px;height:29px;\"></td></tr>\n<tr><td style=\"padding:28px 32px;font-size:15px;line-height:1.6;color:#171A21;\">\n  <p style=\"margin:0 0 4px;font-size:12px;font-weight:700;color:#0E9F6E;text-transform:uppercase;letter-spacing:.04em;\">Nouveau client inscrit</p>\n  <p style=\"margin:0 0 18px;font-size:20px;font-weight:700;\">${esc(nom)}</p>\n  <table role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" style=\"font-size:14px;margin-bottom:20px;\">\n    ${ligne('Email', p.email)}${ligne('Email de réception', p.email_reception && p.email_reception !== p.email ? p.email_reception : '')}\n    ${ligne('Téléphone', p.telephone)}${ligne('SIREN', p.siren)}\n    ${ligne('Activités', p.metiers)}${ligne('Mots-clés', p.mots_cles)}${ligne('Zone', zone)}\n    ${ligne('Inscrit le', date(p.cree_le) + ' à ' + heure(p.cree_le))}${ligne(\"Fin de l'essai\", date(p.fin_essai))}\n  </table>\n  <table role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\"><tr><td style=\"border-radius:8px;background:#2350C4;\">\n    <a href=\"${PILOTAGE}\" style=\"display:inline-block;padding:11px 20px;font-size:14px;font-weight:700;color:#FFFFFF;text-decoration:none;\">Voir dans le pilotage</a></td></tr></table>\n  <p style=\"margin:18px 0 0;font-size:13px;color:#6B7280;\">Répondez à cet email pour écrire directement au client.</p>\n</td></tr></table></td></tr></table></body></html>`;\n  out.push({ json: { id: p.id, to: EMAIL_ADMIN, replyTo: p.email, subject: `Nouveau client : ${nom}`, html } });\n}\nreturn out;"
+      }
+    },
+    {
+      "id": "i4",
+      "name": "Envoyer l'alerte",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [
+        660,
+        0
+      ],
+      "continueOnFail": true,
+      "credentials": {
+        "smtp": {
+          "id": "",
+          "name": "Brevo SMTP"
+        }
+      },
+      "parameters": {
+        "fromEmail": "Lumen Marchés <lumeniaindustrie@gmail.com>",
+        "toEmail": "={{ $json.to }}",
+        "subject": "={{ $json.subject }}",
+        "emailFormat": "html",
+        "html": "={{ $json.html }}",
+        "options": {
+          "appendAttribution": false,
+          "replyTo": "={{ $json.replyTo }}"
+        }
+      }
+    },
+    {
+      "id": "i5",
+      "name": "Garder les alertes parties",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        880,
+        0
+      ],
+      "parameters": {
+        "jsCode": "const ok = $('Préparer l\\'alerte').all().map((it, i) => ({ id: it.json.id, err: $('Envoyer l\\'alerte').all()[i]?.json?.error }))\n  .filter(x => x.id && !x.err).map(x => x.id);\nreturn [{ json: { ids: ok.join(',') } }];"
+      },
+      "executeOnce": true
+    },
+    {
+      "id": "i6",
+      "name": "Marquer comme signalés",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1100,
+        0
+      ],
+      "parameters": {
+        "method": "PATCH",
+        "url": "=https://jsmffmtzoauvqltshiyg.supabase.co/rest/v1/profils?id=in.({{ $json.ids || '00000000-0000-0000-0000-000000000000' }})",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "supabaseApi",
+        "options": {
+          "timeout": 60000
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Prefer",
+              "value": "return=minimal"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ alerte_admin_le: new Date().toISOString() }) }}"
+      },
+      "credentials": {
+        "supabaseApi": {
+          "id": "",
+          "name": "Supabase Lumen"
+        }
+      },
+      "alwaysOutputData": true,
+      "continueOnFail": true
+    },
+    {
+      "id": "i7",
+      "name": "Préparer le journal",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1320,
+        0
+      ],
+      "parameters": {
+        "jsCode": "const clients = $('Lire les nouveaux comptes').all().map(i => i.json).filter(p => p && p.id);\nconst envois = $('Envoyer l\\'alerte').all().map(i => i.json);\nconst erreurs = envois.filter(e => e && e.error).length;\nreturn [{ json: { agent: 'I-inscriptions', debut: new Date(Date.now() - 60000).toISOString(), fin: new Date().toISOString(),\n  statut: erreurs ? 'erreur' : 'ok', entrees: clients.length, sorties: envois.length - erreurs,\n  details: { clients: clients.map(p => ({ id: p.id, entreprise: p.entreprise })), emails_en_erreur: erreurs },\n  message: erreurs ? erreurs + ' alerte(s) non envoyée(s) : vérifier le credential Brevo SMTP. Elles seront retentées.' : null } }];"
+      }
+    },
+    {
+      "id": "i8",
+      "name": "Écrire le journal",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1540,
+        0
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "=https://jsmffmtzoauvqltshiyg.supabase.co/rest/v1/agent_runs",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "supabaseApi",
+        "options": {
+          "timeout": 60000
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Prefer",
+              "value": "return=minimal"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify($json) }}"
+      },
+      "credentials": {
+        "supabaseApi": {
+          "id": "",
+          "name": "Supabase Lumen"
+        }
+      },
+      "alwaysOutputData": true,
+      "continueOnFail": true
+    }
+  ],
+  "connections": {
+    "Toutes les 2 minutes": {
+      "main": [
+        [
+          {
+            "node": "Lire les nouveaux comptes",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Lire les nouveaux comptes": {
+      "main": [
+        [
+          {
+            "node": "Préparer l'alerte",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Préparer l'alerte": {
+      "main": [
+        [
+          {
+            "node": "Envoyer l'alerte",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Envoyer l'alerte": {
+      "main": [
+        [
+          {
+            "node": "Garder les alertes parties",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Garder les alertes parties": {
+      "main": [
+        [
+          {
+            "node": "Marquer comme signalés",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Marquer comme signalés": {
+      "main": [
+        [
+          {
+            "node": "Préparer le journal",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Préparer le journal": {
+      "main": [
+        [
+          {
+            "node": "Écrire le journal",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "active": false
+}
