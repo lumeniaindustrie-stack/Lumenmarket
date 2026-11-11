@@ -37,10 +37,10 @@ else {
   if (h >= 12 && A24.length >= 3 && !A24.some(r => (r.sorties || 0) > 0)) ajouter('A-zero', "L'agent A tourne mais n'a stocké aucune offre depuis 24 h : vérifie le BOAMP ou la connexion à Supabase.");
 }
 
-// ---------- Agent B : tri (en semaine à 6 h 45) ----------
+// ---------- Agent B : tri (en semaine à 9 h) ----------
 const B = de('B-tri'), dB = B[0];
 const debutJour = new Date(now); debutJour.setHours(6, 0, 0, 0);
-if (jour >= 1 && jour <= 5 && h >= 8 && !(dB && new Date(dB.debut) >= debutJour)) ajouter('B-retard', "L'agent B n'a pas envoyé la veille ce matin (aucune exécution depuis 6 h).");
+if (jour >= 1 && jour <= 5 && h >= 10 && !(dB && new Date(dB.debut) >= debutJour)) ajouter('B-retard', "L'agent B n'a pas envoyé la veille ce matin (aucune exécution ce matin, prévue à 9 h).");
 if (dB && dB.statut === 'erreur' && depuis(dB.debut) <= 24) ajouter('B-erreur-' + dB.id, `L'agent B a échoué à ${hm(dB.debut)} : ${dB.message || 'erreur inconnue'}`);
 
 // ---------- Agents C et D : erreurs et file d'attente ----------

@@ -230,7 +230,7 @@ form{max-width:620px;display:flex;flex-direction:column;flex:1}
     <div class="done-box" id="done">
       <div class="big" aria-hidden="true">✓</div>
       <h2 id="done-titre">Votre compte est créé</h2>
-      <p class="muted" id="done-txt">Vous recevrez votre première sélection d'offres le prochain matin de semaine, vers 7 h.</p>
+      <p class="muted" id="done-txt">Vous recevrez votre première sélection d'offres le prochain matin de semaine, vers 9 h.</p>
       <div><a class="btn yellow" id="done-btn" href="tableau.html">Accéder à mon tableau de bord</a></div>
     </div>
   </main>
@@ -464,12 +464,12 @@ $("#wizard").addEventListener("submit", async ev => {
     const dest = d.email_veille ? ` sur <strong>${esc(d.email_veille)}</strong>` : "";
     if (r.confirmer) {
       $("#done-titre").textContent = "Confirmez votre adresse email";
-      $("#done-txt").innerHTML = `Nous venons d'envoyer un lien de confirmation à <strong>${esc(d.email)}</strong>. Cliquez dessus pour activer votre compte : vous arriverez directement dans votre tableau de bord. Pensez à regarder dans les courriers indésirables. Ensuite, votre première sélection d'offres arrivera${dest} le prochain matin de semaine, vers 7 h.`;
+      $("#done-txt").innerHTML = `Nous venons d'envoyer un lien de confirmation à <strong>${esc(d.email)}</strong>. Cliquez dessus pour activer votre compte : vous arriverez directement dans votre tableau de bord. Pensez à regarder dans les courriers indésirables. Ensuite, votre première sélection d'offres arrivera${dest} le prochain matin de semaine, vers 9 h.`;
       $("#done-btn").textContent = "J'ai confirmé, me connecter";
     } else if (DEMO) {
       $("#done-txt").textContent = "Mode démonstration : le compte n'existe que dans ce navigateur, aucun email n'a été envoyé.";
     } else {
-      $("#done-txt").innerHTML = `Vous recevrez votre première sélection d'offres${dest} le prochain matin de semaine, vers 7 h.`;
+      $("#done-txt").innerHTML = `Vous recevrez votre première sélection d'offres${dest} le prochain matin de semaine, vers 9 h.`;
     }
     $("#wizard").style.display = "none"; $(".progress").style.display = "none"; $("#count").style.display = "none";
     $$("#steps-list li").forEach(li => { li.classList.remove("on"); li.classList.add("done"); });

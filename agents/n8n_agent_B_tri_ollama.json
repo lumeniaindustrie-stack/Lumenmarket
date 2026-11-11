@@ -3,7 +3,7 @@
   "nodes": [
     {
       "id": "b1",
-      "name": "Chaque matin 6 h 45",
+      "name": "Chaque matin 9 h",
       "type": "n8n-nodes-base.scheduleTrigger",
       "typeVersion": 1.2,
       "position": [
@@ -15,7 +15,7 @@
           "interval": [
             {
               "field": "cronExpression",
-              "expression": "45 6 * * 1-5"
+              "expression": "0 9 * * 1-5"
             }
           ]
         }
@@ -422,17 +422,6 @@
     }
   ],
   "connections": {
-    "Chaque matin 6 h 45": {
-      "main": [
-        [
-          {
-            "node": "Réglages",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
     "Réglages": {
       "main": [
         [
@@ -576,6 +565,17 @@
         [
           {
             "node": "Préparer par client",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Chaque matin 9 h": {
+      "main": [
+        [
+          {
+            "node": "Réglages",
             "type": "main",
             "index": 0
           }
