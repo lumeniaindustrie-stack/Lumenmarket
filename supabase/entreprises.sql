@@ -27,9 +27,15 @@ create index if not exists entreprises_statut_idx on public.entreprises (statut)
 create index if not exists entreprises_departement_idx on public.entreprises (departement);
 
 alter table public.entreprises enable row level security;
+revoke all on public.entreprises from anon, authenticated;
 
 -- Données commerciales internes (coordonnées de dirigeants, etc.) : réservées à
--- l'administrateur connecté. L'agent F écrit via la clé service_role de n8n, qui
--- n'est pas soumise à ces règles RLS.
-create policy "admin lit entreprises" on public.entreprises for select to authenticated using (true);
-create policy "admin modifie entreprises" on public.entreprises for all to authenticated using (true) with check (true);
+-- l'administrateur connecté (public.est_admin(), défini dans supabase_phase1.sql).
+-- IMPORTANT : "to authenticated" seul autoriserait N'IMPORTE QUEL client inscrit
+-- (pas seulement l'administrateur) à lire/modifier toute la base de prospection —
+-- d'où le filtre explicite sur est_admin() ci-dessous.
+-- L'agent F écrit via la clé service_role de n8n, qui n'est pas soumise à ces règles RLS.
+drop policy if exists "admin lit entreprises" on public.entreprises;
+drop policy if exists "admin modifie entreprises" on public.entreprises;
+create policy "admin lit entreprises" on public.entreprises for select to authenticated using ((select public.est_admin()));
+create policy "admin modifie entreprises" on public.entreprises for all to authenticated using ((select public.est_admin())) with check ((select public.est_admin()));
