@@ -3,7 +3,7 @@
   "nodes": [
     {
       "id": "k1",
-      "name": "Toutes les 5 minutes",
+      "name": "Lun-ven, 9 h à 11 h",
       "type": "n8n-nodes-base.scheduleTrigger",
       "typeVersion": 1.2,
       "position": [
@@ -15,7 +15,7 @@
           "interval": [
             {
               "field": "cronExpression",
-              "expression": "*/5 * * * *"
+              "expression": "*/12 9-10 * * 1-5"
             }
           ]
         }
@@ -113,7 +113,7 @@
       ],
       "parameters": {
         "mode": "runOnceForAllItems",
-        "jsCode": "const L=$('Lire les entreprises'),O=$('Lire les offres ouvertes nouvelles'),S=$('Compter les envois du jour');\nif([L,O,S].some(n=>n.all().some(i=>i.json?.error)))throw new Error('Erreur Supabase : vérifier credentials et colonnes.');\nconst leads=L.all().map(i=>i.json||{}).filter(x=>x.email&&x.siren), sent=S.all().map(i=>i.json||{}).filter(x=>x.id).length, slots=Math.max(0,10-sent); if(!slots)return [];\nconst now=Date.now(), offers=O.all().map(i=>i.json||{}).filter(o=>o.avis_id&&Date.parse(o.limite||'')>now&&Date.parse(o.lumen_collecte_le||o.parution||'')>now-604800000);\nconst norm=s=>String(s||'').toLowerCase().normalize('NFD').replace(/[\\u0300-\\u036f]/g,'').replace(/[^a-z0-9]+/g,' ').trim(), dep=s=>String(s||'').trim().toUpperCase().replace(/^([0-9])$/,'0$1');\nconst rg={'ARA':'01 03 07 15 26 38 42 43 63 69 73 74','BFC':'21 25 39 58 70 71 89 90','BRE':'22 29 35 56','CVL':'18 28 36 37 41 45','COR':'2A 2B','GES':'08 10 51 52 54 55 57 67 68 88','HDF':'02 59 60 62 80','IDF':'75 77 78 91 92 93 94 95','NOR':'14 27 50 61 76','NAQ':'16 17 19 23 24 33 40 47 64 79 86 87','OCC':'09 11 12 30 31 32 34 46 48 65 66 81 82','PDL':'44 49 53 72 85','PAC':'04 05 06 13 83 84'}, region=d=>Object.entries(rg).find(([,v])=>v.split(' ').includes(dep(d)))?.[0];\nconst words=s=>new Set(norm(s).split(' ').filter(w=>w.length>3&&!['entreprise','activite','marche','public','travaux','service'].includes(w)));\nconst platform=u=>{u=String(u||'').toLowerCase();return u.includes('boamp.fr')?'BOAMP':u.includes('marches-publics.gouv.fr')?'PLACE':u.includes('aws-achat')||u.includes('marches-publics.info')?'AWS-Achat':u.includes('e-marchespublics.com')?'e-marchespublics.com':u.includes('maximilien')?'Maximilien':u.includes('klekoon')?'Klekoon':u.includes('ternum-bfc')||u.includes('e-bourgogne')?'la plateforme Bourgogne-Franche-Comté':u.includes('megalis.bretagne')?'Mégalis Bretagne':u.includes('achatpublic.com')?'achatpublic.com':null};\nconst out=[];let n=0;for(const e of leads){if(n>=slots)break;const last=Date.parse(e.offres_verifiees_le||'')||0,fresh=offers.filter(o=>Date.parse(o.lumen_collecte_le||o.parution||'')>last);if(!fresh.length)continue;\nconst ed=dep(e.departement||e.code_departement), ew=words([e.domaine_activite,e.secteur,e.code_naf,e.activite_principale,e.nom].join(' '));\nconst ms=fresh.map(o=>{const ds=(Array.isArray(o.departements)?o.departements:String(o.departements||'').split(/[,; ]+/)).map(dep), ow=words([o.objet,o.descripteurs,o.type_marche,o.acheteur,o.lieu].join(' '));let k=0;for(const w of ew)if(ow.has(w))k++;const same=ds.includes(ed),near=ds.some(d=>region(d)&&region(d)===region(ed));return{o,ds,k,g:same?2:near?1:0}}).filter(x=>x.k&&x.g).sort((a,b)=>(b.k*10+b.g)-(a.k*10+a.g));\nif(!ms.length){out.push({json:{action:'non_envoye',id:e.id,checkedAt:new Date(Math.max(...fresh.map(o=>Date.parse(o.lumen_collecte_le||o.parution)))).toISOString()}});continue}\nconst x=ms[0], p=platform(x.o.url)||'BOAMP', p2=platform(ms[1]?.o.url), dir=String(e.dirigeant||'').trim(), co=e.nom||e.raison_sociale||'votre entreprise';\nout.push({json:{action:'send',entreprise_id:e.id,siren:e.siren,email:e.email,entreprise:co,dirigeant:dir,activite:e.domaine_activite||e.secteur||e.code_naf||'votre domaine',offer_id:x.o.avis_id,offer_object:x.o.objet||'Non précisé',offer_context:[x.o.objet,x.o.type_marche,x.o.lieu].filter(Boolean).join(' — '),offer_department:x.ds.join(', ')||x.o.lieu||ed,amount:x.o.montant==null||x.o.montant===''?'montant non indiqué':String(x.o.montant),deadline:x.o.limite,platforms:p2&&p2!==p?p+' et '+p2:p,subject:dir?dir.split(/\\s+/)[0]+', une offre de marché public pour '+co:co+', une offre de marché public qui pourrait vous intéresser'}});n++}return out;"
+        "jsCode": "const L=$('Lire les entreprises'),O=$('Lire les offres ouvertes nouvelles'),S=$('Compter les envois du jour');\nif([L,O,S].some(n=>n.all().some(i=>i.json?.error)))throw new Error('Erreur Supabase : vérifier credentials et colonnes.');\nconst leads=L.all().map(i=>i.json||{}).filter(x=>x.email&&x.siren), sent=S.all().map(i=>i.json||{}).filter(x=>x.id).length, slots=Math.max(0,Math.min(2,10-sent)); // 10 par jour, 2 au plus par passage (toutes les 12 min de 9 h à 11 h) if(!slots)return [];\nconst now=Date.now(), offers=O.all().map(i=>i.json||{}).filter(o=>o.avis_id&&Date.parse(o.limite||'')>now&&Date.parse(o.lumen_collecte_le||o.parution||'')>now-604800000);\nconst norm=s=>String(s||'').toLowerCase().normalize('NFD').replace(/[\\u0300-\\u036f]/g,'').replace(/[^a-z0-9]+/g,' ').trim(), dep=s=>String(s||'').trim().toUpperCase().replace(/^([0-9])$/,'0$1');\nconst rg={'ARA':'01 03 07 15 26 38 42 43 63 69 73 74','BFC':'21 25 39 58 70 71 89 90','BRE':'22 29 35 56','CVL':'18 28 36 37 41 45','COR':'2A 2B','GES':'08 10 51 52 54 55 57 67 68 88','HDF':'02 59 60 62 80','IDF':'75 77 78 91 92 93 94 95','NOR':'14 27 50 61 76','NAQ':'16 17 19 23 24 33 40 47 64 79 86 87','OCC':'09 11 12 30 31 32 34 46 48 65 66 81 82','PDL':'44 49 53 72 85','PAC':'04 05 06 13 83 84'}, region=d=>Object.entries(rg).find(([,v])=>v.split(' ').includes(dep(d)))?.[0];\nconst words=s=>new Set(norm(s).split(' ').filter(w=>w.length>3&&!['entreprise','activite','marche','public','travaux','service'].includes(w)));\nconst platform=u=>{u=String(u||'').toLowerCase();return u.includes('boamp.fr')?'BOAMP':u.includes('marches-publics.gouv.fr')?'PLACE':u.includes('aws-achat')||u.includes('marches-publics.info')?'AWS-Achat':u.includes('e-marchespublics.com')?'e-marchespublics.com':u.includes('maximilien')?'Maximilien':u.includes('klekoon')?'Klekoon':u.includes('ternum-bfc')||u.includes('e-bourgogne')?'la plateforme Bourgogne-Franche-Comté':u.includes('megalis.bretagne')?'Mégalis Bretagne':u.includes('achatpublic.com')?'achatpublic.com':null};\nconst out=[];let n=0;for(const e of leads){if(n>=slots)break;const last=Date.parse(e.offres_verifiees_le||'')||0,fresh=offers.filter(o=>Date.parse(o.lumen_collecte_le||o.parution||'')>last);if(!fresh.length)continue;\nconst ed=dep(e.departement||e.code_departement), ew=words([e.domaine_activite,e.secteur,e.code_naf,e.activite_principale,e.nom].join(' '));\nconst ms=fresh.map(o=>{const ds=(Array.isArray(o.departements)?o.departements:String(o.departements||'').split(/[,; ]+/)).map(dep), ow=words([o.objet,o.descripteurs,o.type_marche,o.acheteur,o.lieu].join(' '));let k=0;for(const w of ew)if(ow.has(w))k++;const same=ds.includes(ed),near=ds.some(d=>region(d)&&region(d)===region(ed));return{o,ds,k,g:same?2:near?1:0}}).filter(x=>x.k&&x.g).sort((a,b)=>(b.k*10+b.g)-(a.k*10+a.g));\nif(!ms.length){out.push({json:{action:'non_envoye',id:e.id,checkedAt:new Date(Math.max(...fresh.map(o=>Date.parse(o.lumen_collecte_le||o.parution)))).toISOString()}});continue}\nconst x=ms[0], p=platform(x.o.url)||'BOAMP', p2=platform(ms[1]?.o.url), dir=String(e.dirigeant||'').trim(), co=e.nom||e.raison_sociale||'votre entreprise';\nout.push({json:{action:'send',entreprise_id:e.id,siren:e.siren,email:e.email,entreprise:co,dirigeant:dir,activite:e.domaine_activite||e.secteur||e.code_naf||'votre domaine',offer_id:x.o.avis_id,offer_object:x.o.objet||'Non précisé',offer_context:[x.o.objet,x.o.type_marche,x.o.lieu].filter(Boolean).join(' — '),offer_department:x.ds.join(', ')||x.o.lieu||ed,amount:x.o.montant==null||x.o.montant===''?'montant non indiqué':String(x.o.montant),deadline:x.o.limite,platforms:p2&&p2!==p?p+' et '+p2:p,subject:dir?dir.split(/\\s+/)[0]+', une offre de marché public pour '+co:co+', une offre de marché public qui pourrait vous intéresser'}});n++}return out;"
       }
     },
     {
@@ -532,17 +532,6 @@
     }
   ],
   "connections": {
-    "Toutes les 5 minutes": {
-      "main": [
-        [
-          {
-            "node": "Lire les entreprises",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
     "Lire les entreprises": {
       "main": [
         [
@@ -709,6 +698,17 @@
         [
           {
             "node": "Appeler le webhook Agent F",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Lun-ven, 9 h à 11 h": {
+      "main": [
+        [
+          {
+            "node": "Lire les entreprises",
             "type": "main",
             "index": 0
           }
