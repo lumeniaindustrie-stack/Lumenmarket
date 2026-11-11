@@ -1,0 +1,409 @@
+{
+  "name": "Lumen – Agent F : prospection commerciale (v2)",
+  "nodes": [
+    {
+      "id": "f2-trigger",
+      "name": "Chaque jour à 10 h",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        0
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 10 * * *"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "f-webhook",
+      "name": "Retour email introuvable",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        220
+      ],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "agent-f-email-introuvable",
+        "responseMode": "lastNode",
+        "authentication": "headerAuth",
+        "options": {}
+      },
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "",
+          "name": "Agent F webhook header"
+        }
+      }
+    },
+    {
+      "id": "f-prepare",
+      "name": "Définir le traitement",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        220,
+        100
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "const incoming = $input.first().json || {};\nconst isWebhook = Object.prototype.hasOwnProperty.call(incoming, 'body');\nconst body = isWebhook ? (incoming.body || {}) : {};\nif (isWebhook && (!body.siren || !body.email || body.bounce_type !== 'recipient_not_found')) {\n  throw new Error('Le webhook de remplacement attend siren, email et bounce_type=recipient_not_found.');\n}\nreturn [{\n  json: {\n    mode: isWebhook ? 'replacement' : 'daily',\n    cible: isWebhook ? 1 : 20,\n    target: isWebhook ? 1 : 20,\n    siren: isWebhook ? String(body.siren).replace(/\\D/g, '') : null,\n    email: isWebhook ? String(body.email).trim().toLowerCase() : null,\n    debut: new Date().toISOString()\n  }\n}];"
+      }
+    },
+    {
+      "id": "f-if-bounce",
+      "name": "Remplacement après rebond ?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        440,
+        100
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "fcond1",
+              "leftValue": "={{ $json.mode }}",
+              "rightValue": "replacement",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "f-mark-bounce",
+      "name": "Marquer l’email en rebond",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        660,
+        0
+      ],
+      "parameters": {
+        "method": "PATCH",
+        "url": "=https://jsmffmtzoauvqltshiyg.supabase.co/rest/v1/entreprises?siren=eq.{{ $json.siren }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "supabaseApi",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Prefer",
+              "value": "return=minimal"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ email_statut: 'rebond_destinataire_introuvable', email_valide: false }) }}",
+        "options": {
+          "timeout": 60000
+        }
+      },
+      "credentials": {
+        "supabaseApi": {
+          "id": "",
+          "name": "Supabase Lumen"
+        }
+      },
+      "continueOnFail": true,
+      "alwaysOutputData": true
+    },
+    {
+      "id": "f-read-known",
+      "name": "Lire les SIREN déjà en base",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        880,
+        100
+      ],
+      "parameters": {
+        "method": "GET",
+        "url": "=https://jsmffmtzoauvqltshiyg.supabase.co/rest/v1/entreprises?select=siren&limit=100000",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "supabaseApi",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Range-Unit",
+              "value": "items"
+            },
+            {
+              "name": "Range",
+              "value": "0-99999"
+            }
+          ]
+        },
+        "options": {
+          "timeout": 60000
+        }
+      },
+      "credentials": {
+        "supabaseApi": {
+          "id": "",
+          "name": "Supabase Lumen"
+        }
+      },
+      "continueOnFail": true,
+      "alwaysOutputData": true
+    },
+    {
+      "id": "f-collect",
+      "name": "Collecter et qualifier les entreprises",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1100,
+        100
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "// F : collecte quotidienne, enrichissement sans API payante, dédoublonnage SIREN.\nconst ctx = $('Définir le traitement').last().json;\nconst inputRows = $input.all().map(i => i.json || {});\nconst loadError = inputRows.find(x => x.error);\nif (loadError) return [{ json: { debut: ctx.debut, mode: ctx.mode || 'daily', cible: Number(ctx.target || 20), target: Number(ctx.target || 20), avis_lus: 0, candidats_vus: 0, nouvelles: [], sorties: 0, erreur: 'Lecture de Supabase impossible ; arrêt pour éviter les doublons.', statut: 'erreur' } }];\nconst rows = inputRows.filter(x => x && !x.error);\nconst known = new Set(rows.map(x => String(x.siren || '').replace(/\\D/g, '')).filter(Boolean));\nconst target = Number(ctx.target || 20);\nconst mode = ctx.mode || 'daily';\nconst debut = ctx.debut || new Date().toISOString();\nconst BOAMP = 'https://boamp-datadila.opendatasoft.com/api/explore/v2.1/catalog/datasets/boamp/records';\nconst GOV = 'https://recherche-entreprises.api.gouv.fr/search';\nconst pause = ms => new Promise(resolve => setTimeout(resolve, ms));\nconst arr = x => Array.isArray(x) ? x : (x == null ? [] : [x]);\nconst deepValues = (o, re, out=[]) => {\n  if (o && typeof o === 'object') for (const k of Object.keys(o)) {\n    if (re.test(k)) out.push(o[k]);\n    deepValues(o[k], re, out);\n  }\n  return out;\n};\nconst cleanNum = x => String(x || '').replace(/\\D/g, '');\nconst emailRe = /[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,}/i;\nconst bannedEmail = /noreply|no-reply|example\\.|sentry|wixpress|godaddy/i;\nconst extractEmail = html => {\n  const s = String(html || '');\n  const links = [...s.matchAll(/mailto:([^\"'?\\s>]+)/gi)].map(m => m[1].replace(/%40/gi, '@'));\n  const plain = s.match(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,}/gi) || [];\n  return [...links, ...plain].map(x => x.trim()).find(x => emailRe.test(x) && !bannedEmail.test(x)) || null;\n};\nconst decodeLink = raw => {\n  try {\n    const m = String(raw || '').match(/[?&]uddg=([^&]+)/);\n    const decoded = decodeURIComponent(m ? m[1] : raw);\n    const u = new URL(decoded.startsWith('http') ? decoded : 'https:' + decoded);\n    if (/duckduckgo|pappers|linkedin|facebook|instagram|youtube|wikipedia/i.test(u.hostname)) return null;\n    return u;\n  } catch (e) { return null; }\n};\nconst searchResults = async q => {\n  try {\n    const html = await this.helpers.httpRequest({\n      method: 'GET',\n      url: 'https://html.duckduckgo.com/html/?q=' + encodeURIComponent(q),\n      timeout: 12000,\n      headers: { 'User-Agent': 'Mozilla/5.0 (compatible; LumenAgentF/1.0)' }\n    });\n    const s = String(html || '');\n    const links = [...s.matchAll(/<a[^>]+class=\"result__a\"[^>]+href=\"([^\"]+)\"[^>]*>([\\s\\S]*?)<\\/a>/gi)];\n    const snippets = [...s.matchAll(/<a[^>]+class=\"result__snippet\"[^>]*>([\\s\\S]*?)<\\/a>/gi)].map(m => m[1].replace(/<[^>]+>/g, ' ').replace(/&amp;/g, '&').trim());\n    return links.map((m, i) => {\n      const u = decodeLink(m[1]);\n      const title = m[2].replace(/<[^>]+>/g, ' ').replace(/&amp;/g, '&').replace(/&#x27;/g, \"'\").trim();\n      return u ? { url: u.href, host: u.hostname, title, snippet: snippets[i] || '' } : null;\n    }).filter(Boolean);\n  } catch (e) { return []; }\n};\nconst getPage = async url => {\n  try {\n    const x = await this.helpers.httpRequest({\n      method: 'GET', url, timeout: 9000,\n      headers: { 'User-Agent': 'Mozilla/5.0 (compatible; LumenAgentF/1.0)' }\n    });\n    return String(x || '');\n  } catch (e) { return ''; }\n};\nconst effectifBucket = raw => {\n  const s = String(raw || '').trim();\n  const code = s.match(/^(00|0[1-3]|1[12]|2[12]|3[12]|4[12]|5[1-3])$/);\n  if (code) {\n    const map = {\n      '00': null, '01': '1-9', '02': '1-9', '03': '1-9',\n      '11': '10-24', '12': '20-49', '21': '50-249', '22': '50-249',\n      '31': '50-249', '32': '250-999', '41': '250-999',\n      '42': '1000+', '51': '1000+', '52': '1000+', '53': '1000+'\n    };\n    return map[code[1]] || null;\n  }\n  const n = s.match(/(\\d+)\\s*(?:à|-|–|a)\\s*(\\d+)/i);\n  if (n) {\n    const low = Number(n[1]), high = Number(n[2]);\n    if (high <= 9) return '1-9';\n    if (low >= 10 && high <= 24) return '10-24';\n    if (low >= 20 && high <= 49) return low < 25 ? '20-49' : '25-49';\n    if (low >= 50 && high <= 249) return '50-249';\n    \n    \n    if (low >= 250 && high <= 999) return '250-999';\n    if (low >= 1000) return '1000+';\n  }\n  if (/1000|plus de 1000|1000 et plus/i.test(s)) return '1000+';\n  return null;\n};\nconst rankSize = b => b === '1-9' ? 0 : (['10-24','20-49','25-49','50-249'].includes(b) ? 1 : 2);\nconst normalizeName = s => String(s || '').toLocaleLowerCase('fr').normalize('NFD').replace(/[\\u0300-\\u036f]/g, '').replace(/[^a-z0-9]/g, '');\nconst chooseCompany = (results, name, siret) => {\n  const exactSiret = cleanNum(siret);\n  if (exactSiret) {\n    const exact = results.find(x => cleanNum(x.siege?.siret || x.siret) === exactSiret);\n    if (exact) return exact;\n  }\n  const wanted = normalizeName(name);\n  return results.find(x => {\n    const got = normalizeName(x.nom_complet || x.nom_raison_sociale || x.denomination || '');\n    return wanted && got && (got === wanted || got.includes(wanted) || wanted.includes(got));\n  }) || results[0] || null;\n};\nconst candidatesFromNotice = r => {\n  let d = r.donnees || r.DONNEES || {};\n  if (typeof d === 'string') { try { d = JSON.parse(d); } catch (e) { d = {}; } }\n  const siretValues = deepValues(d, /siret/i).flat(Infinity).map(cleanNum).filter(x => /^\\d{14}$/.test(x));\n  const nameValues = deepValues(d, /denomination|raisonsociale|nomtitulaire|nomattributaire|titulaire/i)\n    .flat(Infinity).filter(x => typeof x === 'string' && x.trim());\n  const names = [...nameValues, ...arr(r.titulaire).filter(x => typeof x === 'string'), ...arr(r.TITULAIRE).filter(x => typeof x === 'string')];\n  const name = String(names[0] || '').trim();\n  const siret = siretValues[0] || cleanNum(r.siret);\n  if (!name && !siret) return null;\n  const depValue = arr(r.code_departement || r.code_departement_prestation)[0];\n  const dep = depValue ? String(depValue).padStart(2, '0') : null;\n  const sourceUrl = r.url_avis || (r.idweb ? 'https://www.boamp.fr/pages/avis/?idweb=' + encodeURIComponent(r.idweb) : null);\n  return {\n    nom: name,\n    siret,\n    siren: siret ? siret.slice(0, 9) : null,\n    departement: dep,\n    domaine_activite: String(r.objet || r.descripteur_libelle || '').slice(0, 500) || null,\n    source_type: 'BOAMP',\n    source_url: sourceUrl,\n    source_marche: String(r.objet || '').slice(0, 500) || null,\n    date_attribution: r.dateparution || null,\n    montant_marche: Number(r.montant || r.valeur || 0) || null\n  };\n};\nconst enrichCandidate = async c => {\n  let gov = null;\n  try {\n    const q = c.siret || c.siren || c.nom;\n    const response = await this.helpers.httpRequest({\n      method: 'GET', url: GOV,\n      qs: { q, page: 1, per_page: 5 },\n      json: true, timeout: 10000\n    });\n    gov = chooseCompany(response.results || [], c.nom, c.siret);\n  } catch (e) { return null; }\n  if (!gov) return null;\n  const siege = gov.siege || {};\n  const siret = cleanNum(c.siret || siege.siret || gov.siret);\n  const siren = cleanNum(gov.siren || c.siren || siret.slice(0, 9));\n  if (!/^\\d{14}$/.test(siret) || !/^\\d{9}$/.test(siren) || known.has(siren)) return null;\n  const naf = gov.activite_principale_naf25 || gov.activite_principale || gov.code_naf || null;\n  const nafLabel = gov.libelle_activite_principale || gov.activite_principale_libelle || gov.libelle_naf || null;\n  const secteur = [naf, nafLabel].filter(Boolean).join(' — ') || null;\n  const effectif = effectifBucket(gov.tranche_effectif_salarie || gov.effectif_salarie || gov.tranche_effectif);\n  const managers = arr(gov.dirigeants);\n  const manager = managers.find(x => x && (x.nom || x.prenoms || x.denomination));\n  const dirigeant = manager ? ([manager.prenoms, manager.nom].filter(Boolean).join(' ').trim() || manager.denomination || null) : null;\n  let dep = c.departement || String(siege.code_postal || gov.code_postal || '').slice(0, 2) || null;\n  if (dep === '20') dep = String(siege.code_commune || '').startsWith('2A') ? '2A' : '2B';\n  if (dep && /^\\d$/.test(dep)) dep = '0' + dep;\n  const companyName = gov.nom_complet || gov.nom_raison_sociale || gov.denomination || c.nom;\n  let activity = c.domaine_activite || nafLabel || secteur;\n  const webHits = await searchResults(companyName + ' ' + (dep || '') + ' site officiel contact');\n  const businessHit = webHits.find(x => !/pappers|societe\\.com|annuaire-entreprises\\.data\\.gouv\\.fr/i.test(x.host)) || null;\n  let website = null, sourceUrl = c.source_url || (businessHit && businessHit.url) || null;\n  let email = null, emailType = null, pageOk = false;\n  const pageHit = businessHit || (sourceUrl ? {url: sourceUrl, host: new URL(sourceUrl).hostname} : null);\n  if (pageHit) {\n    if (businessHit && !/pagesjaunes|annuaire|marches-publics|achatpublic|aws-achat|klekoon|e-marchespublics/i.test(businessHit.host)) website = new URL(businessHit.url).origin;\n    const firstPage = await getPage(website || pageHit.url);\n    pageOk = firstPage.length > 0;\n    email = extractEmail(firstPage);\n    if (!email) {\n      const paths = ['/contact', '/nous-contacter', '/mentions-legales'];\n      for (const path of paths) {\n        const base = website || (pageHit.url ? new URL(pageHit.url).origin : null);\n        if (!base) continue;\n        const html = await getPage(base + path);\n        email = extractEmail(html);\n        if (email) { pageOk = pageOk || html.length > 0; break; }\n      }\n    }\n    if (!email && website && pageOk) {\n      const host = new URL(website).hostname.replace(/^www\\./, '');\n      const personParts = String(dirigeant || '').toLocaleLowerCase('fr').normalize('NFD').replace(/[\\u0300-\\u036f]/g, '').split(/[^a-z0-9]+/).filter(Boolean);\n      const guesses = ['contact@' + host, 'info@' + host];\n      if (personParts.length >= 2) guesses.push(personParts[0] + '.' + personParts[personParts.length - 1] + '@' + host);\n      email = guesses.find(x => emailRe.test(x)) || null;\n      if (email) emailType = 'deduit';\n    } else if (email) emailType = 'publie';\n  }\n  if (!email && businessHit && businessHit.snippet) {\n    email = extractEmail(businessHit.snippet);\n    if (email) emailType = 'publie';\n  }\n  if (!email || !emailRe.test(email) || !activity || !effectif || !dep || !siret || !siren || !secteur || !dirigeant) return null;\n  const lead = {\n    siret, siren, nom: String(companyName).slice(0, 300), departement: dep,\n    secteur: String(secteur).slice(0, 300), domaine_activite: String(activity).slice(0, 500),\n    effectif_tranche: effectif, dirigeant: String(dirigeant).slice(0, 200),\n    email: email.toLowerCase(), email_type: emailType || 'publie',\n    email_statut: emailType === 'deduit' ? 'format_domaine_verifies_a_confirmer' : 'publie',\n    email_valide: emailType !== 'deduit',\n    site_web: website, source_type: c.source_type || (businessHit ? 'recherche_web' : 'annuaire'),\n    source_url: sourceUrl || (businessHit && businessHit.url) || null,\n    source_marche: c.source_marche || null, date_attribution: c.date_attribution || null,\n    montant_marche: c.montant_marche || null, statut: 'à contacter',\n    trouve_le: new Date().toISOString()\n  };\n  if (!lead.source_url) return null;\n  known.add(siren);\n  return { lead, rank: rankSize(effectif) };\n};\nconst foundSmall = [], foundLarge = [];\nconst seenCandidateSirens = new Set();\nlet avisLus = 0, candidatsVus = 0, totalAvis = 0, error = null;\nconst alreadyEnough = () => foundSmall.length >= target;\nconst addCandidate = async c => {\n  if (!c || alreadyEnough()) return;\n  if (c.siren && (known.has(c.siren) || seenCandidateSirens.has(c.siren))) return;\n  if (c.siren) seenCandidateSirens.add(c.siren);\n  candidatsVus++;\n  const result = await enrichCandidate(c);\n  if (!result) return;\n  if (result.rank <= 1) foundSmall.push(result);\n  else foundLarge.push(result);\n};\ntry {\n  let offset = 0;\n  let fallbackFilter = false;\n  while (true) {\n    let response;\n    try {\n      response = await this.helpers.httpRequest({\n        method: 'GET', url: BOAMP,\n        qs: {\n          where: fallbackFilter ? 'nature!=\"APPEL_OFFRE\"' : 'nature=\"ATTRIBUTION\"',\n          order_by: 'dateparution desc', limit: 100, offset\n        },\n        json: true, timeout: 30000\n      });\n    } catch (e) {\n      if (!fallbackFilter) { fallbackFilter = true; continue; }\n      throw e;\n    }\n    const results = response.results || [];\n    if (!results.length && !fallbackFilter) { fallbackFilter = true; offset = 0; continue; }\n    totalAvis = response.total_count || totalAvis;\n    avisLus += results.length;\n    for (const r of results) {\n      await addCandidate(candidatesFromNotice(r));\n      if (alreadyEnough()) break;\n    }\n    if (alreadyEnough() || results.length < 100 || (totalAvis && offset + results.length >= totalAvis)) break;\n    offset += results.length;\n  }\n} catch (e) { error = 'BOAMP : ' + String(e.message || e).slice(0, 250); }\nif (foundSmall.length < target) {\n  const regions = [\n    'Auvergne-Rhône-Alpes','Bourgogne-Franche-Comté','Bretagne','Centre-Val de Loire',\n    'Corse','Grand Est','Hauts-de-France','Île-de-France','Normandie','Nouvelle-Aquitaine',\n    'Occitanie','Pays de la Loire','Provence-Alpes-Côte d’Azur','Guadeloupe','Martinique',\n    'Guyane','La Réunion','Mayotte'\n  ];\n  const patterns = [\n    'entreprise titulaire marché public',\n    'entreprise référence marché public',\n    'entreprise répond aux marchés publics annuaire', 'annuaire entreprises TPE PME marchés publics', 'entreprise locale avis clients', 'publicité entreprise locale', 'site:achatpublic.com attribution titulaire entreprise', 'site:aws-achat.info titulaire entreprise', 'site:marches-publics.info titulaire entreprise', 'site:klekoon.com attribution entreprise'\n  ];\n  for (const region of regions) {\n    for (const pattern of patterns) {\n      if (alreadyEnough()) break;\n      const hits = await searchResults(pattern + ' ' + region);\n      for (const hit of hits) {\n        if (alreadyEnough()) break;\n        const title = hit.title.split(/\\s[|–—-]\\s/)[0].trim();\n        if (!title || title.length < 3) continue;\n        await addCandidate({\n          nom: title, source_type: 'recherche_web',\n          source_url: hit.url, domaine_activite: hit.snippet || title,\n          departement: null\n        });\n      }\n      await pause(200);\n    }\n    if (alreadyEnough()) break;\n  }\n}\nconst eligible = [...foundSmall, ...foundLarge].sort((a,b) => a.rank - b.rank).slice(0, target).map(x => x.lead);\nreturn [{\n  json: {\n    debut, mode, cible: target, avis_lus: avisLus, candidats_vus: candidatsVus,\n    nouvelles: eligible, sorties: eligible.length, erreur: error,\n    statut: eligible.length === target ? 'ok' : (eligible.length ? 'partiel' : 'vide')\n  }\n}];"
+      }
+    },
+    {
+      "id": "f-insert",
+      "name": "Enregistrer les nouvelles entreprises",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1320,
+        100
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "=https://jsmffmtzoauvqltshiyg.supabase.co/rest/v1/entreprises?on_conflict=siret",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "supabaseApi",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Prefer",
+              "value": "resolution=ignore-duplicates,return=minimal"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify($json.nouvelles.length ? $json.nouvelles : []) }}",
+        "options": {
+          "timeout": 60000
+        }
+      },
+      "credentials": {
+        "supabaseApi": {
+          "id": "",
+          "name": "Supabase Lumen"
+        }
+      },
+      "continueOnFail": true,
+      "alwaysOutputData": true
+    },
+    {
+      "id": "f-log-prep",
+      "name": "Préparer le journal",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1540,
+        100
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "const c = $('Collecter et qualifier les entreprises').last().json;\nconst save = $input.all().map(x => x.json || {}).filter(x => x.error);\nlet statut = c.statut || 'vide';\nlet message = c.erreur || null;\nif (save.length) { statut = 'erreur'; message = 'Écriture Supabase impossible : ' + JSON.stringify(save[0].error).slice(0, 250); }\nelse if (c.sorties < c.cible && !message) message = 'Cible non atteinte : seules les fiches complètes trouvées sont enregistrées.';\nreturn [{\n  json: {\n    agent: 'F-commercial', debut: c.debut, fin: new Date().toISOString(),\n    statut, entrees: c.avis_lus, sorties: c.sorties,\n    details: { mode: c.mode, cible: c.cible, candidats_vus: c.candidats_vus },\n    message\n  }\n}];"
+      }
+    },
+    {
+      "id": "f-log",
+      "name": "Écrire le journal",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1760,
+        100
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "=https://jsmffmtzoauvqltshiyg.supabase.co/rest/v1/agent_runs",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "supabaseApi",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Prefer",
+              "value": "return=minimal"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify($json) }}",
+        "options": {
+          "timeout": 60000
+        }
+      },
+      "credentials": {
+        "supabaseApi": {
+          "id": "",
+          "name": "Supabase Lumen"
+        }
+      },
+      "continueOnFail": true,
+      "alwaysOutputData": true
+    }
+  ],
+  "connections": {
+    "Chaque jour à 10 h": {
+      "main": [
+        [
+          {
+            "node": "Définir le traitement",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Retour email introuvable": {
+      "main": [
+        [
+          {
+            "node": "Définir le traitement",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Définir le traitement": {
+      "main": [
+        [
+          {
+            "node": "Remplacement après rebond ?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Remplacement après rebond ?": {
+      "main": [
+        [
+          {
+            "node": "Marquer l’email en rebond",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Lire les SIREN déjà en base",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Marquer l’email en rebond": {
+      "main": [
+        [
+          {
+            "node": "Lire les SIREN déjà en base",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Lire les SIREN déjà en base": {
+      "main": [
+        [
+          {
+            "node": "Collecter et qualifier les entreprises",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Collecter et qualifier les entreprises": {
+      "main": [
+        [
+          {
+            "node": "Enregistrer les nouvelles entreprises",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Enregistrer les nouvelles entreprises": {
+      "main": [
+        [
+          {
+            "node": "Préparer le journal",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Préparer le journal": {
+      "main": [
+        [
+          {
+            "node": "Écrire le journal",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "timezone": "Europe/Paris"
+  },
+  "pinData": {}
+}
