@@ -7,7 +7,7 @@
 <title>Pilotage – Lumen</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&display=swap">
-<link rel="stylesheet" href="admin.css?v=202611091048">
+<link rel="stylesheet" href="admin.css?v=202611112030">
 </head>
 <body>
 <div id="porte" hidden>
@@ -27,6 +27,7 @@
     <a class="marque" href="index.html"><span class="marque-ic"><svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="4" y="10" width="3.6" height="10" rx="1.8"/><rect x="10.2" y="5" width="3.6" height="15" rx="1.8"/><rect x="16.4" y="12" width="3.6" height="8" rx="1.8"/></svg></span><span>Lumen Pilotage</span></a>
     <nav class="onglets nav" aria-label="Menu">
       <button data-v="ensemble">Vue d'ensemble</button>
+      <button data-v="analytics">Analytique</button>
       <button data-v="agents">Agents</button>
       <button data-v="clients">Clients</button>
       <button data-v="demandes">Demandes<span class="compteur zero" id="n-demandes">0</span></button>
@@ -56,6 +57,7 @@
     </div>
     <div class="rail-groupe nav">
       <button data-v="ensemble" title="Vue d'ensemble" aria-label="Vue d'ensemble"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="3.5" width="7" height="7" rx="1.6"/><rect x="13.5" y="3.5" width="7" height="7" rx="1.6"/><rect x="3.5" y="13.5" width="7" height="7" rx="1.6"/><rect x="13.5" y="13.5" width="7" height="7" rx="1.6"/></svg></button>
+      <button data-v="analytics" title="Analytique" aria-label="Analytique"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg></button>
       <button data-v="agents" title="Agents" aria-label="Agents"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="8" width="16" height="11" rx="3"/><path d="M12 4v4M9 13v1M15 13v1M2 13v2M22 13v2"/></svg></button>
       <button data-v="clients" title="Clients" aria-label="Clients"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.6-3.4 3.2-5.5 6.5-5.5s5.9 2.1 6.5 5.5M16 4.8a3.5 3.5 0 0 1 0 6.4M18.5 14.8c1.7.8 2.8 2.6 3 5.2"/></svg></button>
       <button data-v="demandes" title="Demandes" aria-label="Demandes"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 13h5l1.5 3h5L16 13h5"/><path d="M5.5 5h13L21 13v5a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-5z"/></svg><i class="badge" id="rail-badge" hidden></i></button>
@@ -107,6 +109,32 @@
           <div class="carte-xl">
             <div class="bloc-tete"><h2>Clients</h2><button class="btn-pil" data-aller="clients"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7M8 7h9v9"/></svg>Voir tout</button></div>
             <ul class="liste-pil" id="ens-clients"></ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="vue" id="v-analytics" data-titre="Analytique">
+      <div class="page an-page">
+        <div class="entete">
+          <span class="tuile-ic"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M5 20V11M12 20V5M19 20v-7"/></svg></span>
+          <div><h1>Analytique</h1><p>Revenu, clients, rétention, offres et prospection dans le temps · <span id="an-maj"></span></p></div>
+          <div class="actions">
+            <div class="an-seg" id="an-periode" role="group" aria-label="Période"><button data-p="30" aria-pressed="false">30 jours</button><button data-p="90" aria-pressed="true">90 jours</button><button data-p="365" aria-pressed="false">12 mois</button></div>
+            <button class="btn" id="an-rafraichir"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M20 11a8 8 0 1 0-2.3 5.7M20 4v7h-7"/></svg>Actualiser</button>
+          </div>
+        </div>
+        <div class="an-etat" id="an-etat" hidden></div>
+        <div id="an-contenu">
+          <div class="an-tuiles" id="an-tuiles"></div>
+          <div class="an-grille">
+            <div class="carte-xl an-bloc" id="an-revenu"><div class="bloc-tete"><h2>Argent généré</h2></div><div id="an-revenu-corps"></div></div>
+            <div class="carte-xl an-bloc" id="an-clients"><div class="bloc-tete"><h2>Clients</h2></div><div id="an-clients-corps"></div></div>
+            <div class="carte-xl an-bloc an-large" id="an-retention"><div class="bloc-tete"><h2>Rétention</h2></div><div id="an-retention-corps"></div></div>
+            <div class="carte-xl an-bloc" id="an-offres"><div class="bloc-tete"><h2>Offres stockées</h2></div><div id="an-offres-corps"></div></div>
+            <div class="carte-xl an-bloc" id="an-envoyees"><div class="bloc-tete"><h2>Offres envoyées aux clients</h2></div><div id="an-envoyees-corps"></div></div>
+            <div class="carte-xl an-bloc" id="an-prospection"><div class="bloc-tete"><h2>Prospection</h2></div><div id="an-prospection-corps"></div></div>
+            <div class="carte-xl an-bloc" id="an-analyses"><div class="bloc-tete"><h2>Dossiers analysés</h2></div><div id="an-analyses-corps"></div></div>
           </div>
         </div>
       </div>
@@ -215,6 +243,7 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
 <script src="commun.js?v=202611091048"></script>
 <script src="agents.js?v=202611091048"></script>
+<script src="analytics.js?v=202611112030"></script>
 <script>
 let D = { profils: [], envoyees: [], analyses: [], demandes: [], runs: [], collecte24: 0, offresTotal: 0 };
 
@@ -272,7 +301,7 @@ function spark(serie, coul) {
 }
 function delta(act, prec) { const d = act - prec; return { txt: (d > 0 ? "+" : d < 0 ? "−" : "") + nf(Math.abs(d)), cl: d > 0 ? "up" : d < 0 ? "dn" : "" }; }
 function carteKpi(k) {
-  return `<div class="kpi"><span class="kpi-ic" style="--f-ic:${k.fond};--c-ic:${k.coul}">${k.ic}</span><div class="kpi-txt"><span class="kpi-lab">${k.lab}</span><strong>${k.val}</strong>
+  return `<div class="kpi kpi-lien" role="button" tabindex="0" data-an="${k.an}" title="Voir le détail dans Analytique"><span class="kpi-ic" style="--f-ic:${k.fond};--c-ic:${k.coul}">${k.ic}</span><div class="kpi-txt"><span class="kpi-lab">${k.lab}</span><strong>${k.val}</strong>
     <div class="kpi-pied"><span class="chip ${k.chipCl || ""}"><i></i>${k.chip}</span><small>${k.sous}</small></div></div>${k.droite || ""}</div>`;
 }
 function jauge(score) {
@@ -343,11 +372,11 @@ function rendre() {
   // ---- KPI ----
   const dI = delta(inscrN, inscrP), dE = delta(envN.length, envP), dA = delta(anN, anP), lib = `vs ${J} j préc.`;
   $("#kpis").innerHTML = [
-    { ic: IC.euro, fond: "#E3F8EF", coul: "#0E8A5F", lab: "Revenu mensuel", val: nf(abonnes.length * P) + " €", chip: `${abonnes.length} abonné${abonnes.length > 1 ? "s" : ""}`, chipCl: "neutre", sous: `× ${P} € HT / mois`,
+    { ic: IC.euro, fond: "#E3F8EF", coul: "#0E8A5F", an: "an-revenu", lab: "Revenu mensuel", val: nf(abonnes.length * P) + " €", chip: `${abonnes.length} abonné${abonnes.length > 1 ? "s" : ""}`, chipCl: "neutre", sous: `× ${P} € HT / mois`,
       droite: `<div class="kpi-cote"><b>${nf(essais.length)}</b><small>en essai</small></div>` },
-    { ic: IC.user, fond: "#F1EBFF", coul: "#7C4DEB", lab: "Nouvelles inscriptions", val: nf(inscrN), chip: dI.txt, chipCl: dI.cl, sous: lib, droite: spark(sInscr, coulS(dI)) },
-    { ic: IC.send, fond: "#EAF1FF", coul: "#2F6BF2", lab: "Offres envoyées", val: nf(envN.length), chip: dE.txt, chipCl: dE.cl, sous: lib, droite: spark(sEnv, coulS(dE)) },
-    { ic: IC.doc, fond: "#FEF3DC", coul: "#B26B00", lab: "Dossiers analysés", val: nf(anN), chip: dA.txt, chipCl: dA.cl, sous: lib, droite: spark(sAn, coulS(dA)) }
+    { ic: IC.user, fond: "#F1EBFF", coul: "#7C4DEB", an: "an-clients", lab: "Nouvelles inscriptions", val: nf(inscrN), chip: dI.txt, chipCl: dI.cl, sous: lib, droite: spark(sInscr, coulS(dI)) },
+    { ic: IC.send, fond: "#EAF1FF", coul: "#2F6BF2", an: "an-envoyees", lab: "Offres envoyées", val: nf(envN.length), chip: dE.txt, chipCl: dE.cl, sous: lib, droite: spark(sEnv, coulS(dE)) },
+    { ic: IC.doc, fond: "#FEF3DC", coul: "#B26B00", an: "an-analyses", lab: "Dossiers analysés", val: nf(anN), chip: dA.txt, chipCl: dA.cl, sous: lib, droite: spark(sAn, coulS(dA)) }
   ].map(carteKpi).join("");
 
   // ---- Passages par agent ----
@@ -769,12 +798,13 @@ async function ollamaAction(action, tag) {
 
 /* ---------- Navigation ---------- */
 function aller(v) {
-  if (!["ensemble", "clients", "agents", "demandes", "ollama"].includes(v)) v = "ensemble";
+  if (!["ensemble", "analytics", "clients", "agents", "demandes", "ollama"].includes(v)) v = "ensemble";
   $$(".vue").forEach(s => s.classList.toggle("on", s.id === "v-" + v));
   $$(".nav [data-v]").forEach(b => b.dataset.v === v ? b.setAttribute("aria-current", "page") : b.removeAttribute("aria-current"));
   $("#titre").firstChild.textContent = $("#v-" + v).dataset.titre + " ";
   history.replaceState(null, "", "#" + v);
   if (v === "ollama" && !Ollama.chargee) { Ollama.chargee = true; rafraichirOllama(); }
+  if (v === "analytics") rendreAnalytics(false);
 }
 $$(".nav [data-v]").forEach(b => b.onclick = () => aller(b.dataset.v));
 /* Texte coupé : on affiche le texte complet au survol */
@@ -784,6 +814,10 @@ document.addEventListener("mouseover", e => {
   if (el.scrollWidth > el.clientWidth + 1 || el.scrollHeight > el.clientHeight + 1) el.title = el.textContent.replace(/\s+/g, " ").trim();
 });
 entrer().catch(() => porte("Connexion à la base impossible. Réessayez."));
+
+/* Cartes KPI de l'accueil : ouvrent la page Analytique au bon graphique */
+$("#kpis").addEventListener("click", e => { const k = e.target.closest(".kpi-lien"); if (k) ouvrirAnalytics(k.dataset.an); });
+$("#kpis").addEventListener("keydown", e => { const k = e.target.closest(".kpi-lien"); if (k && (e.key === "Enter" || e.key === " ")) { e.preventDefault(); ouvrirAnalytics(k.dataset.an); } });
 </script>
 </body>
 </html>

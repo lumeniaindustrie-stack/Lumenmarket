@@ -728,3 +728,75 @@ td .muted, td strong { display: inline-block; max-width: 100%; overflow: hidden;
 .reseau-canvas { padding-top: 29px }
 #schema { max-height: 850px }
 .defile:has(#schema) { max-height: 850px; overflow-y: auto }
+
+/* ───────── Cartes KPI de l'accueil : cliquables vers Analytique ───────── */
+.kpi-lien { cursor: pointer; transition: border-color .15s, box-shadow .15s, transform .15s }
+.kpi-lien:hover { border-color: var(--line-2); box-shadow: var(--shadow-lg); transform: translateY(-1px) }
+.kpi-lien:focus-visible { outline: 2px solid var(--bleu); outline-offset: 2px }
+
+/* ───────── Page Analytique ───────── */
+.an-seg { display: inline-flex; background: var(--panel); border: 1px solid var(--line); border-radius: 577px; padding: 2px; gap: 2px }
+.an-seg button { height: 23px; padding: 0 11px; border-radius: 577px; font-size: 11.5px; color: var(--t2) }
+.an-seg button:hover { background: var(--panel-2) }
+.an-seg button[aria-pressed="true"] { background: var(--t1); color: #fff }
+.an-etat { background: var(--orange-f); border: 1px solid #F6D9A0; color: var(--t1); border-radius: var(--r-lg); padding: 11.5px 13px; font-size: 12px; line-height: 1.55 }
+.an-etat code { font-family: var(--mono); font-size: 11px; background: #fff; padding: 1px 5px; border-radius: 4px }
+.an-etat small { display: block; color: var(--t3); margin-top: 4px }
+.an-page, #an-contenu { grid-template-columns: minmax(0, 1fr) }
+#an-contenu { display: grid; gap: 11.5px }
+.an-tuiles { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px }
+.an-tuile { background: var(--panel); border: 1px solid var(--line); border-radius: var(--r-lg); padding: 11.5px 13px; box-shadow: var(--shadow); min-width: 0 }
+.an-tuile span { display: block; font-size: 11.5px; color: var(--t2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis }
+.an-tuile strong { display: block; font-size: 22px; font-weight: 600; letter-spacing: -.035em; line-height: 1.2; margin: 3px 0 2px; font-variant-numeric: tabular-nums }
+.an-tuile small { font-size: 11px; color: var(--t3) }
+.an-tuile small.up { color: var(--vert-t) } .an-tuile small.dn { color: var(--rouge-t) }
+.an-grille { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 11.5px; align-items: start }
+.an-large { grid-column: 1 / -1 }
+.an-bloc { scroll-margin-top: 70px }
+.an-bloc h3 { font-size: 12px; font-weight: 500; color: var(--t2); margin: 12px 0 2px }
+.an-flash { animation: anFlash 1.6s ease }
+@keyframes anFlash { 0%, 40% { box-shadow: 0 0 0 3px rgba(47,107,242,.35), var(--shadow) } 100% { box-shadow: var(--shadow) } }
+.an-g { position: relative; min-height: 60px }
+.an-trace { position: relative }
+.an-svg { display: block; max-width: 100% }
+.an-svg text { font-family: var(--f) }
+.an-axe { font-size: 10.5px; fill: var(--t3); font-variant-numeric: tabular-nums }
+line.an-quad { stroke: var(--line); stroke-width: 1 }
+line.an-base { stroke: var(--line-2); stroke-width: 1 }
+.an-guide { stroke: var(--t3); stroke-width: 1; stroke-dasharray: 3 3 }
+.an-zone { cursor: crosshair }
+.an-vide-graphe { position: absolute; inset: 0 0 22px 0; display: grid; place-items: center; color: var(--t3); font-size: 11.5px; pointer-events: none }
+.an-tip { position: absolute; z-index: 5; pointer-events: none; background: var(--panel); border: 1px solid var(--line); border-radius: 9px; box-shadow: var(--shadow-lg); padding: 8px 10px; display: grid; gap: 3px; min-width: 150px; font-size: 11.5px }
+.an-tip b { font-weight: 600; color: var(--t1); margin-bottom: 1px }
+.an-tip span { display: flex; align-items: center; gap: 6px; color: var(--t2) }
+.an-tip span i { width: 8px; height: 8px; border-radius: 2px; flex: none }
+.an-tip span strong { margin-left: auto; padding-left: 10px; color: var(--t1); font-variant-numeric: tabular-nums }
+.an-legende { display: flex; gap: 14px; flex-wrap: wrap; font-size: 11.5px; color: var(--t2); margin-bottom: 6px }
+.an-legende span { display: inline-flex; align-items: center; gap: 6px }
+.an-legende i.carre { width: 9px; height: 9px; border-radius: 2px }
+.an-legende i.trait { width: 14px; height: 2.5px; border-radius: 2px }
+.an-note { font-size: 11px; color: var(--t3); margin-top: 8px; line-height: 1.5 }
+.an-donnees { margin-top: 8px }
+.an-donnees summary { cursor: pointer; font-size: 11.5px; color: var(--bleu); width: max-content }
+.an-donnees .tableau { max-height: 240px; overflow: auto; margin-top: 6px; border: 1px solid var(--line); border-radius: var(--r) }
+.an-donnees td, .an-donnees th { padding: 5px 10px; font-variant-numeric: tabular-nums }
+.an-mini { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin-top: 12px }
+.an-mini-haut { margin: 0 0 10px }
+.an-mini div { background: var(--panel); border: 1px solid var(--line); border-radius: var(--r); padding: 8px 10px; min-width: 0 }
+.an-mini span { display: block; font-size: 11px; color: var(--t3) }
+.an-mini b { font-size: 16px; font-weight: 600; letter-spacing: -.02em; font-variant-numeric: tabular-nums }
+.an-entonnoir { display: grid; gap: 7px; margin-top: 6px }
+.an-etape { display: grid; grid-template-columns: 130px minmax(0, 1fr) 52px 40px; align-items: center; gap: 9px; font-size: 11.5px }
+.an-etape span { color: var(--t2) }
+.an-etape b { text-align: right; font-variant-numeric: tabular-nums }
+.an-etape small { color: var(--t3); text-align: right; font-variant-numeric: tabular-nums }
+.an-barre { height: 14px; background: var(--panel-2); border-radius: 4px; overflow: hidden }
+.an-barre i { display: block; height: 100%; background: #2F6BF2; border-radius: 4px }
+.an-ret { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.3fr); gap: 22px }
+.an-cohortes td.an-c { background: rgba(47,107,242,var(--a, 0)); text-align: left }
+.an-cohortes td.an-c b { font-weight: 600; margin-right: 6px }
+.an-cohortes td.an-c small { color: var(--t3) }
+@media (max-width: 1240px) { .an-tuiles { grid-template-columns: repeat(2, minmax(0, 1fr)) } .an-grille, .an-ret { grid-template-columns: minmax(0, 1fr) } }
+@media (max-width: 520px) { .an-tuiles { grid-template-columns: minmax(0, 1fr) } .an-mini { grid-template-columns: minmax(0, 1fr) } .an-etape { grid-template-columns: 96px minmax(0, 1fr) 44px 34px } }
+.an-page .entete > div:not(.actions) { min-width: 0; flex: 1 1 220px }
+.an-page .entete p { white-space: normal }
