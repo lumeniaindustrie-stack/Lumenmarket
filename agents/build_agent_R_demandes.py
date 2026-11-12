@@ -20,7 +20,7 @@ const EMAIL_ADMIN = 'lumeniaindustrie@gmail.com';   // qui reçoit les nouvelles
 const demandes = $input.all().map(i => i.json).filter(d => d && d.id && d.email);
 if (!demandes.length) return [];
 const esc = s => String(s ?? '').replace(/[&<>"]/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[ch]));
-const LOGO = 'https://lumen-marches.pages.dev/logo-signature.png?v=2';
+const LOGO = 'https://lumen-marche.fr/logo-signature.png?v=2';
 const LIB = { diagnostic: 'Diagnostic IA sur place (300 € HT)', agents: 'Autre demande (agent IA, automatisation…)', ia_locale: 'Installation d\'une IA locale (sur devis)', accompagnement: 'Accompagnement personnalisé (500 € HT)' };
 const ligne = (k, v) => v ? `<tr><td style="padding:5px 12px 5px 0;color:#6B7280;vertical-align:top;white-space:nowrap;">${esc(k)}</td><td style="padding:5px 0;color:#171A21;">${esc(v)}</td></tr>` : '';
 const cadre = (contenu) => `<!doctype html><html><body style="margin:0;padding:0;background:#F6F7F9;font-family:Arial,Helvetica,sans-serif;">

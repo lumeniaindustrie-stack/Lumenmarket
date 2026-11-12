@@ -261,7 +261,7 @@ a.ar-svc:hover::after { opacity: 1 }
     const age = d => d ? (Date.now() - new Date(d.debut)) / 36e5 : Infinity;
 
     $("#col-code").innerHTML = svc({ nom: "GitHub", role: "Dépôt lumeniaindustrie-stack/Lumenmarket", ic: ICO.gh, c: "#334155", f: "#F1F5F9", url: "https://github.com/lumeniaindustrie-stack/Lumenmarket", etat: "Déploie à chaque push", cl: "ok" });
-    $("#col-heb").innerHTML = svc({ nom: "Site clients", role: "Cloudflare Pages · lumen-marches.pages.dev", ic: ICO.cf, c: "#F38020", f: "#FFF1E6", url: "https://lumen-marches.pages.dev", etat: "En ligne", cl: "ok" })
+    $("#col-heb").innerHTML = svc({ nom: "Site clients", role: "Cloudflare Pages · lumen-marche.fr", ic: ICO.cf, c: "#F38020", f: "#FFF1E6", url: "https://lumen-marche.fr", etat: "En ligne", cl: "ok" })
       + svc({ nom: "Pilotage", role: "Cloudflare Pages · lumenmarket.pages.dev", ic: ICO.cf, c: "#F38020", f: "#FFF1E6", url: "https://lumenmarket.pages.dev", etat: "En ligne (vous y êtes)", cl: "ok" });
     $("#col-db").innerHTML = svc({ nom: "Supabase", role: "Comptes, offres, analyses, chat, journal des agents", ic: ICO.db, c: "#3ECF8E", f: "#E6FAF1", url: SUPA + "/editor", etat: dbOk ? "Connectée · données en direct" : "Connexion impossible", cl: dbOk ? "ok" : "ko" });
     const agents = ["A-collecteur", "B-tri", "C-chat", "D-analyse", "G-controle", "F-commercial", "K-prospection", "R-demandes", "H-comptable"].map(code => {
@@ -273,7 +273,7 @@ a.ar-svc:hover::after { opacity: 1 }
       + svc({ nom: "Ollama", role: "IA locale · qwen2.5:7b · port 11434", ic: '<b>IA</b>', c: "#8B5CF6", f: "#F1EBFF", url: "http://localhost:11434", etat: dOll ? (dOll.statut === "erreur" ? "Dernier appel en erreur " : "Dernier appel ") + quand(dOll.debut) : "Pas d'appel cette semaine", cl: dOll ? (dOll.statut === "erreur" ? "ko" : "ok") : "att" });
     $("#col-ext").innerHTML = svc({ nom: "BOAMP", role: "Marchés publics · API officielle", ic: ICO.boamp, c: "#6D4AE0", f: "#F0EBFF", url: "https://www.boamp.fr", etat: dA ? "Collecte " + quand(dA.debut) : "Aucune collecte", cl: age(dA) < 3 ? "ok" : "att" })
       + svc({ nom: "Brevo", role: "Envoi des emails : veille, analyses, alertes", ic: ICO.mail, c: "#0EA5C6", f: "#E3F6FB", url: "https://app.brevo.com", etat: dMail ? "Dernier agent émetteur " + quand(dMail.debut) : "Aucun envoi récent", cl: dMail ? "ok" : "att" });
-    $("#col-users").innerHTML = svc({ nom: "Clients PME", role: "Espace client : veille, assistant, analyses", ic: ICO.pme, c: "#2F6BF2", f: "#EAF1FF", url: "https://lumen-marches.pages.dev", etat: comptes[0].count != null ? `${Math.max(0, comptes[0].count - 1)} comptes` : "", cl: "ok" })
+    $("#col-users").innerHTML = svc({ nom: "Clients PME", role: "Espace client : veille, assistant, analyses", ic: ICO.pme, c: "#2F6BF2", f: "#EAF1FF", url: "https://lumen-marche.fr", etat: comptes[0].count != null ? `${Math.max(0, comptes[0].count - 1)} comptes` : "", cl: "ok" })
       + svc({ nom: "Administrateur", role: "Pilotage et alertes de l'agent G", ic: ICO.admin, c: "#7C3AED", f: "#F3EDFF", url: "index.html", etat: "Connecté", cl: "ok" });
 
     $("#ar-ouvrir-db").href = SUPA + "/editor";

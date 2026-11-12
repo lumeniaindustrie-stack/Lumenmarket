@@ -22,7 +22,7 @@ const PILOTAGE = 'https://lumenmarket.pages.dev/#clients';
 const clients = $input.all().map(i => i.json).filter(p => p && p.id && p.email);
 if (!clients.length) return [];
 const esc = s => String(s ?? '').replace(/[&<>"]/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[ch]));
-const LOGO = 'https://lumen-marches.pages.dev/logo-signature.png?v=2';
+const LOGO = 'https://lumen-marche.fr/logo-signature.png?v=2';
 const date = s => s ? new Date(s).toLocaleDateString('fr-FR', { timeZone: 'Europe/Paris', day: 'numeric', month: 'long', year: 'numeric' }) : '';
 const heure = s => s ? new Date(s).toLocaleTimeString('fr-FR', { timeZone: 'Europe/Paris', hour: '2-digit', minute: '2-digit' }) : '';
 const ligne = (k, v) => v ? `<tr><td style="padding:5px 14px 5px 0;color:#6B7280;vertical-align:top;white-space:nowrap;">${esc(k)}</td><td style="padding:5px 0;color:#171A21;">${esc(v)}</td></tr>` : '';
