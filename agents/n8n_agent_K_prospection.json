@@ -32,7 +32,7 @@
       ],
       "parameters": {
         "method": "GET",
-        "url": "=https://jsmffmtzoauvqltshiyg.supabase.co/rest/v1/entreprises?select=*&email_valide=eq.true&date_envoi=is.null&limit=1000",
+        "url": "=https://jsmffmtzoauvqltshiyg.supabase.co/rest/v1/entreprises?select=*&email_valide=eq.true&date_envoi=is.null&or=(offres_verifiees_le.is.null,offres_verifiees_le.lt.{{ $now.minus({days:3}).toISO() }})&order=trouve_le.asc&limit=8",
         "authentication": "predefinedCredentialType",
         "nodeCredentialType": "supabaseApi",
         "options": {
@@ -50,7 +50,7 @@
     },
     {
       "id": "k3",
-      "name": "Lire les offres ouvertes nouvelles",
+      "name": "Lire les offres ouvertes de la zone",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
@@ -59,7 +59,7 @@
       ],
       "parameters": {
         "method": "GET",
-        "url": "=https://jsmffmtzoauvqltshiyg.supabase.co/rest/v1/offres?select=avis_id,objet,acheteur,departements,lieu,type_marche,descripteurs,montant,parution,limite,url,lumen_collecte_le&limite=gt.{{ $now.toISO() }}&lumen_collecte_le=gte.{{ $now.minus({days:7}).toISO() }}&order=lumen_collecte_le.desc&limit=1000",
+        "url": "=https://jsmffmtzoauvqltshiyg.supabase.co/rest/v1/offres?select=avis_id,objet,acheteur,departements,lieu,type_marche,descripteurs,montant,parution,limite,url,lumen_collecte_le&departements=ov.%7B{{ $json.deps }}%7D&limite=gt.{{ $now.toISO() }}&order=lumen_collecte_le.desc&limit=1000",
         "authentication": "predefinedCredentialType",
         "nodeCredentialType": "supabaseApi",
         "options": {
@@ -115,7 +115,7 @@
       ],
       "parameters": {
         "mode": "runOnceForAllItems",
-        "jsCode": "// Pour chaque entreprise à contacter (jusqu'à 2 par passage, 10 par jour) : pré-sélection des offres\n// ouvertes de son département ou de sa région ayant au moins un mot en commun avec son activité.\n// L'IA choisit ensuite la meilleure (ou aucune) à l'étape suivante.\nconst L=$('Lire les entreprises'),O=$('Lire les offres ouvertes nouvelles'),S=$('Compter les envois du jour');\nif([L,O,S].some(n=>n.all().some(i=>i.json?.error)))throw new Error('Erreur Supabase : vérifier credentials et colonnes.');\nconst leads=L.all().map(i=>i.json||{}).filter(x=>x.email&&x.siren&&x.siret), sent=new Set(S.all().map(i=>i.json||{}).filter(x=>x.siret).map(x=>x.siret)).size, slots=Math.max(0,Math.min(2,10-sent)); if(!slots)return [];\nconst now=Date.now(), vusO=new Set(), offers=O.all().map(i=>i.json||{}).filter(o=>o.avis_id&&!vusO.has(o.avis_id)&&vusO.add(o.avis_id)).filter(o=>o.avis_id&&Date.parse(o.limite||'')>now&&Date.parse(o.lumen_collecte_le||o.parution||'')>now-604800000);\nconst norm=s=>String(s||'').toLowerCase().normalize('NFD').replace(/[\\u0300-\\u036f]/g,'').replace(/[^a-z0-9]+/g,' ').trim(), dep=s=>String(s||'').trim().toUpperCase().replace(/^([0-9])$/,'0$1');\nconst rg={'ARA':'01 03 07 15 26 38 42 43 63 69 73 74','BFC':'21 25 39 58 70 71 89 90','BRE':'22 29 35 56','CVL':'18 28 36 37 41 45','COR':'2A 2B','GES':'08 10 51 52 54 55 57 67 68 88','HDF':'02 59 60 62 80','IDF':'75 77 78 91 92 93 94 95','NOR':'14 27 50 61 76','NAQ':'16 17 19 23 24 33 40 47 64 79 86 87','OCC':'09 11 12 30 31 32 34 46 48 65 66 81 82','PDL':'44 49 53 72 85','PAC':'04 05 06 13 83 84'}, region=d=>Object.entries(rg).find(([,v])=>v.split(' ').includes(dep(d)))?.[0];\nconst VIDES=new Set(['entreprise','activite','activites','marche','marches','public','publics','travaux','service','services','autres','autre','pour','avec','dans','divers','diverses','fourniture','fournitures','prestation','prestations','commune','ville','departement','general','generale','sarl','societe']);\nconst words=s=>new Set(norm(s).split(' ').filter(w=>w.length>3&&!VIDES.has(w)));\nconst out=[];let n=0;\nfor(const e of leads){\n  if(n>=slots)break;\n  const last=Date.parse(e.offres_verifiees_le||'')||0, fresh=offers.filter(o=>Date.parse(o.lumen_collecte_le||o.parution||'')>last);\n  if(!fresh.length)continue;\n  const checkedAt=new Date(Math.max(...fresh.map(o=>Date.parse(o.lumen_collecte_le||o.parution)))).toISOString();\n  const ed=dep(e.departement||e.code_departement), ew=words([e.domaine_activite,e.secteur,e.source_marche].join(' '));\n  const ms=fresh.map(o=>{const ds=(Array.isArray(o.departements)?o.departements:String(o.departements||'').split(/[,; ]+/)).map(dep).filter(Boolean), ow=words([o.objet,o.descripteurs,o.type_marche].join(' '));let k=0;for(const w of ew)if(ow.has(w))k++;const same=ds.includes(ed),near=ds.some(d=>region(d)&&region(d)===region(ed));return{o,ds,k,g:same?2:near?1:0}})\n    .filter(x=>x.k&&x.g).sort((a,b)=>(b.k*10+b.g)-(a.k*10+a.g)).slice(0,6);\n  if(!ms.length){out.push({json:{action:'non_envoye',id:e.siret,checkedAt}});continue}\n  out.push({json:{action:'send',checkedAt,lead:{siret:e.siret,siren:e.siren,email:e.email,nom:e.nom||e.raison_sociale||'',dirigeant:String(e.dirigeant||'').trim(),\n    ville:e.ville||'',departement:ed,secteur:e.secteur||'',domaine_activite:e.domaine_activite||'',source_marche:e.source_marche||'',date_attribution:e.date_attribution||''},\n    candidats:ms.map(x=>({avis_id:x.o.avis_id,objet:x.o.objet||'',acheteur:x.o.acheteur||'',type_marche:x.o.type_marche||'',departements:x.ds,\n      dep_proche:x.ds.includes(ed)?ed:(x.ds.find(d=>region(d)===region(ed))||x.ds[0]||''),montant:x.o.montant,limite:x.o.limite,url:x.o.url||'',lieu:x.o.lieu||''}))}});\n  n++;\n}\nreturn out;\n"
+        "jsCode": "// Pour chaque entreprise à contacter (jusqu'à 2 par passage, 10 par jour) : pré-sélection des offres\n// ouvertes de son département ou de sa région ayant au moins un mot en commun avec son activité.\n// L'IA choisit ensuite la meilleure (ou aucune) à l'étape suivante.\nconst L=$('Lire les entreprises'),O=$('Lire les offres ouvertes de la zone'),S=$('Compter les envois du jour');\nif([L,O,S].some(n=>n.all().some(i=>i.json?.error)))throw new Error('Erreur Supabase : vérifier credentials et colonnes.');\nconst leads=L.all().map(i=>i.json||{}).filter(x=>x.email&&x.siren&&x.siret), sent=new Set(S.all().map(i=>i.json||{}).filter(x=>x.siret).map(x=>x.siret)).size, slots=Math.max(0,Math.min(2,10-sent)); if(!slots)return [];\nconst now=Date.now(), vusO=new Set(), offers=O.all().map(i=>i.json||{}).filter(o=>o.avis_id&&!vusO.has(o.avis_id)&&vusO.add(o.avis_id)).filter(o=>o.avis_id&&Date.parse(o.limite||'')>now);\nconst norm=s=>String(s||'').toLowerCase().normalize('NFD').replace(/[\\u0300-\\u036f]/g,'').replace(/[^a-z0-9]+/g,' ').trim(), dep=s=>String(s||'').trim().toUpperCase().replace(/^([0-9])$/,'0$1');\nconst rg={'ARA':'01 03 07 15 26 38 42 43 63 69 73 74','BFC':'21 25 39 58 70 71 89 90','BRE':'22 29 35 56','CVL':'18 28 36 37 41 45','COR':'2A 2B','GES':'08 10 51 52 54 55 57 67 68 88','HDF':'02 59 60 62 80','IDF':'75 77 78 91 92 93 94 95','NOR':'14 27 50 61 76','NAQ':'16 17 19 23 24 33 40 47 64 79 86 87','OCC':'09 11 12 30 31 32 34 46 48 65 66 81 82','PDL':'44 49 53 72 85','PAC':'04 05 06 13 83 84'}, region=d=>Object.entries(rg).find(([,v])=>v.split(' ').includes(dep(d)))?.[0];\nconst VIDES=new Set(['entreprise','activite','activites','marche','marches','public','publics','travaux','service','services','autres','autre','pour','avec','dans','divers','diverses','fourniture','fournitures','prestation','prestations','commune','ville','departement','general','generale','sarl','societe']);\nconst words=s=>new Set(norm(s).split(' ').filter(w=>w.length>3&&!VIDES.has(w)));\nconst out=[];let n=0;\nfor(const e of leads){\n  if(n>=slots)break;\n  // toutes les offres encore ouvertes de la zone ; une entreprise écartée est revue 3 jours plus tard\n  const fresh=offers, checkedAt=new Date().toISOString();\n  if(!fresh.length)continue;\n  const ed=dep(e.departement||e.code_departement), ew=words([e.domaine_activite,e.secteur,e.source_marche].join(' '));\n  const ms=fresh.map(o=>{const ds=(Array.isArray(o.departements)?o.departements:String(o.departements||'').split(/[,; ]+/)).map(dep).filter(Boolean), ow=words([o.objet,o.descripteurs,o.type_marche].join(' '));let k=0;for(const w of ew)if(ow.has(w))k++;const same=ds.includes(ed),near=ds.some(d=>region(d)&&region(d)===region(ed));return{o,ds,k,g:same?2:near?1:0}})\n    .filter(x=>x.k&&x.g).sort((a,b)=>(b.k*10+b.g)-(a.k*10+a.g)).slice(0,6);\n  if(!ms.length){out.push({json:{action:'non_envoye',id:e.siret,checkedAt}});continue}\n  out.push({json:{action:'send',checkedAt,lead:{siret:e.siret,siren:e.siren,email:e.email,nom:e.nom||e.raison_sociale||'',dirigeant:String(e.dirigeant||'').trim(),\n    ville:e.ville||'',departement:ed,secteur:e.secteur||'',domaine_activite:e.domaine_activite||'',source_marche:e.source_marche||'',date_attribution:e.date_attribution||''},\n    candidats:ms.map(x=>({avis_id:x.o.avis_id,objet:x.o.objet||'',acheteur:x.o.acheteur||'',type_marche:x.o.type_marche||'',departements:x.ds,\n      dep_proche:x.ds.includes(ed)?ed:(x.ds.find(d=>region(d)===region(ed))||x.ds[0]||''),montant:x.o.montant,limite:x.o.limite,url:x.o.url||'',lieu:x.o.lieu||''}))}});\n  n++;\n}\nreturn out;\n"
       }
     },
     {
@@ -561,6 +561,20 @@
         },
         "options": {}
       }
+    },
+    {
+      "id": "k_zone",
+      "name": "Zone des prospects",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        330,
+        160
+      ],
+      "parameters": {
+        "jsCode": "// Départements à couvrir : ceux des prospects de ce passage, plus les départements de leur région.\nconst rg={'ARA':'01 03 07 15 26 38 42 43 63 69 73 74','BFC':'21 25 39 58 70 71 89 90','BRE':'22 29 35 56','CVL':'18 28 36 37 41 45','COR':'2A 2B','GES':'08 10 51 52 54 55 57 67 68 88','HDF':'02 59 60 62 80','IDF':'75 77 78 91 92 93 94 95','NOR':'14 27 50 61 76','NAQ':'16 17 19 23 24 33 40 47 64 79 86 87','OCC':'09 11 12 30 31 32 34 46 48 65 66 81 82','PDL':'44 49 53 72 85','PAC':'04 05 06 13 83 84'};\nconst dep=s=>String(s||'').trim().toUpperCase().replace(/^([0-9])$/,'0$1');\nconst deps=new Set();\nfor(const e of $input.all().map(i=>i.json||{})){const d=dep(e.departement);if(!d)continue;deps.add(d);const r=Object.values(rg).find(v=>v.split(' ').includes(d));if(r)r.split(' ').forEach(x=>deps.add(x));}\nreturn [{json:{deps:[...deps].join(',')||'00'}}];"
+      },
+      "alwaysOutputData": true
     }
   ],
   "connections": {
@@ -568,18 +582,7 @@
       "main": [
         [
           {
-            "node": "Lire les offres ouvertes nouvelles",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Lire les offres ouvertes nouvelles": {
-      "main": [
-        [
-          {
-            "node": "Compter les envois du jour",
+            "node": "Zone des prospects",
             "type": "main",
             "index": 0
           }
@@ -770,6 +773,28 @@
         [
           {
             "node": "Noter non envoyé",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Zone des prospects": {
+      "main": [
+        [
+          {
+            "node": "Lire les offres ouvertes de la zone",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Lire les offres ouvertes de la zone": {
+      "main": [
+        [
+          {
+            "node": "Compter les envois du jour",
             "type": "main",
             "index": 0
           }
