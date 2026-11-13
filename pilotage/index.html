@@ -211,8 +211,8 @@
 
     <section class="vue" id="v-demandes" data-titre="Demandes sur mesure">
       <div class="page">
-        <div class="entete"><span class="tuile-ic"><svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor"><path d="M5.3 3.5h13.4c.9 0 1.7.6 2 1.45L23 12v6a2.5 2.5 0 0 1-2.5 2.5h-17A2.5 2.5 0 0 1 1 18v-6l2.3-7.05c.3-.85 1.1-1.45 2-1.45zm-1.6 8h4.1c.45 0 .85.3.96.74.37 1.4 1.64 2.36 3.24 2.36s2.87-.96 3.24-2.36c.11-.44.51-.74.96-.74h4.1L18.4 5.6H5.6z" fill-rule="evenodd"/></svg></span><div><h1>Demandes sur mesure</h1><p>Pour changer le statut d'une demande : Supabase, Table Editor, table demandes.</p></div><div class="actions"><button class="btn js-rafraichir"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M20 11a8 8 0 1 0-2.3 5.7M20 4v7h-7"/></svg>Actualiser</button></div></div>
-        <div class="panneau"><div class="tableau"><table><thead><tr><th>Date</th><th>Offre</th><th>Entreprise</th><th>Contact</th><th>Besoin</th><th>Statut</th></tr></thead><tbody id="d-liste"></tbody></table></div></div>
+        <div class="entete"><span class="tuile-ic"><svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor"><path d="M5.3 3.5h13.4c.9 0 1.7.6 2 1.45L23 12v6a2.5 2.5 0 0 1-2.5 2.5h-17A2.5 2.5 0 0 1 1 18v-6l2.3-7.05c.3-.85 1.1-1.45 2-1.45zm-1.6 8h4.1c.45 0 .85.3.96.74.37 1.4 1.64 2.36 3.24 2.36s2.87-.96 3.24-2.36c.11-.44.51-.74.96-.74h4.1L18.4 5.6H5.6z" fill-rule="evenodd"/></svg></span><div><h1>Demandes sur mesure</h1><p>« Garder » marque la demande comme traitée. « Supprimer » l'efface définitivement (spam, doublon).</p></div><div class="actions"><button class="btn js-rafraichir"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M20 11a8 8 0 1 0-2.3 5.7M20 4v7h-7"/></svg>Actualiser</button></div></div>
+        <div class="panneau"><div class="tableau"><table><thead><tr><th>Date</th><th>Offre</th><th>Entreprise</th><th>Contact</th><th>Besoin</th><th>Statut</th><th>Actions</th></tr></thead><tbody id="d-liste"></tbody></table></div></div>
       </div>
     </section>
 
@@ -473,9 +473,37 @@ $("#c-filtre").addEventListener("input", rendreClients);
 function rendreDemandes() {
   $("#d-liste").innerHTML = D.demandes.length ? D.demandes.map(d => `<tr><td>${jour(d.cree_le)}</td><td>${esc(({ diagnostic: "Diagnostic IA (300 €)", agents: "Autre demande", ia_locale: "IA locale (devis)", accompagnement: "Accompagnement (500 €)" })[d.offre] || d.offre)}</td><td>${esc(d.entreprise)}<br><span class="muted">${esc(d.taille || "")}</span></td>
     <td>${esc(d.nom)}<br><a href="mailto:${esc(d.email)}">${esc(d.email)}</a><br>${esc(d.telephone || "")}${d.rappel ? `<br><span class="muted">${esc(d.rappel)}</span>` : ""}</td>
-    <td style="max-width:420px">${esc(d.besoin)}${d.outils ? `<br><span class="muted">Outils : ${esc(d.outils)}</span>` : ""}</td><td><span class="tag ${d.statut === "à rappeler" ? "att" : ""}">${esc(d.statut)}</span></td></tr>`).join("")
-    : `<tr><td colspan="6" class="vide">Aucune demande pour l'instant.</td></tr>`;
+    <td style="max-width:420px">${esc(d.besoin)}${d.outils ? `<br><span class="muted">Outils : ${esc(d.outils)}</span>` : ""}</td><td><span class="tag ${d.statut === "à rappeler" ? "att" : d.statut === "gardée" ? "ok" : ""}">${esc(d.statut)}</span></td>
+    <td class="d-actions">${d.statut === "gardée"
+      ? `<button class="btn sm" data-d-statut="à rappeler" data-id="${d.id}">À rappeler</button>`
+      : `<button class="btn sm prim" data-d-statut="gardée" data-id="${d.id}">Garder</button>`}
+      <button class="btn sm d-suppr" data-d-suppr="${d.id}">Supprimer</button></td></tr>`).join("")
+    : `<tr><td colspan="7" class="vide">Aucune demande pour l'instant.</td></tr>`;
 }
+$("#d-liste").addEventListener("click", async ev => {
+  const b = ev.target.closest("button"); if (!b || b.disabled) return;
+  const erreur = (e) => { b.disabled = false; b.textContent = "Erreur"; b.title = e.message || String(e); setTimeout(rendreDemandes, 2500); };
+  if (b.dataset.dStatut) {
+    const id = Number(b.dataset.id), statut = b.dataset.dStatut;
+    b.disabled = true;
+    const { error } = await SB.from("demandes").update({ statut }).eq("id", id);
+    if (error) return erreur(error);
+    const d = D.demandes.find(x => x.id === id); if (d) d.statut = statut;
+    rendre();
+  } else if (b.dataset.dSuppr) {
+    if (!b.classList.contains("confirmer")) {   // 1er clic : demande confirmation, 2e clic : supprime
+      b.classList.add("confirmer"); b.textContent = "Confirmer ?";
+      setTimeout(() => { if (b.isConnected && b.classList.contains("confirmer")) { b.classList.remove("confirmer"); b.textContent = "Supprimer"; } }, 4000);
+      return;
+    }
+    const id = Number(b.dataset.dSuppr);
+    b.disabled = true;
+    const { error } = await SB.from("demandes").delete().eq("id", id);
+    if (error) return erreur(error);
+    D.demandes = D.demandes.filter(x => x.id !== id);
+    rendre();
+  }
+});
 
 /* ---------- Carte des agents ---------- */
 const COCHE = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg>';

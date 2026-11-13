@@ -800,3 +800,8 @@ line.an-base { stroke: var(--line-2); stroke-width: 1 }
 @media (max-width: 520px) { .an-tuiles { grid-template-columns: minmax(0, 1fr) } .an-mini { grid-template-columns: minmax(0, 1fr) } .an-etape { grid-template-columns: 96px minmax(0, 1fr) 44px 34px } }
 .an-page .entete > div:not(.actions) { min-width: 0; flex: 1 1 220px }
 .an-page .entete p { white-space: normal }
+
+/* Demandes : boutons Garder / Supprimer */
+.d-actions { white-space: nowrap }
+.d-actions .btn + .btn { margin-left: 4px }
+.btn.d-suppr:hover, .btn.d-suppr.confirmer { background: var(--rouge-f); border-color: var(--rouge-f); color: var(--rouge-t) }
