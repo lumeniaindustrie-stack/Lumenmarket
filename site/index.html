@@ -13,7 +13,7 @@
 .hero{position:relative;overflow:hidden;border-bottom:1px solid var(--line);isolation:isolate}
 .slices{position:absolute;inset:0;z-index:-2;display:flex;gap:16px;width:128%;margin-left:-14%}
 .slice{flex:1;overflow:hidden;transform:skewX(-14deg);background:var(--sheet-2);border-radius:14px}
-.slice img{display:block;height:100%;width:150%;margin-left:-25%;object-fit:cover;transform:skewX(14deg);filter:saturate(.9)}
+.slice picture{display:contents}.slice img{display:block;height:100%;width:150%;margin-left:-25%;object-fit:cover;transform:skewX(14deg);filter:saturate(.9)}
 .slice:nth-child(3){outline:2px solid var(--accent);outline-offset:6px}
 .hero::before{content:"";position:absolute;inset:0;z-index:-1;background:
   linear-gradient(90deg,rgba(255,255,255,.98) 0%,rgba(255,255,255,.94) 40%,rgba(255,255,255,.72) 68%,rgba(255,255,255,.86) 100%),
@@ -159,11 +159,10 @@ section{padding-block:76px}
 <main>
   <div class="hero">
     <div class="slices" aria-hidden="true">
-      <div class="slice"><img src="https://images.unsplash.com/photo-1653280662710-1cac52cde6d7?auto=format&fit=crop&w=900&h=1200&q=60" alt=""></div>
-      <div class="slice"><img src="https://images.unsplash.com/photo-1631771819642-90cee9a2ccac?auto=format&fit=crop&w=900&h=1200&q=60" alt=""></div>
-      <div class="slice"><img src="https://images.unsplash.com/photo-1770625467384-304e461ef1be?auto=format&fit=crop&w=900&h=1200&q=60" alt=""></div>
-      <div class="slice"><img src="https://images.unsplash.com/photo-1623088098214-ce82ffa8f251?auto=format&fit=crop&w=900&h=1200&q=60" alt=""></div>
-      <div class="slice"><img src="https://images.unsplash.com/photo-1676210134188-4c05dd172f89?auto=format&fit=crop&w=900&h=1200&q=60" alt=""></div>
+      <div class="slice"><picture><source srcset="img/accueil-electricite.webp" type="image/webp"><img src="img/accueil-electricite.jpg" alt="" width="720" height="960" fetchpriority="high"></picture></div>
+      <div class="slice"><picture><source srcset="img/accueil-voirie.webp" type="image/webp"><img src="img/accueil-voirie.jpg" alt="" width="720" height="960" fetchpriority="high"></picture></div>
+      <div class="slice"><picture><source srcset="img/accueil-chantier.webp" type="image/webp"><img src="img/accueil-chantier.jpg" alt="" width="720" height="960"></picture></div>
+      <div class="slice"><picture><source srcset="img/accueil-batiment.webp" type="image/webp"><img src="img/accueil-batiment.jpg" alt="" width="720" height="960"></picture></div>
     </div>
     <div class="wrap">
       <div>
