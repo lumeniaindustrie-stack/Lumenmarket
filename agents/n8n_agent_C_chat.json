@@ -1,5 +1,5 @@
 {
-  "name": "Lumen – Agent C : chat client (Ollama)",
+  "name": "Lumen – Agent C : chat client (OpenAI)",
   "nodes": [
     {
       "id": "c1",
@@ -398,13 +398,13 @@
         -60
       ],
       "parameters": {
-        "jsCode": "async function modeleActif(defaut) {\n  try {\n    const r = await this.helpers.httpRequest({ method: 'GET',\n      url: 'https://jsmffmtzoauvqltshiyg.supabase.co/rest/v1/ia_parametres?id=eq.1&select=modele',\n      headers: { apikey: 'sb_publishable_kDVV8tAZEirvMiVXpr4YPw_hmAdT7Mu', Authorization: 'Bearer sb_publishable_kDVV8tAZEirvMiVXpr4YPw_hmAdT7Mu' },\n      json: true, timeout: 4000 });\n    return (Array.isArray(r) && r[0] && r[0].modele) || defaut;\n  } catch (e) { return defaut; }\n}\n\nconst OLLAMA_URL = 'http://127.0.0.1:11434';\nconst MODELE = await modeleActif('qwen2.5:7b');  // modèle choisi dans l'onglet \"Modèles IA\" du pilotage\n\nconst m = $('Lire la file').first().json;\nconst p = $('Lire le profil').all().map(i => i.json).find(x => x && x.id) || {};\nconst histo = $('Lire l\\'historique').all().map(i => i.json).filter(x => x && x.contenu).reverse();\nconst envoyees = $('Lire les offres proposées').all().map(i => i.json).filter(x => x && x.avis_id);\nconst trouvees = $('Chercher dans les offres').all().map(i => i.json).filter(x => x && x.avis_id);\nconst citee = $('Lire l\\'offre citée').all().map(i => i.json).find(x => x && x.avis_id);\nconst jj = d => d ? new Date(d).toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric', timeZone: 'UTC' }) : 'non précisée';\nconst eur = n => n ? Math.round(Number(n)).toLocaleString('fr-FR') + ' €' : 'montant non communiqué';\nconst ligne = o => `- ${o.objet} | ${o.acheteur || 'acheteur ?'} | ${o.lieu || (o.departements || []).join(', ') || 'lieu ?'} | ${eur(o.montant)} | limite ${jj(o.limite)}${o.score ? ' | note ' + o.score + '/5' : ''}${o.resume ? ' | ' + o.resume : ''} | ${o.url}`;\nconst systeme = `Tu es l'assistant de Lumen Marchés, un service de veille des marchés publics. Tu aides l'entreprise \"${p.entreprise || 'cliente'}\" à trouver et choisir ses appels d'offres.\nAujourd'hui : ${new Date().toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}.\nProfil : activité ${p.metiers || 'non précisée'} ; mots-clés ${p.mots_cles || 'aucun'} ; départements ${p.departements || 'non précisés'} ; présentation : ${String(p.description || 'non renseignée').slice(0, 600)} ; qualifications : ${p.qualifications || 'non renseignées'} ; effectif : ${p.effectif || '?'} ; exclusions : ${p.exclusions || 'aucune'}.\nRègles :\n- Réponds en français, simplement et brièvement (6 phrases au plus, ou une courte liste).\n- Appuie-toi UNIQUEMENT sur les offres listées ci-dessous et sur le profil. N'invente jamais d'offre, de date, de montant ou de lien.\n- Quand tu cites une offre, donne son objet, sa date limite et son lien.\n- Si la réponse n'est pas dans ces informations, dis-le franchement et conseille d'ouvrir l'avis ou d'analyser le dossier dans l'espace (menu \"Analyser un dossier\").\n- Tu ne peux pas déposer d'offre ni contacter l'acheteur à la place du client.\n${citee ? '\\nOFFRE DONT PARLE LE CLIENT :\\n' + ligne(citee) + '\\n' : ''}\nOFFRES DÉJÀ PROPOSÉES AU CLIENT (récentes) :\n${envoyees.map(ligne).join('\\n') || 'aucune pour le moment'}\n\nOFFRES OUVERTES TROUVÉES POUR SA QUESTION (dans sa zone) :\n${trouvees.map(ligne).join('\\n') || 'aucune trouvée avec ces mots'}`;\nconst messages = [{ role: 'system', content: systeme }]\n  .concat(histo.slice(-8).map(h => ({ role: h.role === 'agent' ? 'assistant' : 'user', content: String(h.contenu).slice(0, 1200) })))\n  .concat([{ role: 'user', content: String(m.contenu) }]);\nreturn [{ json: { ollama: { model: MODELE, messages, stream: false, options: { num_ctx: 8192, temperature: 0.3 } }, OLLAMA_URL, debut: new Date().toISOString(), nb_offres: envoyees.length + trouvees.length } }];"
+        "jsCode": "async function modeleActif(defaut) {\n  try {\n    const r = await this.helpers.httpRequest({ method: 'GET',\n      url: 'https://jsmffmtzoauvqltshiyg.supabase.co/rest/v1/ia_parametres?id=eq.1&select=modele',\n      headers: { apikey: 'sb_publishable_kDVV8tAZEirvMiVXpr4YPw_hmAdT7Mu', Authorization: 'Bearer sb_publishable_kDVV8tAZEirvMiVXpr4YPw_hmAdT7Mu' },\n      json: true, timeout: 4000 });\n    return (Array.isArray(r) && r[0] && r[0].modele) || defaut;\n  } catch (e) { return defaut; }\n}\n\nconst OLLAMA_URL = 'http://127.0.0.1:11434';   // secours si OpenAI ne répond pas\nconst OPENAI_MODELE = 'gpt-4o-mini';\nconst MODELE = await modeleActif('qwen2.5:7b');  // modèle choisi dans l'onglet \"Modèles IA\" du pilotage\n\nconst m = $('Lire la file').first().json;\nconst p = $('Lire le profil').all().map(i => i.json).find(x => x && x.id) || {};\nconst histo = $('Lire l\\'historique').all().map(i => i.json).filter(x => x && x.contenu).reverse();\nconst envoyees = $('Lire les offres proposées').all().map(i => i.json).filter(x => x && x.avis_id);\nconst trouvees = $('Chercher dans les offres').all().map(i => i.json).filter(x => x && x.avis_id);\nconst citee = $('Lire l\\'offre citée').all().map(i => i.json).find(x => x && x.avis_id);\nconst jj = d => d ? new Date(d).toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric', timeZone: 'UTC' }) : 'non précisée';\nconst eur = n => n ? Math.round(Number(n)).toLocaleString('fr-FR') + ' €' : 'montant non communiqué';\nconst ligne = o => `- ${o.objet} | ${o.acheteur || 'acheteur ?'} | ${o.lieu || (o.departements || []).join(', ') || 'lieu ?'} | ${eur(o.montant)} | limite ${jj(o.limite)}${o.score ? ' | note ' + o.score + '/5' : ''}${o.resume ? ' | ' + o.resume : ''} | ${o.url}`;\nconst systeme = `Tu es l'assistant de Lumen Marchés, un service de veille des marchés publics. Tu aides l'entreprise \"${p.entreprise || 'cliente'}\" à trouver et choisir ses appels d'offres.\nAujourd'hui : ${new Date().toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}.\nProfil : activité ${p.metiers || 'non précisée'} ; mots-clés ${p.mots_cles || 'aucun'} ; départements ${p.departements || 'non précisés'} ; présentation : ${String(p.description || 'non renseignée').slice(0, 600)} ; qualifications : ${p.qualifications || 'non renseignées'} ; effectif : ${p.effectif || '?'} ; exclusions : ${p.exclusions || 'aucune'}.\nRègles :\n- Réponds en français, simplement et brièvement (6 phrases au plus, ou une courte liste).\n- Appuie-toi UNIQUEMENT sur les offres listées ci-dessous et sur le profil. N'invente jamais d'offre, de date, de montant ou de lien.\n- Quand tu cites une offre, donne son objet, sa date limite et son lien.\n- Si la réponse n'est pas dans ces informations, dis-le franchement et conseille d'ouvrir l'avis ou d'analyser le dossier dans l'espace (menu \"Analyser un dossier\").\n- Tu ne peux pas déposer d'offre ni contacter l'acheteur à la place du client.\n- Ne présente JAMAIS un organisme, un acheteur ou un sigle (ce qu'il est, ce qu'il fait, son nom développé) si l'information n'est pas écrite ci-dessous ou si tu n'en es pas absolument certain. Dans le doute, dis simplement que tu ne sais pas et propose d'ouvrir l'avis.\n- Pour lister des offres, écris une offre par ligne, exactement sous cette forme : - Objet | Acheteur | Lieu | Date limite | URL\n- Pas de titres, pas de tableaux, pas de liens au format [texte](url) : l'URL brute suffit.\n${citee ? '\\nOFFRE DONT PARLE LE CLIENT :\\n' + ligne(citee) + '\\n' : ''}\nOFFRES DÉJÀ PROPOSÉES AU CLIENT (récentes) :\n${envoyees.map(ligne).join('\\n') || 'aucune pour le moment'}\n\nOFFRES OUVERTES TROUVÉES POUR SA QUESTION (dans sa zone) :\n${trouvees.map(ligne).join('\\n') || 'aucune trouvée avec ces mots'}`;\nconst messages = [{ role: 'system', content: systeme }]\n  .concat(histo.slice(-8).map(h => ({ role: h.role === 'agent' ? 'assistant' : 'user', content: String(h.contenu).slice(0, 1200) })))\n  .concat([{ role: 'user', content: String(m.contenu) }]);\nreturn [{ json: {\n  openai: { model: OPENAI_MODELE, messages, temperature: 0.2, max_tokens: 700 },\n  ollama: { model: MODELE, messages, stream: false, options: { num_ctx: 8192, temperature: 0.3 } },\n  OLLAMA_URL, OPENAI_MODELE, debut: new Date().toISOString(), nb_offres: envoyees.length + trouvees.length } }];"
       },
       "executeOnce": true
     },
     {
       "id": "c12",
-      "name": "L'IA répond (Ollama)",
+      "name": "L'IA répond (OpenAI)",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
@@ -416,12 +416,20 @@
       "executeOnce": true,
       "parameters": {
         "method": "POST",
-        "url": "={{ $json.OLLAMA_URL }}/api/chat",
+        "url": "https://api.openai.com/v1/chat/completions",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={{ JSON.stringify($json.ollama) }}",
+        "jsonBody": "={{ JSON.stringify($json.openai) }}",
         "options": {
-          "timeout": 300000
+          "timeout": 60000
+        }
+      },
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "",
+          "name": "OpenAI Header Auth"
         }
       }
     },
@@ -435,7 +443,7 @@
         -60
       ],
       "parameters": {
-        "jsCode": "const m = $('Lire la file').first().json;\nconst prep = $('Préparer la question').first().json;\nconst r = $input.first().json || {};\nlet texte = String(r.message?.content || '').trim();\nconst ok = !!texte && !r.error;\nif (!ok) texte = \"Désolé, je n'arrive pas à répondre pour le moment. Réessayez dans quelques minutes : votre question est bien enregistrée.\";\nreturn [{ json: {\n  reponse: { client_id: m.client_id, role: 'agent', contenu: texte.slice(0, 4000), avis_id: m.avis_id || null, statut: 'repondu' },\n  statut_question: ok ? 'repondu' : 'erreur', id: m.id,\n  journal: { agent: 'C-chat', debut: prep.debut, fin: new Date().toISOString(), statut: ok ? 'ok' : 'erreur', entrees: 1, sorties: ok ? 1 : 0,\n             details: { offres_en_contexte: prep.nb_offres, modele: prep.ollama.model }, message: ok ? null : String(r.error?.message || r.error || 'Ollama ne répond pas').slice(0, 300) }\n} }];"
+        "jsCode": "const m = $('Lire la file').first().json;\nconst prep = $('Préparer la question').first().json;\nconst r = $input.first().json || {};\nlet texte = String(r.message?.content || '').trim();\nconst ok = !!texte && !r.error;\nif (!ok) texte = \"Désolé, je n'arrive pas à répondre pour le moment. Réessayez dans quelques minutes : votre question est bien enregistrée.\";\nreturn [{ json: {\n  reponse: { client_id: m.client_id, role: 'agent', contenu: texte.slice(0, 4000), avis_id: m.avis_id || null, statut: 'repondu' },\n  statut_question: ok ? 'repondu' : 'erreur', id: m.id,\n  journal: { agent: 'C-chat', debut: prep.debut, fin: new Date().toISOString(), statut: ok ? 'ok' : 'erreur', entrees: 1, sorties: ok ? 1 : 0,\n             details: { offres_en_contexte: prep.nb_offres, modele: r.modele || prep.OPENAI_MODELE, source: r.source || null }, message: ok ? (r.source === 'ollama' ? 'Réponse donnée par Ollama car OpenAI n\\'a pas répondu (' + r.motif_secours + '). Vérifier la clé et le crédit OpenAI.' : null) : String(r.error?.message || r.error || 'IA injoignable').slice(0, 300) }\n} }];"
       },
       "executeOnce": true
     },
@@ -570,6 +578,20 @@
       "alwaysOutputData": true,
       "continueOnFail": true,
       "executeOnce": true
+    },
+    {
+      "id": "c-secours",
+      "name": "Secours Ollama si besoin",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "executeOnce": true,
+      "position": [
+        2640,
+        100
+      ],
+      "parameters": {
+        "jsCode": "// OpenAI a répondu : on garde sa réponse. Sinon (clé, crédit, panne), on demande à Ollama sur ce PC.\nconst j = $input.first().json || {};\nconst prep = $('Préparer la question').first().json;\nconst txt = j.choices?.[0]?.message?.content;\nif (!j.error && txt) return [{ json: { message: { content: txt }, source: 'openai', modele: prep.OPENAI_MODELE } }];\nconst motif = String(j.error?.message || j.error || 'réponse vide').slice(0, 200);\ntry {\n  const r = await this.helpers.httpRequest({ method: 'POST', url: prep.OLLAMA_URL + '/api/chat', body: prep.ollama, json: true, timeout: 240000 });\n  return [{ json: { message: { content: r.message?.content || '' }, source: 'ollama', modele: prep.ollama.model, motif_secours: motif } }];\n} catch (e) {\n  return [{ json: { error: 'OpenAI : ' + motif + ' / Ollama : ' + String(e.message || e).slice(0, 150), source: 'aucune' } }];\n}"
+      }
     }
   ],
   "connections": {
@@ -705,18 +727,7 @@
       "main": [
         [
           {
-            "node": "L'IA répond (Ollama)",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "L'IA répond (Ollama)": {
-      "main": [
-        [
-          {
-            "node": "Lire la réponse",
+            "node": "L'IA répond (OpenAI)",
             "type": "main",
             "index": 0
           }
@@ -750,6 +761,28 @@
         [
           {
             "node": "Écrire le journal",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "L'IA répond (OpenAI)": {
+      "main": [
+        [
+          {
+            "node": "Secours Ollama si besoin",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Secours Ollama si besoin": {
+      "main": [
+        [
+          {
+            "node": "Lire la réponse",
             "type": "main",
             "index": 0
           }
