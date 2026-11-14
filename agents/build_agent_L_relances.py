@@ -84,7 +84,10 @@ for (const l of leads) {
 <div style="max-width:600px;">
 ${P(esc(bonjour))}
 ${P(esc(p1) + (p2 ? ' ' + esc(p2) : '') + (ouverte && o.url ? ` <a href="${esc(o.url)}" style="color:#2350C4;">Voir l’avis</a>` : ''))}
-${P(esc(p3) + ` <a href="${INSCRIPTION}" style="color:#2350C4;font-weight:700;">Essayer Lumen gratuitement</a>`)}
+${P(esc(p3))}
+<table role="presentation" cellpadding="0" cellspacing="0" style="margin:4px 0 20px;"><tr><td style="border-radius:8px;background:#2350C4;">
+  <a href="${INSCRIPTION}" style="display:inline-block;padding:13px 26px;font-size:14px;font-weight:700;color:#FFFFFF;text-decoration:none;border-radius:8px;">Essayer gratuitement 14 jours</a>
+</td></tr></table>
 ${P(esc(p4))}
 <p style="margin:0 0 18px;">Bien cordialement,<br><b>Marin Sauzay</b><br>Fondateur de Lumen Marchés<br><a href="${SITE}" style="color:#2350C4;">lumen-marche.fr</a></p>
 <p style="margin:0;font-size:12px;color:#6B7280;">Pour ne plus recevoir de messages de Lumen, répondez simplement « STOP ».</p>
