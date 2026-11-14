@@ -7,7 +7,8 @@
 <title>Pilotage – Lumen</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&display=swap">
-<link rel="stylesheet" href="admin.css?v=202611141450">
+<script>try{var t=localStorage.getItem("lumen-pilotage-theme");if(t)document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
+<link rel="stylesheet" href="admin.css?v=202611141500">
 </head>
 <body>
 <div id="porte" hidden>
@@ -41,6 +42,7 @@
         <label class="periode"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg><select id="periode" aria-label="Période analysée"><option value="7">7 jours</option><option value="30">30 jours</option></select><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></label>
       </div>
       <div class="groupe">
+        <button class="rond theme-btn" id="theme-btn" type="button" aria-label="Passer en mode sombre" title="Mode sombre"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path class="soleil-ic" d="M20.5 14.6A8.5 8.5 0 1 1 9.4 3.5a7 7 0 0 0 11.1 11.1z"/><g class="lune-ic"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2M12 19.5v2M4.6 4.6l1.4 1.4M18 18l1.4 1.4M2.5 12h2M19.5 12h2M4.6 19.4 6 18M18 6l1.4-1.4"/></g></svg></button>
         <button class="rond" id="loupe" aria-label="Rechercher un client"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg></button>
         <button class="rond" id="cloche" aria-label="Points d'attention"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9a6 6 0 1 1 12 0c0 6 2.5 7.5 2.5 7.5h-17S6 15 6 9"/><path d="M10 20a2.2 2.2 0 0 0 4 0"/></svg><i class="point-rouge" hidden></i></button>
       </div>
@@ -254,7 +256,7 @@
 
 <script src="config.js?v=202611091048"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
-<script src="commun.js?v=202611091048"></script>
+<script src="commun.js?v=202611141500"></script>
 <script src="agents.js?v=202611141440"></script>
 <script src="analytics.js?v=202611112030"></script>
 <script src="controle.js?v=202611141430"></script>
@@ -311,7 +313,7 @@ function spark(serie, coul) {
   const pts = serie.map((v, i) => [i * W / (serie.length - 1), H - 8 - v / max * (H - 18)]);
   const d = courbe(pts), [lx, ly] = pts[pts.length - 1];
   return `<svg class="spark" viewBox="0 0 ${W} ${H}" aria-hidden="true"><defs><linearGradient id="${id}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${coul}" stop-opacity=".28"/><stop offset="1" stop-color="${coul}" stop-opacity="0"/></linearGradient></defs>
-    <path d="${d} L${W} ${H} L0 ${H}Z" fill="url(#${id})"/><path d="${d}" fill="none" stroke="${coul}" stroke-width="2.2" stroke-linecap="round"/><circle cx="${lx}" cy="${ly}" r="4" fill="${coul}" stroke="#fff" stroke-width="1.5"/></svg>`;
+    <path d="${d} L${W} ${H} L0 ${H}Z" fill="url(#${id})"/><path d="${d}" fill="none" stroke="${coul}" stroke-width="2.2" stroke-linecap="round"/><circle cx="${lx}" cy="${ly}" r="4" fill="${coul}" stroke="var(--panel)" stroke-width="1.5"/></svg>`;
 }
 function delta(act, prec) { const d = act - prec; return { txt: (d > 0 ? "+" : d < 0 ? "−" : "") + nf(Math.abs(d)), cl: d > 0 ? "up" : d < 0 ? "dn" : "" }; }
 function carteKpi(k) {
@@ -323,8 +325,8 @@ function jauge(score) {
   const arc = (de, a) => { const [x0, y0] = pt(de), [x1, y1] = pt(a); return `M${x0} ${y0} A${R} ${R} 0 ${a - de > 180 ? 1 : 0} 1 ${x1} ${y1}`; };
   const fin = a0 + (a1 - a0) * Math.max(0.001, score / 100), [kx, ky] = pt(fin);
   return `<defs><linearGradient id="jg" x1="0" y1="1" x2="1" y2="0"><stop offset="0" stop-color="#3B82F6"/><stop offset=".55" stop-color="#6366F1"/><stop offset="1" stop-color="#8B5CF6"/></linearGradient></defs>
-    <path d="${arc(a0, a1)}" fill="none" stroke="#E9ECF2" stroke-width="16" stroke-linecap="round"/>
-    ${score > 0 ? `<path d="${arc(a0, fin)}" fill="none" stroke="url(#jg)" stroke-width="16" stroke-linecap="round"/><circle cx="${kx}" cy="${ky}" r="6" fill="#fff" stroke="#8B5CF6" stroke-width="2"/>` : ""}`;
+    <path d="${arc(a0, a1)}" fill="none" stroke="var(--line)" stroke-width="16" stroke-linecap="round"/>
+    ${score > 0 ? `<path d="${arc(a0, fin)}" fill="none" stroke="url(#jg)" stroke-width="16" stroke-linecap="round"/><circle cx="${kx}" cy="${ky}" r="6" fill="var(--panel)" stroke="#8B5CF6" stroke-width="2"/>` : ""}`;
 }
 
 /* ---------- Vue d'ensemble ---------- */
@@ -386,11 +388,11 @@ function rendre() {
   // ---- KPI ----
   const dI = delta(inscrN, inscrP), dE = delta(envN.length, envP), dA = delta(anN, anP), lib = `vs ${J} j préc.`;
   $("#kpis").innerHTML = [
-    { ic: IC.euro, fond: "#E3F8EF", coul: "#0E8A5F", an: "an-revenu", lab: "Revenu mensuel", val: nf(abonnes.length * P) + " €", chip: `${abonnes.length} abonné${abonnes.length > 1 ? "s" : ""}`, chipCl: "neutre", sous: `× ${P} € HT / mois`,
+    { ic: IC.euro, fond: "var(--vert-f)", coul: "#0E8A5F", an: "an-revenu", lab: "Revenu mensuel", val: nf(abonnes.length * P) + " €", chip: `${abonnes.length} abonné${abonnes.length > 1 ? "s" : ""}`, chipCl: "neutre", sous: `× ${P} € HT / mois`,
       droite: `<div class="kpi-cote"><b>${nf(essais.length)}</b><small>en essai</small></div>` },
-    { ic: IC.user, fond: "#F1EBFF", coul: "#7C4DEB", an: "an-clients", lab: "Nouvelles inscriptions", val: nf(inscrN), chip: dI.txt, chipCl: dI.cl, sous: lib, droite: spark(sInscr, coulS(dI)) },
-    { ic: IC.send, fond: "#EAF1FF", coul: "#2F6BF2", an: "an-envoyees", lab: "Offres envoyées", val: nf(envN.length), chip: dE.txt, chipCl: dE.cl, sous: lib, droite: spark(sEnv, coulS(dE)) },
-    { ic: IC.doc, fond: "#FEF3DC", coul: "#B26B00", an: "an-analyses", lab: "Dossiers analysés", val: nf(anN), chip: dA.txt, chipCl: dA.cl, sous: lib, droite: spark(sAn, coulS(dA)) }
+    { ic: IC.user, fond: "var(--violet-f)", coul: "#7C4DEB", an: "an-clients", lab: "Nouvelles inscriptions", val: nf(inscrN), chip: dI.txt, chipCl: dI.cl, sous: lib, droite: spark(sInscr, coulS(dI)) },
+    { ic: IC.send, fond: "var(--bleu-t)", coul: "#2F6BF2", an: "an-envoyees", lab: "Offres envoyées", val: nf(envN.length), chip: dE.txt, chipCl: dE.cl, sous: lib, droite: spark(sEnv, coulS(dE)) },
+    { ic: IC.doc, fond: "var(--orange-f)", coul: "#B26B00", an: "an-analyses", lab: "Dossiers analysés", val: nf(anN), chip: dA.txt, chipCl: dA.cl, sous: lib, droite: spark(sAn, coulS(dA)) }
   ].map(carteKpi).join("");
 
   // ---- Passages par agent ----
@@ -450,8 +452,8 @@ function rendreReseau() {
   const noeuds = Object.keys(RNOEUDS).filter(vis).map(code => {
     const [x, y] = RNOEUDS[code], n = info[code], t = y - RH / 2;
     const coupe = (s, max) => s.length > max ? s.slice(0, max - 1).trimEnd() + "…" : s;
-    const fondIc = { ok: "#E3F8EF", att: "#FEF0CC", ko: "#FDE3E3", idle: "#EDEFF3" }[n.cl], coulIc = { ok: "#16A06F", att: "#C27C00", ko: "#D93636", idle: "#8C95A6" }[n.cl];
-    const icF = code === "CLIENTS" || code === "BOAMP" ? ["#EAF1FF", "#2F6BF2"] : [fondIc, coulIc];
+    const fondIc = { ok: "var(--vert-f)", att: "var(--orange-f)", ko: "var(--rouge-f)", idle: "var(--gris-f)" }[n.cl], coulIc = { ok: "#16A06F", att: "#C27C00", ko: "#D93636", idle: "#8C95A6" }[n.cl];
+    const icF = code === "CLIENTS" || code === "BOAMP" ? ["var(--bleu-t)", "#2F6BF2"] : [fondIc, coulIc];
     return `<g class="rn ${n.cl}${n.fixe ? " fixe" : ""}" ${n.fixe ? "" : `data-agent="${code}" tabindex="0" role="button"`} aria-label="${esc(n.nom)} : ${esc(n.sous)}">
       <rect class="boite" x="${x}" y="${t}" width="${RW}" height="${RH}" rx="16" filter="url(#ombre-r)"/>
       <circle cx="${x + 30}" cy="${y}" r="17" fill="${icF[0]}"/>
@@ -570,8 +572,8 @@ const fleche = ([x, y], s) => { const k = 4.5; const P = { r: [[x, y], [x - k * 
 const inverse = s => ({ r: "l", l: "r", d: "u", u: "d" })[s];
 const etatDe = code => code === "CLIENTS" ? { cle: "ok" } : sante(AGENTS.find(a => a.code === code), D.runs);
 const sansMouvement = matchMedia("(prefers-reduced-motion: reduce)").matches;
-const grip = (x, y) => [0, 4, 8].map(dy => [0, 4].map(dx => `<circle cx="${x + dx}" cy="${y + dy}" r="1.15" fill="#D4DAE8"/>`).join("")).join("");
-const coin = (x, y) => `<path d="M${x - 8} ${y} L${x} ${y - 8} M${x - 4} ${y} L${x} ${y - 4}" stroke="#D4DAE8" stroke-width="1.2" stroke-linecap="round"/>`;
+const grip = (x, y) => [0, 4, 8].map(dy => [0, 4].map(dx => `<circle cx="${x + dx}" cy="${y + dy}" r="1.15" fill="var(--line-2)"/>`).join("")).join("");
+const coin = (x, y) => `<path d="M${x - 8} ${y} L${x} ${y - 8} M${x - 4} ${y} L${x} ${y - 4}" stroke="var(--line-2)" stroke-width="1.2" stroke-linecap="round"/>`;
 const pillSvg = (x, y, txt, fond, coul, ancre = "end") => { const w = txt.length * 5.9 + 14, x0 = ancre === "end" ? x - w : x; return `<rect x="${x0}" y="${y}" width="${w}" height="18" rx="5" fill="${fond}"/><text x="${x0 + w / 2}" y="${y + 12.5}" text-anchor="middle" fill="${coul}" font-size="10.5" font-weight="600">${esc(txt)}</text>`; };
 const libEtat = (ag, e) => ag.avenir ? "À construire" : e.txt;
 
@@ -609,8 +611,8 @@ function rendreAgents() {
   ).join("") : `<p class="vide">Aucune prévue.</p>`;
   const defs = `<defs><filter id="lueur" x="-200%" y="-200%" width="500%" height="500%"><feGaussianBlur stdDeviation="2" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>`;
   const cadres = CADRES.map(([k, x, y, w, h]) => { const n = Object.values(POS).filter(p => p[2] === k).length;
-    return `<g><rect x="${x}" y="${y}" width="${w}" height="${h}" rx="18" fill="#FFFFFF" stroke="#E9ECF1"/>${grip(x + 16, y + 17)}
-      <text x="${x + 34}" y="${y + 26}" fill="#111827" font-size="12.5" font-weight="600">${POLES[k].t}</text>${pillSvg(x + w - 14, y + 13, n + " agent" + (n > 1 ? "s" : ""), "rgba(52,120,246,.12)", "#3478F6")}${coin(x + w - 9, y + h - 9)}</g>`; }).join("");
+    return `<g><rect x="${x}" y="${y}" width="${w}" height="${h}" rx="18" fill="var(--panel)" stroke="var(--line)"/>${grip(x + 16, y + 17)}
+      <text x="${x + 34}" y="${y + 26}" fill="var(--t1)" font-size="12.5" font-weight="600">${POLES[k].t}</text>${pillSvg(x + w - 14, y + 13, n + " agent" + (n > 1 ? "s" : ""), "rgba(52,120,246,.12)", "#3478F6")}${coin(x + w - 9, y + h - 9)}</g>`; }).join("");
   const liens = LIENS.map((l, i) => {
     const { d, L } = trace(l.pts, l.rayon || 14), on = !l.controle && estActif(etatDe(l.de)) && estActif(etatDe(l.vers));
     const larg = l.lib.length * 5.8 + 18, [ex, ey] = l.et || [0, 0], veille = l.controle && estActif(etatDe(l.de));
@@ -630,23 +632,23 @@ function rendreAgents() {
       <title>${esc(ag.nom)} · ${esc(ag.titre)} : ${esc(libEtat(ag, e))}</title>
       <text class="titre" x="-12" y="-1">${esc(COURT[ag.code])}</text>
       <circle cx="-8" cy="13.5" r="3" fill="${c}"/><text class="etat" x="0" y="17.5" fill="${on ? "#059669" : "#DC2626"}">${esc(libEtat(ag, e).length > 15 ? libEtat(ag, e).slice(0, 14).trimEnd() + "…" : libEtat(ag, e))}</text>
-      ${pillSvg(DEMI - 8, -29, ag.nom.replace("Agent ", ""), "#F1F4F9", "#64748B")}</g>`;
+      ${pillSvg(DEMI - 8, -29, ag.nom.replace("Agent ", ""), "var(--panel-2)", "var(--t3)")}</g>`;
   }).join("");
   const cl = D.profils.filter(p => !p.est_admin), actifs = cl.filter(p => p.actif !== false);
   const ab = actifs.filter(p => p.formule === "abonne" || p.formule === "accompagnement").length, es = actifs.filter(p => (p.formule || "essai") === "essai").length;
-  const H = HUB, cx = H.x + H.w / 2, ligne = (y, a, b) => `<text x="${H.x + 18}" y="${y}" fill="#64748B" font-size="12">${a}</text><text x="${H.x + H.w - 18}" y="${y}" fill="#111827" font-size="12.5" font-weight="600" text-anchor="end">${b}</text>`;
+  const H = HUB, cx = H.x + H.w / 2, ligne = (y, a, b) => `<text x="${H.x + 18}" y="${y}" fill="var(--t3)" font-size="12">${a}</text><text x="${H.x + H.w - 18}" y="${y}" fill="var(--t1)" font-size="12.5" font-weight="600" text-anchor="end">${b}</text>`;
   const hub = `<g class="hub" data-agent="CLIENTS" tabindex="0" role="button" aria-label="Clients : ${actifs.length} actifs">
     <rect class="fond" x="${H.x}" y="${H.y}" width="${H.w}" height="${H.h}" rx="14"/>${grip(H.x + 16, H.y + 17)}
-    <text x="${H.x + 34}" y="${H.y + 26}" fill="#111827" font-size="12.5" font-weight="600">Clients</text>${pillSvg(H.x + H.w - 14, H.y + 13, "en direct", "rgba(22,185,129,.12)", "#059669")}
+    <text x="${H.x + 34}" y="${H.y + 26}" fill="var(--t1)" font-size="12.5" font-weight="600">Clients</text>${pillSvg(H.x + H.w - 14, H.y + 13, "en direct", "rgba(22,185,129,.12)", "#059669")}
     <g transform="translate(${cx} ${H.y + 110})"><circle r="28" fill="#3478F6" fill-opacity=".10"/><svg x="-13" y="-13" width="26" height="26" viewBox="0 0 24 24" fill="currentColor" color="#3478F6">${ICONES.CLIENTS}</svg></g>
-    <text x="${cx}" y="${H.y + 222}" text-anchor="middle" fill="#111827" font-size="54" font-weight="700" letter-spacing="-2">${actifs.length}</text>
-    <text x="${cx}" y="${H.y + 248}" text-anchor="middle" fill="#64748B" font-size="12.5">client${actifs.length > 1 ? "s" : ""} actif${actifs.length > 1 ? "s" : ""}</text>
-    <line x1="${H.x + 18}" x2="${H.x + H.w - 18}" y1="${H.y + 300}" y2="${H.y + 300}" stroke="#E5EAF2"/>
+    <text x="${cx}" y="${H.y + 222}" text-anchor="middle" fill="var(--t1)" font-size="54" font-weight="700" letter-spacing="-2">${actifs.length}</text>
+    <text x="${cx}" y="${H.y + 248}" text-anchor="middle" fill="var(--t3)" font-size="12.5">client${actifs.length > 1 ? "s" : ""} actif${actifs.length > 1 ? "s" : ""}</text>
+    <line x1="${H.x + 18}" x2="${H.x + H.w - 18}" y1="${H.y + 300}" y2="${H.y + 300}" stroke="var(--line)"/>
     ${ligne(H.y + 336, "Abonnés", ab)}${ligne(H.y + 366, "En essai", es)}${ligne(H.y + 396, "Revenu", nf(ab * (CFG.PRIX || 49)) + " €/mois")}
     ${[[830, H.y], [900, H.y], [H.x, 340], [H.x, 470], [H.x, 590], [H.x + H.w, 345]].map(([x, y]) => `<circle class="port" cx="${x}" cy="${y}" r="4"/>`).join("")}${coin(H.x + H.w - 9, H.y + H.h - 9)}</g>`;
   const C = COLLECTE;
-  const collecte = `<g><rect x="${C.x}" y="${C.y}" width="${C.w}" height="${C.h}" rx="14" fill="#F8FAFC" stroke="#DCE3EE" stroke-dasharray="5 4"/>
-    <text x="${C.x + 18}" y="${C.y + 24}" fill="#475569" font-size="12" font-weight="600">Collecte des offres</text>
+  const collecte = `<g><rect x="${C.x}" y="${C.y}" width="${C.w}" height="${C.h}" rx="14" fill="var(--panel-2)" stroke="var(--line-2)" stroke-dasharray="5 4"/>
+    <text x="${C.x + 18}" y="${C.y + 24}" fill="var(--t2)" font-size="12" font-weight="600">Collecte des offres</text>
     <text x="${C.x + C.w - 18}" y="${C.y + 24}" fill="#94A3B8" font-size="11" text-anchor="end">BOAMP + 8 plateformes acheteurs</text></g>`;
   const [gx, gy] = POS["G-controle"];
   const noteG = `<text x="${gx - 38}" y="${gy + 60}" fill="#94A3B8" font-size="11">Surveille la collecte (A)</text><text x="${gx - 38}" y="${gy + 75}" fill="#94A3B8" font-size="11">et le tri des offres (B)</text>`;

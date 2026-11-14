@@ -49,6 +49,32 @@
 
   color-scheme: light;
 }
+/* ---- Mode sombre (bouton lune / soleil en haut à droite, ou réglage de l'ordinateur) ---- */
+:root[data-theme="dark"] {
+  --bg:#0D1016; --panel:#151922; --panel-d:#12161E; --panel-2:#1B202A; --panel-3:#232937; --canvas:#10141B;
+  --line:#262C38; --line-2:#323A48;
+  --t1:#E8EBF1; --t2:#C2C8D3; --t3:#8E97A8;
+  --bleu:#4C82F7; --bleu-2:#3A6FE6; --bleu-f:rgba(76,130,247,.16); --bleu-t:#18233D;
+  --violet-f:#251C3D; --vert-f:#0F2A20; --vert-t:#34D399; --orange-f:#33260C; --orange-t:#FBBF24;
+  --rouge-f:#3A1718; --rouge-t:#F87171; --gris-f:#1E2430;
+  --shadow-sm:0 1px 2px rgba(0,0,0,.4);
+  --shadow:0 1px 2px rgba(0,0,0,.4), 0 4.5px 13.5px -14px rgba(0,0,0,.6);
+  --shadow-lg:0 13.5px 35px -20px rgba(0,0,0,.7), 0 2px 4.5px rgba(0,0,0,.4);
+  color-scheme:dark;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg:#0D1016; --panel:#151922; --panel-d:#12161E; --panel-2:#1B202A; --panel-3:#232937; --canvas:#10141B;
+  --line:#262C38; --line-2:#323A48;
+  --t1:#E8EBF1; --t2:#C2C8D3; --t3:#8E97A8;
+  --bleu:#4C82F7; --bleu-2:#3A6FE6; --bleu-f:rgba(76,130,247,.16); --bleu-t:#18233D;
+  --violet-f:#251C3D; --vert-f:#0F2A20; --vert-t:#34D399; --orange-f:#33260C; --orange-t:#FBBF24;
+  --rouge-f:#3A1718; --rouge-t:#F87171; --gris-f:#1E2430;
+  --shadow-sm:0 1px 2px rgba(0,0,0,.4);
+  --shadow:0 1px 2px rgba(0,0,0,.4), 0 4.5px 13.5px -14px rgba(0,0,0,.6);
+  --shadow-lg:0 13.5px 35px -20px rgba(0,0,0,.7), 0 2px 4.5px rgba(0,0,0,.4);
+  color-scheme:dark;
+} }
+
 
 /* Base */
 *, *::before, *::after { box-sizing: border-box }
@@ -184,7 +210,7 @@ a { color: var(--bleu); text-decoration: none }
   background: var(--bleu); color: #fff; box-shadow: 0 3.5px 9.5px -6px rgba(47,107,242,.6);
 }
 .onglets [aria-current="page"]:hover, .onglets .actif:hover { background: var(--bleu) }
-.onglets [aria-current="page"] .compteur { background: #fff; color: var(--bleu) }
+.onglets [aria-current="page"] .compteur { background: var(--panel); color: var(--bleu) }
 
 .top-droite { display: flex; align-items: center; gap: 7px; flex: none }
 .groupe {
@@ -267,7 +293,7 @@ a { color: var(--bleu); text-decoration: none }
 .rail-groupe .badge { position: absolute; top: 5px; right: 5px; width: 5px; height: 5px; border-radius: 50%; background: var(--rouge); border: 2px solid var(--panel) }
 .rail-groupe [title]::after {
   content: attr(title); position: absolute; left: calc(100% + 7px); top: 50%; transform: translateY(-50%);
-  background: var(--t1); color: #fff; font-size: 11px; padding: 3px 6px; border-radius: 4.5px; white-space: nowrap;
+  background: var(--t1); color: var(--bg); font-size: 11px; padding: 3px 6px; border-radius: 4.5px; white-space: nowrap;
   opacity: 0; pointer-events: none; transition: opacity .15s;
 }
 .rail-groupe [title]:hover::after { opacity: 1 }
@@ -384,11 +410,11 @@ a { color: var(--bleu); text-decoration: none }
 #reseau { display: block; width: 100%; min-width: 566.5px; height: auto; user-select: none }
 #reseau text { font-family: var(--f) }
 .rn { cursor: pointer; outline: none }
-.rn .boite { fill: #fff; stroke: #fff; stroke-width: 1.5; transition: stroke .15s }
+.rn .boite { fill: var(--panel); stroke: var(--panel); stroke-width: 1.5; transition: stroke .15s }
 .rn:hover .boite, .rn:focus-visible .boite { stroke: var(--bleu) }
-.rn.att .boite { fill: #FFF8E6; stroke: #F1B53D; stroke-dasharray: 5 4 }
-.rn.ko .boite { fill: #FFF1F1; stroke: #F08A8A; stroke-dasharray: 5 4 }
-.rn.idle .boite { fill: #F8F9FB; stroke: #CDD3DD; stroke-dasharray: 5 4 }
+.rn.att .boite { fill: var(--orange-f); stroke: #F1B53D; stroke-dasharray: 5 4 }
+.rn.ko .boite { fill: var(--rouge-f); stroke: #F08A8A; stroke-dasharray: 5 4 }
+.rn.idle .boite { fill: var(--panel-2); stroke: var(--line-2); stroke-dasharray: 5 4 }
 .rn .nom { fill: var(--t1); font-size: 16px; font-weight: 500 }
 .rn .sous { fill: var(--t3); font-size: 13px }
 .rn.att .sous { fill: var(--orange-t) } .rn.ko .sous { fill: var(--rouge-t) }
@@ -400,7 +426,7 @@ a { color: var(--bleu); text-decoration: none }
 .rl.ko { stroke: var(--rouge); stroke-width: 1.8 }
 .rl.idle { stroke: #C3C9D4; stroke-dasharray: 4 5 }
 .rl.sup { stroke-dasharray: 2 5 }
-.rl-point { fill: var(--bleu); stroke: #fff; stroke-width: 2 }
+.rl-point { fill: var(--bleu); stroke: var(--panel); stroke-width: 2 }
 
 /* Bas de page */
 .ens-bas { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 11.5px; align-items: start }
@@ -468,15 +494,15 @@ tr:last-child td { border-bottom: 0 }
 .lien.actif .fleche { fill: #8E98A9 }
 .lien.veille path.trait { stroke: var(--orange); stroke-opacity: .8 }
 .lien.veille .fleche { fill: var(--orange) }
-.lien.veille .pastille rect { fill: #FFF8E6; stroke: #F6D58A }
+.lien.veille .pastille rect { fill: var(--orange-f); stroke: #F6D58A }
 .lien.veille .pastille text { fill: var(--orange-t) }
 .lien .pastille rect { fill: var(--panel); stroke: var(--line) }
 .lien .pastille text { fill: var(--t3); font-size: 11px; font-weight: 500 }
-.lien.actif .pastille rect { fill: #fff; stroke: var(--line) }
+.lien.actif .pastille rect { fill: var(--panel); stroke: var(--line) }
 .lien.actif .pastille text { fill: var(--t2) }
-.lien circle.flux { fill: var(--bleu); stroke: #fff; stroke-width: 1.5 }
+.lien circle.flux { fill: var(--bleu); stroke: var(--panel); stroke-width: 1.5 }
 .agent, .hub { cursor: pointer; outline: none; transition: opacity .25s }
-.agent rect.carte { fill: var(--panel); stroke: #fff; stroke-width: 1.5; filter: drop-shadow(0 1px 2px rgba(16,24,40,.06)) drop-shadow(0 3.5px 8px rgba(16,24,40,.06)); transition: stroke .2s }
+.agent rect.carte { fill: var(--panel); stroke: var(--panel); stroke-width: 1.5; filter: drop-shadow(0 1px 2px rgba(16,24,40,.06)) drop-shadow(0 3.5px 8px rgba(16,24,40,.06)); transition: stroke .2s }
 .agent.ko rect.carte { stroke: #D3D8E1; stroke-dasharray: 5 4 }
 .agent:hover rect.carte, .agent:focus-visible rect.carte, .hub:hover rect.fond, .hub:focus-visible rect.fond { stroke: var(--bleu); stroke-dasharray: none }
 .agent .titre { fill: var(--t1); font-size: 13.5px; font-weight: 500 }
@@ -536,7 +562,7 @@ dialog.ndv::backdrop { background: rgba(15,23,42,.28); backdrop-filter: blur(2px
 .taches li > span:first-child { flex: none; width: 10.5px; height: 10.5px; border-radius: 50%; display: grid; place-items: center; margin-top: 1px }
 .taches li > span:first-child svg { width: 6px; height: 6px }
 .encart { background: var(--panel-d); border: 1px solid var(--line); border-radius: 9.5px; padding: 7px 8px; color: var(--t2); font-size: 11.5px }
-.encart.ko { border-color: #F6C9C9; background: #FFF6F6; color: var(--rouge-t) }
+.encart.ko { border-color: color-mix(in srgb, var(--rouge) 35%, transparent); background: var(--rouge-f); color: var(--rouge-t) }
 .mini { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 4.5px }
 .mini div { background: var(--panel-d); border: 1px solid var(--line); border-radius: 9.5px; padding: 7px 8px }
 .mini strong { display: block; font-size: 14.5px; font-weight: 600; letter-spacing: -.02em; font-variant-numeric: tabular-nums }
@@ -741,9 +767,9 @@ td .muted, td strong { display: inline-block; max-width: 100%; overflow: hidden;
 .an-seg { display: inline-flex; background: var(--panel); border: 1px solid var(--line); border-radius: 577px; padding: 2px; gap: 2px }
 .an-seg button { height: 23px; padding: 0 11px; border-radius: 577px; font-size: 11.5px; color: var(--t2) }
 .an-seg button:hover { background: var(--panel-2) }
-.an-seg button[aria-pressed="true"] { background: var(--t1); color: #fff }
+.an-seg button[aria-pressed="true"] { background: var(--t1); color: var(--bg) }
 .an-etat { background: var(--orange-f); border: 1px solid #F6D9A0; color: var(--t1); border-radius: var(--r-lg); padding: 11.5px 13px; font-size: 12px; line-height: 1.55 }
-.an-etat code { font-family: var(--mono); font-size: 11px; background: #fff; padding: 1px 5px; border-radius: 4px }
+.an-etat code { font-family: var(--mono); font-size: 11px; background: var(--panel); padding: 1px 5px; border-radius: 4px }
 .an-etat small { display: block; color: var(--t3); margin-top: 4px }
 .an-page, #an-contenu { grid-template-columns: minmax(0, 1fr) }
 #an-contenu { display: grid; gap: 11.5px }
@@ -811,7 +837,7 @@ line.an-base { stroke: var(--line-2); stroke-width: 1 }
 
 /* Contrôle du PC */
 .ct-bandeau { background: var(--orange-f); color: var(--orange-t); border-radius: var(--r-lg); padding: 10px 13px; font-size: 12px; line-height: 1.55 }
-.ct-bandeau code { font-size: 11px; background: rgba(255,255,255,.6); padding: 1px 4px; border-radius: 4px }
+.ct-bandeau code { font-size: 11px; background: color-mix(in srgb, var(--panel) 60%, transparent); padding: 1px 4px; border-radius: 4px }
 .ct-message { border-radius: var(--r-lg); padding: 9px 13px; font-size: 12px }
 .ct-message.ok { background: var(--vert-f); color: var(--vert-t) }
 .ct-message.ko { background: var(--rouge-f); color: var(--rouge-t) }
@@ -827,3 +853,8 @@ line.an-base { stroke: var(--line-2); stroke-width: 1 }
 .ct-alerte { display: block; color: var(--rouge-t); font-size: 10.5px; margin-top: 2px }
 
 #v-controle .btn:disabled { opacity: .45; cursor: not-allowed; box-shadow: none }
+
+/* Bouton mode sombre */
+.rond.theme-btn svg .lune-ic{display:none}
+:root[data-theme="dark"] .theme-btn .soleil-ic{display:none} :root[data-theme="dark"] .theme-btn .lune-ic{display:inline}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]) .theme-btn .soleil-ic{display:none} :root:not([data-theme="light"]) .theme-btn .lune-ic{display:inline} }

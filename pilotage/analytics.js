@@ -69,7 +69,7 @@ function anGraphe(el, { T, series, h = 200, fmt = nf }) {
     const pts = s.val.map((v, i) => [xc(i), y(v)]), d = "M" + pts.map(p => p.join(" ")).join("L");
     if (s.type === "aire") svg += `<defs><linearGradient id="ang${j}${el.id}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${s.coul}" stop-opacity=".22"/><stop offset="1" stop-color="${s.coul}" stop-opacity="0"/></linearGradient></defs><path d="${d}L${pts[n - 1][0]} ${gT + ih}L${pts[0][0]} ${gT + ih}Z" fill="url(#ang${j}${el.id})"/>`;
     svg += `<path d="${d}" fill="none" stroke="${s.coul}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>`;
-    const [lx, ly] = pts[n - 1]; svg += `<circle cx="${lx}" cy="${ly}" r="4" fill="${s.coul}" stroke="#fff" stroke-width="2"/>`;
+    const [lx, ly] = pts[n - 1]; svg += `<circle cx="${lx}" cy="${ly}" r="4" fill="${s.coul}" stroke="var(--panel)" stroke-width="2"/>`;
   });
   svg += `<line class="an-guide" x1="0" x2="0" y1="${gT}" y2="${gT + ih}" visibility="hidden"/><g class="an-points"></g>`;
   svg += `<rect class="an-zone" x="${gL}" y="${gT}" width="${iw}" height="${ih}" fill="transparent"/></svg>`;
@@ -82,7 +82,7 @@ function anGraphe(el, { T, series, h = 200, fmt = nf }) {
   const montrer = ev => {
     const r = zone.getBoundingClientRect(), i = Math.max(0, Math.min(n - 1, Math.floor((ev.clientX - r.left) / (r.width / n))));
     guide.setAttribute("x1", xc(i)); guide.setAttribute("x2", xc(i)); guide.setAttribute("visibility", "visible");
-    gp.innerHTML = series.filter(s => s.type !== "barre").map(s => `<circle cx="${xc(i)}" cy="${y(s.val[i])}" r="4" fill="${s.coul}" stroke="#fff" stroke-width="2"/>`).join("");
+    gp.innerHTML = series.filter(s => s.type !== "barre").map(s => `<circle cx="${xc(i)}" cy="${y(s.val[i])}" r="4" fill="${s.coul}" stroke="var(--panel)" stroke-width="2"/>`).join("");
     tip.innerHTML = `<b>${esc(T[i].titre)}</b>` + series.map(s => `<span><i style="background:${s.coul}"></i>${esc(s.nom)}<strong>${esc(fmt(s.val[i]))}</strong></span>`).join("");
     tip.hidden = false;
     const tw = tip.offsetWidth, x = xc(i) + 12 + tw > W ? xc(i) - 12 - tw : xc(i) + 12;

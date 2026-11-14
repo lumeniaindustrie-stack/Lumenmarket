@@ -300,3 +300,27 @@ async function marchesGagnes(siren) {
   return out;
 }
 const resumeMarches = l => l.slice(0, 25).map(m => `${(m.date || "").slice(0, 7)} ${m.objet.slice(0, 110)}${m.acheteur ? " (" + m.acheteur.slice(0, 50) + ")" : ""}${m.montant ? ", " + Math.round(m.montant / 1000) + " k€" : ""}`).join("\n").slice(0, 3900);
+
+/* ---------- Mode sombre du pilotage ---------- */
+(function () {
+  const r = document.documentElement;
+  const sombre = () => r.getAttribute("data-theme") === "dark" || (!r.getAttribute("data-theme") && window.matchMedia && matchMedia("(prefers-color-scheme: dark)").matches);
+  function maj() { document.querySelectorAll(".theme-btn").forEach(b => { const s = sombre(); b.setAttribute("aria-label", s ? "Passer en mode clair" : "Passer en mode sombre"); b.title = s ? "Mode clair" : "Mode sombre"; }); }
+  function installer() {
+    let b = document.getElementById("theme-btn");
+    if (!b) {   // pages sans emplacement prévu : petit bouton flottant en bas à droite
+      b = document.createElement("button"); b.id = "theme-btn"; b.type = "button"; b.className = "rond theme-btn";
+      b.style.cssText = "position:fixed;right:16px;bottom:16px;z-index:60;width:36px;height:36px;border-radius:50%;border:1px solid var(--line);background:var(--panel);color:var(--t2);display:grid;place-items:center;box-shadow:var(--shadow)";
+      b.innerHTML = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path class="soleil-ic" d="M20.5 14.6A8.5 8.5 0 1 1 9.4 3.5a7 7 0 0 0 11.1 11.1z"/><g class="lune-ic"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2M12 19.5v2M4.6 4.6l1.4 1.4M18 18l1.4 1.4M2.5 12h2M19.5 12h2M4.6 19.4 6 18M18 6l1.4-1.4"/></g></svg>';
+      document.body.appendChild(b);
+    }
+    b.addEventListener("click", () => {
+      const t = sombre() ? "light" : "dark"; r.setAttribute("data-theme", t);
+      try { localStorage.setItem("lumen-pilotage-theme", t); } catch (e) {}
+      maj();
+      if (typeof rendre === "function") { try { rendre(); } catch (e) {} }
+    });
+    maj();
+  }
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", installer); else installer();
+})();

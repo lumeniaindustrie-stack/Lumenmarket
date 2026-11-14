@@ -7,7 +7,8 @@
 <title>Architecture – Lumen Pilotage</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&display=swap">
-<link rel="stylesheet" href="admin.css?v=202611141450">
+<script>try{var t=localStorage.getItem("lumen-pilotage-theme");if(t)document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
+<link rel="stylesheet" href="admin.css?v=202611141500">
 <script src="config.js?v=202611091048"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
 <style>
@@ -28,7 +29,7 @@
 .ar-fl svg { width: 52px; height: 10px; overflow: visible }
 .ar-fl.gris svg { color: #A3ACBB } .ar-fl.bleu svg { color: var(--bleu) } .ar-fl.vert svg { color: var(--vert) } .ar-fl.cyan svg { color: #0EA5C6 }
 
-.ar-svc { position: relative; display: grid; grid-template-columns: 28px minmax(0,1fr); gap: 4px 9px; align-items: start; padding: 9px 10px; background: #fff; border: 1px solid var(--line); border-left: 3px solid var(--c, var(--line-2)); border-radius: 10px; color: inherit; text-decoration: none; transition: border-color .15s, box-shadow .15s, transform .15s }
+.ar-svc { position: relative; display: grid; grid-template-columns: 28px minmax(0,1fr); gap: 4px 9px; align-items: start; padding: 9px 10px; background: var(--panel); border: 1px solid var(--line); border-left: 3px solid var(--c, var(--line-2)); border-radius: 10px; color: inherit; text-decoration: none; transition: border-color .15s, box-shadow .15s, transform .15s }
 a.ar-svc:hover { box-shadow: 0 6px 16px -10px rgba(16,24,40,.3); transform: translateY(-1px); border-color: var(--c, var(--bleu)) }
 a.ar-svc::after { content: "↗"; position: absolute; top: 6px; right: 8px; font-size: 11px; color: var(--t3); opacity: 0; transition: opacity .15s }
 a.ar-svc:hover::after { opacity: 1 }
@@ -42,7 +43,7 @@ a.ar-svc:hover::after { opacity: 1 }
 .ar-etat.ok i { background: var(--vert) } .ar-etat.att i { background: var(--orange) } .ar-etat.ko i { background: var(--rouge) }
 .ar-etat.ok { color: var(--vert-t) } .ar-etat.att { color: var(--orange-t) } .ar-etat.ko { color: var(--rouge-t) }
 .ar-agents { display: grid; grid-template-columns: 1fr 1fr; gap: 6px }
-.ar-agent { display: grid; justify-items: center; gap: 1px; padding: 6px 4px; background: #fff; border: 1px solid var(--line); border-radius: 9px; text-decoration: none; color: var(--t2); font-size: 10.5px; text-align: center; transition: border-color .15s }
+.ar-agent { display: grid; justify-items: center; gap: 1px; padding: 6px 4px; background: var(--panel); border: 1px solid var(--line); border-radius: 9px; text-decoration: none; color: var(--t2); font-size: 10.5px; text-align: center; transition: border-color .15s }
 .ar-agent:hover { border-color: var(--bleu) }
 .ar-agent b { font-size: 13px; color: var(--t1); display: flex; align-items: center; gap: 5px }
 .ar-agent b i { width: 6px; height: 6px; border-radius: 50%; background: #C3C9D4 }
@@ -52,7 +53,7 @@ a.ar-svc:hover::after { opacity: 1 }
 
 /* base de données en direct */
 .ar-db { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 8px }
-.ar-table { display: grid; grid-template-columns: minmax(0,1fr) auto; gap: 2px 10px; align-items: baseline; padding: 10px 12px; background: #fff; border: 1px solid var(--line); border-radius: 10px; text-decoration: none; color: inherit; transition: border-color .15s }
+.ar-table { display: grid; grid-template-columns: minmax(0,1fr) auto; gap: 2px 10px; align-items: baseline; padding: 10px 12px; background: var(--panel); border: 1px solid var(--line); border-radius: 10px; text-decoration: none; color: inherit; transition: border-color .15s }
 .ar-table:hover { border-color: #3ECF8E }
 .ar-table b { font-size: 12px; font-weight: 600; color: var(--t1); font-family: var(--mono); white-space: nowrap; overflow: hidden; text-overflow: ellipsis }
 .ar-table strong { font-size: 17px; font-weight: 600; letter-spacing: -.02em; font-variant-numeric: tabular-nums }
@@ -173,7 +174,7 @@ a.ar-svc:hover::after { opacity: 1 }
   </main>
 </div>
 
-<script src="commun.js?v=202611091048"></script>
+<script src="commun.js?v=202611141500"></script>
 <script src="agents.js?v=202611091048"></script>
 <script>
 
