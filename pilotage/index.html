@@ -7,7 +7,7 @@
 <title>Pilotage – Lumen</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&display=swap">
-<link rel="stylesheet" href="admin.css?v=202611112030">
+<link rel="stylesheet" href="admin.css?v=202611141450">
 </head>
 <body>
 <div id="porte" hidden>
@@ -679,7 +679,7 @@ function eclairer(code) {
 function analytics(code) { if (code === "CLIENTS") aller("clients"); else location.href = "agent.html?a=" + encodeURIComponent(code); }
 
 function ouvrirFiche(code) {
-  const dlg = $("#fiche"), fermer = `<button class="fermer" data-fermer aria-label="Fermer"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg></button>`;
+  const dlg = $("#fiche"), fermer = `<button class="fermer" type="button" data-fermer aria-label="Fermer"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg></button>`;
   if (code === "CLIENTS") {
     const cl = D.profils.filter(p => !p.est_admin);
     dlg.innerHTML = `<div class="ndv-tete"><span class="ic" style="--c:#3b82f6;--g:rgba(59,130,246,.14);--pc:#60a5fa">${icone("CLIENTS", 20)}</span><div><h2 id="fa-titre">Clients</h2><p>Les entreprises inscrites sur le site</p></div>${fermer}</div>

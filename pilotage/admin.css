@@ -524,8 +524,11 @@ dialog.ndv::backdrop { background: rgba(15,23,42,.28); backdrop-filter: blur(2px
 .ndv-tete .ic { width: 27.5px; height: 27.5px; border-radius: 50%; display: grid; place-items: center; flex: none; background: var(--g); color: var(--pc); box-shadow: 0 0 0 2px var(--c) }
 .ndv-tete h2 { font-size: 13.5px; font-weight: 500; letter-spacing: -.01em }
 .ndv-tete p { font-size: 11.5px; color: var(--t3); margin-top: 1px }
-.ndv-tete .fermer { margin-left: auto; align-self: flex-start; width: 21px; height: 21px; border-radius: 50%; border: 1px solid var(--line); background: var(--panel); display: grid; place-items: center; color: var(--t3) }
-.ndv-tete .fermer:hover { background: var(--panel-2); color: var(--t1) }
+.fermer { flex: none; width: 28px; height: 28px; padding: 0; margin: 0; border-radius: 50%; border: 1px solid var(--line); background: var(--panel); display: grid; place-items: center; color: var(--t3); cursor: pointer; line-height: 0; transition: background .15s, color .15s }
+.fermer svg { display: block; width: 14px; height: 14px; flex: none }
+.fermer:hover { background: var(--panel-2); color: var(--t1) }
+.fermer:focus-visible { outline: 2px solid var(--blue, #2F6BF2); outline-offset: 2px }
+.ndv-tete .fermer { margin-left: auto; align-self: flex-start }
 .ndv-corps { padding: 11.5px 13.5px; display: grid; gap: 9.5px }
 .ndv-corps h3 { display: flex; align-items: center; gap: 4.5px; font-size: 11.5px; font-weight: 500; color: var(--t3); margin-bottom: 4.5px }
 .taches { list-style: none; margin: 0; padding: 0; display: grid; gap: 4.5px }
