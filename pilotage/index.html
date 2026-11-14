@@ -255,7 +255,7 @@
 <script src="config.js?v=202611091048"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
 <script src="commun.js?v=202611091048"></script>
-<script src="agents.js?v=202611141430"></script>
+<script src="agents.js?v=202611141440"></script>
 <script src="analytics.js?v=202611112030"></script>
 <script src="controle.js?v=202611141430"></script>
 <script>
@@ -526,23 +526,24 @@ const POLES = {
   com: { t: "Pôle commercial", c: "#f472b6" },
   tech: { t: "Pôle technique", c: "#60a5fa" }, mgt: { t: "Pôle management", c: "#fbbf24" }, cpt: { t: "Pôle comptabilité", c: "#2dd4bf" }
 };
-const COURT = { "A-collecteur": "Coordinateur", "B-tri": "Tri par client", "C-chat": "Chat client", "D-analyse": "Analyse DCE", "F-commercial": "Prospection", "K-prospection": "Envoi emails", "R-demandes": "Demandes", "G-controle": "Contrôleur", "H-comptable": "Comptable",
+const COURT = { "A-collecteur": "Coordinateur", "B-tri": "Tri par client", "C-chat": "Chat client", "D-analyse": "Analyse DCE", "F-commercial": "Prospection", "K-prospection": "Envoi emails", "R-demandes": "Demandes", "L-relances": "Relances", "M-abonnements": "Rappels abo.", "I-inscriptions": "Alerte inscr.", "G-controle": "Contrôleur", "H-comptable": "Comptable",
   "E9-boamp": "BOAMP", "E1-place": "PLACE", "E2-aws": "AWS-Achat", "E3-emp": "e-march.pub", "E4-maximilien": "Maximilien", "E5-klekoon": "Klekoon", "E6-ebourgogne": "e-Bourgogne", "E7-megalis": "Mégalis Br.", "E8-achatpublic": "Achat Public" };
 // Disposition de la carte (coordonnées du dessin, en pixels). Trois colonnes : pôles commercial et
 // technique à gauche, les clients au centre, management et comptabilité à droite. Les 9 plateformes de
 // collecte sont regroupées dans un cadre relié au coordinateur par un seul trait : aucun croisement.
-const CADRES = [["com", 30, 30, 650, 200], ["tech", 30, 260, 650, 730], ["mgt", 1040, 30, 260, 200], ["cpt", 1040, 260, 260, 200]];
+const CADRES = [["com", 30, 30, 650, 215], ["tech", 30, 260, 650, 730], ["mgt", 1040, 30, 260, 200], ["cpt", 1040, 260, 260, 200]];
 const SOUS_PROS = ["E9-boamp", "E1-place", "E2-aws", "E3-emp", "E4-maximilien", "E5-klekoon", "E6-ebourgogne", "E7-megalis", "E8-achatpublic"];
 const COLLECTE = { x: 45, y: 670, w: 620, h: 300 };
-const POS = { "F-commercial": [140, 115, "com"], "K-prospection": [360, 115, "com"], "R-demandes": [580, 115, "com"],
+const POS = { "F-commercial": [140, 100, "com"], "K-prospection": [360, 100, "com"], "R-demandes": [580, 100, "com"],
+  "L-relances": [140, 190, "com"], "M-abonnements": [360, 190, "com"], "I-inscriptions": [580, 190, "com"],
   "A-collecteur": [140, 340, "tech"], "B-tri": [360, 340, "tech"], "C-chat": [580, 470, "tech"], "D-analyse": [580, 590, "tech"],
   "G-controle": [1170, 115, "mgt"], "H-comptable": [1170, 345, "cpt"],
   ...Object.fromEntries(SOUS_PROS.map((c, i) => [c, [140 + (i % 3) * 220, 745 + Math.floor(i / 3) * 90, "tech"]])) };
 const HUB = { x: 760, y: 260, w: 200, h: 730 };
 const LIENS = [
-  { de: "F-commercial", vers: "K-prospection", lib: "fiches", pts: [[220, 115], [280, 115]], fin: "r", et: [250, 115] },
-  { de: "K-prospection", vers: "CLIENTS", lib: "inscriptions", pts: [[360, 151], [360, 245], [830, 245], [830, 260]], fin: "d", et: [600, 245], rayon: 8 },
-  { de: "CLIENTS", vers: "R-demandes", lib: "demandes", pts: [[900, 260], [900, 115], [660, 115]], fin: "l", et: [780, 115] },
+  { de: "F-commercial", vers: "K-prospection", lib: "fiches", pts: [[220, 100], [280, 100]], fin: "r", et: [250, 100] },
+  { de: "K-prospection", vers: "CLIENTS", lib: "inscriptions", pts: [[360, 136], [360, 145], [830, 145], [830, 260]], fin: "d", et: [745, 145], rayon: 6 },
+  { de: "CLIENTS", vers: "R-demandes", lib: "demandes", pts: [[900, 260], [900, 100], [660, 100]], fin: "l", et: [790, 100] },
   { de: "E9-boamp", vers: "A-collecteur", lib: "offres des 9 plateformes", pts: [[140, COLLECTE.y], [140, 376]], fin: "u", et: [140, 520] },
   { de: "A-collecteur", vers: "B-tri", lib: "offres", pts: [[220, 340], [280, 340]], fin: "r", et: [250, 340] },
   { de: "B-tri", vers: "CLIENTS", lib: "veille du matin", pts: [[440, 340], [760, 340]], fin: "r", et: [620, 340] },
