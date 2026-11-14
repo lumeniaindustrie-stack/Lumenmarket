@@ -1,0 +1,539 @@
+{
+  "name": "Lumen – Agent L : relance des prospects",
+  "nodes": [
+    {
+      "id": "l1",
+      "name": "Lun-ven à 11 h 20",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        0
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "20 11 * * 1-5"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "l2",
+      "name": "Lire les relances à faire",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        220,
+        0
+      ],
+      "parameters": {
+        "method": "GET",
+        "url": "=https://jsmffmtzoauvqltshiyg.supabase.co/rest/v1/entreprises?select=siret,siren,nom,dirigeant,email,offre_id,objet_email,brevo_message_id,date_envoi&statut=eq.envoy%C3%A9&relance_le=is.null&email_valide=eq.true&date_envoi=lt.{{ $now.minus({days:7}).toUTC().toISO() }}&order=date_envoi.asc&limit=30",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "supabaseApi",
+        "options": {
+          "timeout": 60000
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        }
+      },
+      "credentials": {
+        "supabaseApi": {
+          "id": "",
+          "name": "Supabase Lumen"
+        }
+      },
+      "alwaysOutputData": true,
+      "continueOnFail": true,
+      "executeOnce": true
+    },
+    {
+      "id": "l3",
+      "name": "Compter les envois K du jour",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        440,
+        0
+      ],
+      "parameters": {
+        "method": "GET",
+        "url": "=https://jsmffmtzoauvqltshiyg.supabase.co/rest/v1/entreprises?select=siret&date_envoi=gte.{{ $now.setZone('Europe/Paris').startOf('day').toUTC().toISO() }}&limit=1000",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "supabaseApi",
+        "options": {
+          "timeout": 60000
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        }
+      },
+      "credentials": {
+        "supabaseApi": {
+          "id": "",
+          "name": "Supabase Lumen"
+        }
+      },
+      "alwaysOutputData": true,
+      "continueOnFail": true,
+      "executeOnce": true
+    },
+    {
+      "id": "l4",
+      "name": "Compter les relances du jour",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        660,
+        0
+      ],
+      "parameters": {
+        "method": "GET",
+        "url": "=https://jsmffmtzoauvqltshiyg.supabase.co/rest/v1/entreprises?select=siret&relance_le=gte.{{ $now.setZone('Europe/Paris').startOf('day').toUTC().toISO() }}&limit=1000",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "supabaseApi",
+        "options": {
+          "timeout": 60000
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        }
+      },
+      "credentials": {
+        "supabaseApi": {
+          "id": "",
+          "name": "Supabase Lumen"
+        }
+      },
+      "alwaysOutputData": true,
+      "continueOnFail": true,
+      "executeOnce": true
+    },
+    {
+      "id": "l5",
+      "name": "Lire les SIREN inscrits",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        880,
+        0
+      ],
+      "parameters": {
+        "method": "GET",
+        "url": "=https://jsmffmtzoauvqltshiyg.supabase.co/rest/v1/profils?select=siren&siren=not.is.null&limit=5000",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "supabaseApi",
+        "options": {
+          "timeout": 60000
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        }
+      },
+      "credentials": {
+        "supabaseApi": {
+          "id": "",
+          "name": "Supabase Lumen"
+        }
+      },
+      "alwaysOutputData": true,
+      "continueOnFail": true,
+      "executeOnce": true
+    },
+    {
+      "id": "l6",
+      "name": "Lire les offres citées",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1100,
+        0
+      ],
+      "parameters": {
+        "method": "GET",
+        "url": "=https://jsmffmtzoauvqltshiyg.supabase.co/rest/v1/offres?select=avis_id,objet,acheteur,limite,url&avis_id=in.({{ $('Lire les relances à faire').all().map(i => i.json.offre_id).filter(Boolean).map(v => '\"' + String(v).replace(/\"/g, '') + '\"').join(',') || '\"aucune\"' }})",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "supabaseApi",
+        "options": {
+          "timeout": 60000
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        }
+      },
+      "credentials": {
+        "supabaseApi": {
+          "id": "",
+          "name": "Supabase Lumen"
+        }
+      },
+      "alwaysOutputData": true,
+      "continueOnFail": true,
+      "executeOnce": true
+    },
+    {
+      "id": "l7",
+      "name": "Préparer les relances",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1320,
+        0
+      ],
+      "parameters": {
+        "jsCode": "// ===== RÉGLAGES =====\nconst PLAFOND_JOUR = 10;          // emails de prospection par jour, K et L confondus\nconst SITE = 'https://lumen-marche.fr/', INSCRIPTION = SITE + 'inscription.html';\nconst LEGAL = 'Lumen IA, SIRET 985 215 474 00018, 205 chemin de la Halte, 13090 Aix-en-Provence · lumeniaindustrie@gmail.com';\n// ====================\nconst tous = n => { try { return $(n).all().map(i => i.json).filter(x => x && Object.keys(x).length && !x.error); } catch (e) { return []; } };\nconst leads = tous('Lire les relances à faire').filter(l => l.siret && l.email);\nconst envoisK = tous('Compter les envois K du jour').length;\nconst relancesJour = tous('Compter les relances du jour').length;\nconst inscrits = new Set(tous('Lire les SIREN inscrits').map(p => String(p.siren || '').trim()).filter(Boolean));\nconst offres = new Map(tous('Lire les offres citées').map(o => [String(o.avis_id), o]));\nconst restantes = Math.max(0, PLAFOND_JOUR - envoisK - relancesJour);\n\nconst MOIS = ['janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'];\nconst jourTxt = s => { const t = new Date(s); if (!s || isNaN(t)) return '';\n  const p = Object.fromEntries(new Intl.DateTimeFormat('fr-FR', { timeZone: 'Europe/Paris', day: 'numeric', month: 'numeric', year: 'numeric', hour: 'numeric', minute: 'numeric', hour12: false }).formatToParts(t).map(x => [x.type, x.value]));\n  return { jour: `${Number(p.day)} ${MOIS[Number(p.month) - 1]}`, complet: `${Number(p.day)} ${MOIS[Number(p.month) - 1]} ${p.year}` + ((Number(p.hour) % 24) || Number(p.minute) ? ` à ${Number(p.hour) % 24} h${Number(p.minute) ? ' ' + String(p.minute).padStart(2, '0') : ''}` : '') }; };\nconst PETITS = new Set(['de', 'du', 'des', 'et', 'en', 'sur', 'aux']);\nconst SIGLES = new Set(['sa', 'sas', 'sasu', 'sarl', 'eurl', 'sci', 'snc', 'scop', 'sel', 'selarl', 'btp', 'tp', 'vrd', 'gie', 'ets', 'cvc']);\nconst joli = s => { s = String(s || '').trim(); if (!s || s !== s.toUpperCase()) return s;\n  return s.toLowerCase().split(/(\\s+|-|'|’)/).map((w, i) => !/[a-zà-ÿ]/.test(w) ? w : SIGLES.has(w) ? w.toUpperCase() : (i && PETITS.has(w)) ? w : (i > 1 && w.length === 1) ? w : w.charAt(0).toUpperCase() + w.slice(1)).join(''); };\nconst typo = s => String(s || '')\n  .replace(/\\bma[iî]trise d['’]\\s?oeuvre\\b/gi, m => (m[0] === 'M' ? 'M' : 'm') + 'aîtrise d’œuvre')\n  .replace(/\\bma[iî]tre d['’]\\s?oeuvre\\b/gi, m => (m[0] === 'M' ? 'M' : 'm') + 'aître d’œuvre')\n  .replace(/\\bOeuvre/g, 'Œuvre').replace(/\\boeuvre/g, 'œuvre').replace(/\\bmaitrise\\b/g, 'maîtrise').replace(/\\bMaitrise\\b/g, 'Maîtrise')\n  .replace(/\\bbatiment/g, 'bâtiment').replace(/\\bBatiment/g, 'Bâtiment');\nconst court = (s, n) => { s = String(s || '').replace(/\\s+/g, ' ').trim(); return s.length > n ? s.slice(0, n).replace(/\\s+\\S*$/, '') + '…' : s; };\nconst maj = s => s ? s.charAt(0).toUpperCase() + s.slice(1) : s;\nconst esc = s => String(s ?? '').replace(/[&<>\"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '\"': '&quot;' }[c]));\n\nconst ignores = [], out = [];\nfor (const l of leads) {\n  if (l.siren && inscrits.has(String(l.siren))) { ignores.push({ siret: l.siret, nom: l.nom, raison: 'déjà inscrit sur Lumen' }); continue; }\n  if (out.length >= restantes) { ignores.push({ siret: l.siret, nom: l.nom, raison: 'plafond du jour atteint, relance demain' }); continue; }\n  const prenom = l.dirigeant ? joli(String(l.dirigeant).split(/\\s+/)[0].toUpperCase()) : '';\n  const co = joli(l.nom) || 'votre entreprise';\n  const o = offres.get(String(l.offre_id || '')) || null;\n  const phrase = t => { t = String(t || '').trim(); return t && t === t.toUpperCase() ? maj(t.toLowerCase()) : t; };\n  const titre = o ? typo(court(phrase(o.objet), 110)) : '';\n  const acheteur = o ? maj(typo(joli(o.acheteur))) : '';\n  const ouverte = o && o.limite && new Date(o.limite) > new Date(Date.now() + 2 * 864e5);\n  const lim = o ? jourTxt(o.limite) : null;\n  const envoye = jourTxt(l.date_envoi);\n  const sujet = l.objet_email ? (/^re\\s*:/i.test(l.objet_email) ? l.objet_email : 'Re: ' + l.objet_email) : `Re: ${prenom ? prenom + ', u' : 'U'}ne consultation publique pour ${co}`;\n\n  const p1 = titre\n    ? `Je me permets de revenir vers vous au sujet de mon message du ${envoye.jour}, à propos de la consultation « ${titre} »${acheteur ? ` (${acheteur})` : ''}.`\n    : `Je me permets de revenir vers vous au sujet de mon message du ${envoye.jour} sur les marchés publics.`;\n  const p2 = !o ? '' : ouverte\n    ? `Elle est toujours ouverte : la date limite de réponse est fixée au ${lim.complet}.`\n    : `Cette consultation arrive à son terme, mais des marchés de ce type sont publiés chaque semaine.`;\n  const p3 = `Lumen vous envoie chaque matin les appels d’offres publics qui correspondent à votre métier et à votre zone, triés et résumés par notre IA. Vous pouvez l’essayer gratuitement pendant 14 jours, sans carte bancaire.`;\n  const p4 = `Si ce n’est pas le bon moment, dites-le-moi simplement : je ne vous relancerai pas.`;\n  const bonjour = prenom ? `Bonjour ${prenom},` : 'Bonjour,';\n\n  const texte = [bonjour, '', p1, p2, ouverte && o.url ? 'Voir l’avis : ' + o.url : '', '', p3, 'Essayer Lumen : ' + INSCRIPTION, '', p4, '',\n    'Bien cordialement,', 'Marin Sauzay', 'Fondateur de Lumen Marchés', SITE, '', 'Pour ne plus recevoir de messages de Lumen, répondez simplement « STOP ».', LEGAL]\n    .filter((x, i, a) => x !== '' || a[i - 1] !== '').join('\\n');\n  const P = t => `<p style=\"margin:0 0 14px;\">${t}</p>`;\n  const html = `<!doctype html><html><body style=\"margin:0;padding:20px;font-family:Arial,Helvetica,sans-serif;font-size:15px;line-height:1.6;color:#171A21;background:#FFFFFF;\">\n<div style=\"max-width:600px;\">\n${P(esc(bonjour))}\n${P(esc(p1) + (p2 ? ' ' + esc(p2) : '') + (ouverte && o.url ? ` <a href=\"${esc(o.url)}\" style=\"color:#2350C4;\">Voir l’avis</a>` : ''))}\n${P(esc(p3) + ` <a href=\"${INSCRIPTION}\" style=\"color:#2350C4;font-weight:700;\">Essayer Lumen gratuitement</a>`)}\n${P(esc(p4))}\n<p style=\"margin:0 0 18px;\">Bien cordialement,<br><b>Marin Sauzay</b><br>Fondateur de Lumen Marchés<br><a href=\"${SITE}\" style=\"color:#2350C4;\">lumen-marche.fr</a></p>\n<p style=\"margin:0;font-size:12px;color:#6B7280;\">Pour ne plus recevoir de messages de Lumen, répondez simplement « STOP ».</p>\n<p style=\"margin:6px 0 0;font-size:11px;color:#9CA3AF;\">${esc(LEGAL)}</p>\n</div></body></html>`;\n  const corps = { sender: { name: 'Marin Sauzay — Lumen', email: 'marin@lumen-marche.fr' },\n    replyTo: { email: 'lumeniaindustrie@gmail.com', name: 'Marin Sauzay — Lumen' },\n    to: [{ email: l.email, name: l.dirigeant || co }], bcc: [{ email: 'lumeniaindustrie@gmail.com' }],\n    subject: sujet, htmlContent: html, textContent: texte, tags: ['lumen-relance-l'] };\n  if (l.brevo_message_id) corps.headers = { 'In-Reply-To': l.brevo_message_id, 'References': l.brevo_message_id };\n  out.push({ json: { action: 'send', siret: l.siret, nom: co, email: l.email, offre: titre || null, brevo: corps } });\n}\nconst resume = { leads: leads.length, envoisK, relancesJour, restantes, ignores };\nif (!out.length) return [{ json: { action: 'rien', resume } }];\nout[0].json.resume = resume;\nreturn out;"
+      }
+    },
+    {
+      "id": "l8",
+      "name": "Relance à envoyer ?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        1540,
+        0
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "typeValidation": "loose"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "c1",
+              "leftValue": "={{ $json.action }}",
+              "rightValue": "send",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ]
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "l9",
+      "name": "Envoyer la relance",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1760,
+        -100
+      ],
+      "continueOnFail": true,
+      "alwaysOutputData": true,
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "",
+          "name": "Brevo API Header Auth"
+        }
+      },
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.brevo.com/v3/smtp/email",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "accept",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify($json.brevo) }}",
+        "options": {
+          "timeout": 60000,
+          "batching": {
+            "batch": {
+              "batchSize": 1,
+              "batchInterval": 4000
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "l10",
+      "name": "Noter la relance",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1980,
+        -100
+      ],
+      "parameters": {
+        "method": "PATCH",
+        "url": "=https://jsmffmtzoauvqltshiyg.supabase.co/rest/v1/entreprises?siret=eq.{{ $('Préparer les relances').item.json.siret }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "supabaseApi",
+        "options": {
+          "timeout": 60000
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Prefer",
+              "value": "return=minimal"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify($json.messageId ? { relance_le: $now.toISO(), relance_message_id: $json.messageId } : {}) }}"
+      },
+      "credentials": {
+        "supabaseApi": {
+          "id": "",
+          "name": "Supabase Lumen"
+        }
+      },
+      "alwaysOutputData": true,
+      "continueOnFail": true
+    },
+    {
+      "id": "l11",
+      "name": "Préparer le journal",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2200,
+        0
+      ],
+      "parameters": {
+        "jsCode": "const prep = $('Préparer les relances').all().map(i => i.json);\nconst resume = prep[0]?.resume || {};\nlet envois = [];\ntry { envois = $('Envoyer la relance').all().map(i => i.json); } catch (e) {}\nconst aEnvoyer = prep.filter(p => p.action === 'send');\nconst ok = envois.filter(e => e && e.messageId).length;\nconst erreurs = aEnvoyer.length - ok;\nconst derniere = envois.find(e => e && e.error);\nconst ign = resume.ignores || [];\nlet message;\nif (!aEnvoyer.length) message = resume.leads ? `Aucune relance envoyée : ${ign.map(i => i.raison).filter((v, i, a) => a.indexOf(v) === i).join(', ')}.` : 'Aucune entreprise à relancer aujourd’hui.';\nelse message = `${ok} relance(s) envoyée(s)` + (erreurs ? `, ${erreurs} en erreur (${String(derniere?.error?.message || derniere?.error || '').slice(0, 120)})` : '') + (ign.length ? `. ${ign.length} reportée(s) ou écartée(s).` : '.');\nreturn [{ json: { agent: 'L-relances', debut: new Date(Date.now() - 60000).toISOString(), fin: new Date().toISOString(),\n  statut: erreurs && !ok ? 'erreur' : ok ? 'ok' : 'vide', entrees: resume.leads || 0, sorties: ok,\n  details: { plafond_restant: resume.restantes, envois_k_du_jour: resume.envoisK, relances: aEnvoyer.map(p => ({ siret: p.siret, nom: p.nom, offre: p.offre })), ignores: ign },\n  message } }];"
+      },
+      "executeOnce": true
+    },
+    {
+      "id": "l12",
+      "name": "Écrire le journal",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2420,
+        0
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "=https://jsmffmtzoauvqltshiyg.supabase.co/rest/v1/agent_runs",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "supabaseApi",
+        "options": {
+          "timeout": 60000
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Prefer",
+              "value": "return=minimal"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify($json) }}"
+      },
+      "credentials": {
+        "supabaseApi": {
+          "id": "",
+          "name": "Supabase Lumen"
+        }
+      },
+      "alwaysOutputData": true,
+      "continueOnFail": true,
+      "executeOnce": true
+    }
+  ],
+  "connections": {
+    "Lun-ven à 11 h 20": {
+      "main": [
+        [
+          {
+            "node": "Lire les relances à faire",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Lire les relances à faire": {
+      "main": [
+        [
+          {
+            "node": "Compter les envois K du jour",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Compter les envois K du jour": {
+      "main": [
+        [
+          {
+            "node": "Compter les relances du jour",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Compter les relances du jour": {
+      "main": [
+        [
+          {
+            "node": "Lire les SIREN inscrits",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Lire les SIREN inscrits": {
+      "main": [
+        [
+          {
+            "node": "Lire les offres citées",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Lire les offres citées": {
+      "main": [
+        [
+          {
+            "node": "Préparer les relances",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Préparer les relances": {
+      "main": [
+        [
+          {
+            "node": "Relance à envoyer ?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Envoyer la relance": {
+      "main": [
+        [
+          {
+            "node": "Noter la relance",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Noter la relance": {
+      "main": [
+        [
+          {
+            "node": "Préparer le journal",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Préparer le journal": {
+      "main": [
+        [
+          {
+            "node": "Écrire le journal",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Relance à envoyer ?": {
+      "main": [
+        [
+          {
+            "node": "Envoyer la relance",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Préparer le journal",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "timezone": "Europe/Paris"
+  },
+  "active": false
+}
