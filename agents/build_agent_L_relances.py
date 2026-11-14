@@ -67,7 +67,7 @@ for (const l of leads) {
   const sujet = l.objet_email ? (/^re\s*:/i.test(l.objet_email) ? l.objet_email : 'Re: ' + l.objet_email) : `Re: ${prenom ? prenom + ', u' : 'U'}ne consultation publique pour ${co}`;
 
   const p1 = titre
-    ? `Je me permets de revenir vers vous au sujet de mon message du ${envoye.jour}, à propos de la consultation « ${titre} »${acheteur ? ` (${acheteur})` : ''}.`
+    ? `Je me permets de revenir vers vous au sujet de mon message du ${envoye.jour}, à propos de la consultation « ${titre} »${acheteur && !titre.toLowerCase().includes(acheteur.toLowerCase()) ? ` (${acheteur})` : ''}.`
     : `Je me permets de revenir vers vous au sujet de mon message du ${envoye.jour} sur les marchés publics.`;
   const p2 = !o ? '' : ouverte
     ? `Elle est toujours ouverte : la date limite de réponse est fixée au ${lim.complet}.`
