@@ -331,3 +331,33 @@ async function marchesGagnes(siren) {
   return out;
 }
 const resumeMarches = l => l.slice(0, 25).map(m => `${(m.date || "").slice(0, 7)} ${m.objet.slice(0, 110)}${m.acheteur ? " (" + m.acheteur.slice(0, 50) + ")" : ""}${m.montant ? ", " + Math.round(m.montant / 1000) + " k€" : ""}`).join("\n").slice(0, 3900);
+
+/* ---------- Mode sombre : bouton lune / soleil dans l'en-tête de chaque page ---------- */
+(function () {
+  const racine = document.documentElement;
+  const sombreActif = () => racine.getAttribute("data-theme") === "dark" ||
+    (!racine.getAttribute("data-theme") && window.matchMedia && matchMedia("(prefers-color-scheme: dark)").matches);
+  function basculer() {
+    const t = sombreActif() ? "light" : "dark";
+    racine.setAttribute("data-theme", t);
+    try { localStorage.setItem("lumen-theme", t); } catch (e) {}
+    majLibelle();
+  }
+  function majLibelle() {
+    document.querySelectorAll(".theme-btn").forEach(b => { const s = sombreActif(); b.setAttribute("aria-label", s ? "Passer en mode clair" : "Passer en mode sombre"); b.title = b.getAttribute("aria-label"); b.setAttribute("aria-pressed", s ? "true" : "false"); });
+  }
+  function installer() {
+    if (document.querySelector(".theme-btn")) return;
+    const b = document.createElement("button");
+    b.type = "button"; b.className = "theme-btn";
+    b.innerHTML = '<svg class="soleil" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.5 14.6A8.5 8.5 0 1 1 9.4 3.5a7 7 0 0 0 11.1 11.1z"/></svg>' +
+      '<svg class="lune" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2M12 19.5v2M4.6 4.6l1.4 1.4M18 18l1.4 1.4M2.5 12h2M19.5 12h2M4.6 19.4 6 18M18 6l1.4-1.4"/></svg>';
+    b.addEventListener("click", basculer);
+    const cible = document.querySelector(".ctop-droite") || document.querySelector("header.top nav") || document.querySelector("header .wrap") || document.querySelector("header");
+    if (cible) { cible.classList.contains("ctop-droite") ? cible.insertBefore(b, cible.lastElementChild) : cible.appendChild(b); }
+    else { b.style.cssText = "position:fixed;right:16px;bottom:16px;z-index:60"; document.body.appendChild(b); }
+    majLibelle();
+  }
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", installer); else installer();
+  if (window.matchMedia) matchMedia("(prefers-color-scheme: dark)").addEventListener?.("change", majLibelle);
+})();

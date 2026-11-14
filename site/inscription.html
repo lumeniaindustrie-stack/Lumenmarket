@@ -6,20 +6,21 @@
 <title>Créer mon compte – Lumen Marchés</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&display=swap">
+<script>try{var t=localStorage.getItem("lumen-theme");if(t)document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
 <link rel="stylesheet" href="style.css">
 <style>
 body{min-height:100vh;display:flex;flex-direction:column}
 .page{flex:1;display:grid;grid-template-columns:minmax(0,.75fr) minmax(0,1.25fr)}
 .side{position:relative;overflow:hidden;background:var(--sheet-2);border-right:1px solid var(--line);padding:56px 48px;display:flex;flex-direction:column;gap:28px;isolation:isolate}
 .side h1{font-size:clamp(1.6rem,2.4vw,2.1rem);font-weight:700}
-.side p{color:#4B5262}
+.side p{color:var(--ink-2)}
 .steps-list{list-style:none;margin:0;padding:0;display:grid;gap:4px}
 .steps-list li{display:flex;gap:14px;align-items:center;padding:10px 0;color:var(--muted)}
-.steps-list li span{display:grid;place-items:center;width:30px;height:30px;border-radius:9px;border:1px solid var(--line-2);background:#fff;font-family:var(--f-mono);font-size:.82rem;flex:none}
+.steps-list li span{display:grid;place-items:center;width:30px;height:30px;border-radius:9px;border:1px solid var(--line-2);background:var(--sheet);font-family:var(--f-mono);font-size:.82rem;flex:none}
 .steps-list li.on{color:var(--ink);font-weight:600}
 .steps-list li.on span{border-color:var(--blue);color:var(--blue);background:var(--blue-f)}
 .steps-list li.done span{background:var(--blue);border-color:var(--blue);color:#fff}
-.side .perks{margin-top:auto;display:grid;gap:8px;font-size:.92rem;color:#4B5262}
+.side .perks{margin-top:auto;display:grid;gap:8px;font-size:.92rem;color:var(--ink-2)}
 .side .perks span::before{content:"✓";color:var(--blue);margin-right:8px;font-weight:700}
 
 .main{padding:56px clamp(20px,5vw,72px);display:flex;flex-direction:column}
@@ -33,9 +34,9 @@ form{max-width:620px;display:flex;flex-direction:column;flex:1}
 .step > p{color:var(--muted);margin-top:-8px}
 .grid2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
 .presets{display:flex;flex-wrap:wrap;gap:8px}
-.presets button{background:#fff;border:1px dashed var(--line-2);color:var(--blue);border-radius:8px;padding:6px 12px;font-size:.88rem}
+.presets button{background:var(--sheet);border:1px dashed var(--line-2);color:var(--blue);border-radius:8px;padding:6px 12px;font-size:.88rem}
 .presets button:hover{border-color:var(--blue)}
-.recap{border:1px solid var(--line);border-radius:12px;background:#fff}
+.recap{border:1px solid var(--line);border-radius:12px;background:var(--sheet)}
 .recap div{display:grid;grid-template-columns:150px 1fr auto;gap:12px;padding:12px 16px;border-bottom:1px solid var(--line);align-items:baseline}
 .recap div:last-child{border-bottom:0}
 .recap dt{color:var(--muted);font-size:.88rem}
@@ -55,23 +56,23 @@ form{max-width:620px;display:flex;flex-direction:column;flex:1}
 .siren-wrap{display:flex;gap:8px}
 .siren-wrap input{flex:1;min-width:0}
 .siren-wrap .btn{height:42px;flex:none}
-.fiche{border:1px solid var(--line);border-radius:12px;background:#fff;padding:14px 16px;display:grid;gap:4px;font-size:.92rem}
+.fiche{border:1px solid var(--line);border-radius:12px;background:var(--sheet);padding:14px 16px;display:grid;gap:4px;font-size:.92rem}
 .fiche b{font-size:.98rem}
 .fiche .muted{font-size:.88rem}
-.fiche.attention{background:#FEF0CC;border-color:#F0CF7A;color:#7A5400}
+.fiche.attention{background:var(--accent-f);border-color:#F0CF7A;color:var(--accent-t)}
 /* Étape 3 : texte libre */
 .field textarea{min-height:88px;resize:vertical;line-height:1.5}
 /* Étape 5 : offres exemples */
 .exemples{display:grid;gap:12px;margin-top:4px}
 .exemples h3{font-size:1.05rem;font-weight:700}
 .exemples > p{color:var(--muted);font-size:.9rem;margin-top:-6px}
-.ex-carte{border:1px solid var(--line);border-radius:12px;background:#fff;padding:14px 16px;display:grid;gap:6px}
+.ex-carte{border:1px solid var(--line);border-radius:12px;background:var(--sheet);padding:14px 16px;display:grid;gap:6px}
 .ex-carte .objet{font-weight:600;line-height:1.4}
 .ex-carte .meta{color:var(--muted);font-size:.86rem}
 .ex-actions{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:4px}
-.ex-actions button{background:#fff;border:1px solid var(--line-2);border-radius:999px;padding:6px 13px;font-size:.86rem;font-weight:500;color:var(--ink)}
+.ex-actions button{background:var(--sheet);border:1px solid var(--line-2);border-radius:999px;padding:6px 13px;font-size:.86rem;font-weight:500;color:var(--ink)}
 .ex-actions button[aria-pressed="true"][data-avis="pertinente"]{border-color:var(--blue);background:var(--blue-f);color:var(--blue)}
-.ex-actions button[aria-pressed="true"][data-avis="exclue"]{border-color:#E5A3A3;background:#FDEEEE;color:#9B2C2C}
+.ex-actions button[aria-pressed="true"][data-avis="exclue"]{border-color:#E5A3A3;background:var(--bad-f);color:var(--bad)}
 .ex-actions a{font-size:.86rem;margin-left:auto}
 .ex-vide{border:1px dashed var(--line-2);border-radius:12px;padding:14px 16px;color:var(--muted);font-size:.92rem}
 @media (max-width:900px){
