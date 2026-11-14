@@ -188,8 +188,21 @@ section{padding-block:76px}
         <div class="live-head">
           <div><h2>Derniers appels d'offres</h2><p id="live-count">Chargement…</p></div>
           <select id="live-zone" aria-label="Zone affichée">
-            <option value="sud">Région Sud</option>
             <option value="france">Toute la France</option>
+            <option value="ara">Auvergne-Rhône-Alpes</option>
+            <option value="bfc">Bourgogne-Franche-Comté</option>
+            <option value="bre">Bretagne</option>
+            <option value="cvl">Centre-Val de Loire</option>
+            <option value="cor">Corse</option>
+            <option value="ges">Grand Est</option>
+            <option value="hdf">Hauts-de-France</option>
+            <option value="idf">Île-de-France</option>
+            <option value="nor">Normandie</option>
+            <option value="naq">Nouvelle-Aquitaine</option>
+            <option value="occ">Occitanie</option>
+            <option value="pdl">Pays de la Loire</option>
+            <option value="sud" selected>Provence-Alpes-Côte d'Azur</option>
+            <option value="dom">Outre-mer</option>
           </select>
         </div>
         <div class="live-view" id="live-view" tabindex="0" aria-label="Liste défilante des offres, survolez pour la mettre en pause"><div class="live-track" id="live-track"></div></div>
@@ -352,6 +365,24 @@ $("#prix").textContent = CFG.PRIX || 99;
 if (Compte.semblerConnecte()) $("#nav-compte").textContent = "Mon espace";
 
 /* --- Offres en direct --- */
+const ZONES = {
+  france: { nom: "Toute la France", deps: [] },
+  ara: { nom: "Auvergne-Rhône-Alpes", deps: ["01", "03", "07", "15", "26", "38", "42", "43", "63", "69", "73", "74"] },
+  bfc: { nom: "Bourgogne-Franche-Comté", deps: ["21", "25", "39", "58", "70", "71", "89", "90"] },
+  bre: { nom: "Bretagne", deps: ["22", "29", "35", "56"] },
+  cvl: { nom: "Centre-Val de Loire", deps: ["18", "28", "36", "37", "41", "45"] },
+  cor: { nom: "Corse", deps: ["2A", "2B"] },
+  ges: { nom: "Grand Est", deps: ["08", "10", "51", "52", "54", "55", "57", "67", "68", "88"] },
+  hdf: { nom: "Hauts-de-France", deps: ["02", "59", "60", "62", "80"] },
+  idf: { nom: "Île-de-France", deps: ["75", "77", "78", "91", "92", "93", "94", "95"] },
+  nor: { nom: "Normandie", deps: ["14", "27", "50", "61", "76"] },
+  naq: { nom: "Nouvelle-Aquitaine", deps: ["16", "17", "19", "23", "24", "33", "40", "47", "64", "79", "86", "87"] },
+  occ: { nom: "Occitanie", deps: ["09", "11", "12", "30", "31", "32", "34", "46", "48", "65", "66", "81", "82"] },
+  pdl: { nom: "Pays de la Loire", deps: ["44", "49", "53", "72", "85"] },
+  sud: { nom: "Provence-Alpes-Côte d'Azur", deps: ["04", "05", "06", "13", "83", "84"] },
+  dom: { nom: "Outre-mer", deps: ["971", "972", "973", "974", "976"] }
+};
+
 function carteOffre(o, copie) {
   const nc = !o.montant;
   return `<article class="ligne"${copie ? ' aria-hidden="true"' : ""}>
@@ -363,7 +394,8 @@ function carteOffre(o, copie) {
 }
 async function chargerDirect() {
   const zone = $("#live-zone").value;
-  const deps = zone === "sud" ? (CFG.DEPARTEMENTS_ACCUEIL || []) : [];
+  const Z = ZONES[zone] || ZONES.france;
+  const deps = Z.deps;
   let offres, total, exemple = false;
   try { const r = await chercherOffres({ deps, limit: 30 }); offres = r.offres; total = r.total; }
   catch (e) { offres = EXEMPLES; total = null; exemple = true; }
@@ -372,7 +404,7 @@ async function chargerDirect() {
   $("#live-track").style.setProperty("--duree", Math.max(40, offres.length * 7) + "s");
   $("#live-count").textContent = exemple
     ? "Exemples : la liste en direct n'a pas pu être chargée"
-    : `${total.toLocaleString("fr-FR")} offres ouvertes ${zone === "sud" ? "en Région Sud" : "en France"}`;
+    : `${total.toLocaleString("fr-FR")} offres ouvertes ${zone === "france" ? "en France" : "en " + Z.nom}`;
   $("#live-maj").textContent = exemple ? "Source : BOAMP" : "Source : BOAMP, mis à jour à " + new Date().toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" }) + ". Survolez la liste pour la mettre en pause.";
 }
 $("#live-zone").addEventListener("change", chargerDirect);
