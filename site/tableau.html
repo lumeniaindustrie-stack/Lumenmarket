@@ -847,7 +847,7 @@ function rendreAccueil() {
     lister($("#dernieres"), p.slice(0, 8), "");
   } else {
     $("#dern-titre").textContent = "Suggestions en attendant votre première veille";
-    $("#dern-info").hidden = false; $("#dern-info").textContent = "Votre première veille arrive le prochain matin de semaine. En attendant, voici des offres ouvertes trouvées par simple recherche de vos mots-clés : elles ne sont pas encore triées par l'IA, et ne comptent donc pas comme offres reçues. Vérifiez à chaque fois le lot qui vous concerne.";
+    $("#dern-info").hidden = false; $("#dern-info").textContent = "Vos offres arrivent chaque matin à 9 h, du lundi au vendredi, dès le prochain jour ouvré. En attendant, voici des offres ouvertes trouvées par simple recherche de vos mots-clés : elles ne sont pas encore triées par l'IA, et ne comptent donc pas comme offres reçues. Vérifiez à chaque fois le lot qui vous concerne.";
     $("#dernieres").innerHTML = `<p class="empty">Recherche des offres…</p>`;
     chercherOffres({ q: motsProfil(), deps: parseDeps(c.departements), types: typesProfil(), limit: 8 })
       .then(r => { const mots = listeMotsProfil(); r.offres.forEach(o => o.motTrouve = motTrouve(o.objet, mots)); propositionsAuto = r.offres; lister($("#dernieres"), r.offres, "Aucune offre ouverte ne correspond pour l'instant. Essayez la recherche avec d'autres mots."); rendreEcheances(); })

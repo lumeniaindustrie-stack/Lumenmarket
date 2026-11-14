@@ -95,7 +95,7 @@ form{max-width:620px;display:flex;flex-direction:column;flex:1}
   <aside class="side">
     <div>
       <h1>Créez votre compte en deux minutes</h1>
-      <p style="margin-top:12px">14 jours d'essai offerts. Vos premières offres arrivent le prochain matin de semaine.</p>
+      <p style="margin-top:12px">14 jours d'essai offerts. Vos offres arrivent chaque matin à 9 h, du lundi au vendredi, dès le prochain jour ouvré.</p>
     </div>
     <ol class="steps-list" id="steps-list">
       <li><span>1</span>Votre entreprise</li>
@@ -230,7 +230,7 @@ form{max-width:620px;display:flex;flex-direction:column;flex:1}
     <div class="done-box" id="done">
       <div class="big" aria-hidden="true">✓</div>
       <h2 id="done-titre">Votre compte est créé</h2>
-      <p class="muted" id="done-txt">Vous recevrez votre première sélection d'offres le prochain matin de semaine, vers 9 h.</p>
+      <p class="muted" id="done-txt">Vos offres arrivent chaque matin à 9 h, du lundi au vendredi, dès le prochain jour ouvré.</p>
       <div><a class="btn yellow" id="done-btn" href="tableau.html">Accéder à mon tableau de bord</a></div>
     </div>
   </main>
@@ -401,7 +401,7 @@ async function exemples() {
 function rendreExemples() {
   const liste = $("#ex-liste");
   if (!exOffres.length) {
-    liste.innerHTML = `<div class="ex-vide">Aucune offre ouverte ne correspond à ces critères sur les 30 derniers jours. Ce n'est pas bloquant : votre veille cherchera les nouvelles offres chaque matin de semaine. Pour en recevoir davantage, vous pouvez <button type="button" class="link-btn" data-go="3">ajouter des mots-clés</button> ou <button type="button" class="link-btn" data-go="4">élargir votre zone</button>.</div>`;
+    liste.innerHTML = `<div class="ex-vide">Aucune offre ouverte ne correspond à ces critères sur les 30 derniers jours. Ce n'est pas bloquant : votre veille cherchera les nouvelles offres chaque matin, du lundi au vendredi. Pour en recevoir davantage, vous pouvez <button type="button" class="link-btn" data-go="3">ajouter des mots-clés</button> ou <button type="button" class="link-btn" data-go="4">élargir votre zone</button>.</div>`;
     $$("#ex-liste [data-go]").forEach(b => b.onclick = () => { etape = +b.dataset.go; afficher(); });
     return;
   }
@@ -469,7 +469,7 @@ $("#wizard").addEventListener("submit", async ev => {
     } else if (DEMO) {
       $("#done-txt").textContent = "Mode démonstration : le compte n'existe que dans ce navigateur, aucun email n'a été envoyé.";
     } else {
-      $("#done-txt").innerHTML = `Vous recevrez votre première sélection d'offres${dest} le prochain matin de semaine, vers 9 h.`;
+      $("#done-txt").innerHTML = `Vos offres arrivent${dest} chaque matin à 9 h, du lundi au vendredi, dès le prochain jour ouvré.`;
     }
     $("#wizard").style.display = "none"; $(".progress").style.display = "none"; $("#count").style.display = "none";
     $$("#steps-list li").forEach(li => { li.classList.remove("on"); li.classList.add("done"); });
