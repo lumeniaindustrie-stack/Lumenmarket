@@ -31,6 +31,7 @@
       <button data-v="agents">Agents</button>
       <button data-v="clients">Clients</button>
       <button data-v="demandes">Demandes<span class="compteur zero" id="n-demandes">0</span></button>
+      <button data-v="controle">Contrôle</button>
       <button data-v="ollama">Ollama</button>
       <a href="architecture.html">Architecture</a>
     </nav>
@@ -61,6 +62,7 @@
       <button data-v="agents" title="Agents" aria-label="Agents"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="8" width="16" height="11" rx="3"/><path d="M12 4v4M9 13v1M15 13v1M2 13v2M22 13v2"/></svg></button>
       <button data-v="clients" title="Clients" aria-label="Clients"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.6-3.4 3.2-5.5 6.5-5.5s5.9 2.1 6.5 5.5M16 4.8a3.5 3.5 0 0 1 0 6.4M18.5 14.8c1.7.8 2.8 2.6 3 5.2"/></svg></button>
       <button data-v="demandes" title="Demandes" aria-label="Demandes"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 13h5l1.5 3h5L16 13h5"/><path d="M5.5 5h13L21 13v5a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-5z"/></svg><i class="badge" id="rail-badge" hidden></i></button>
+      <button data-v="controle" title="Contrôle du PC" aria-label="Contrôle du PC"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v8"/><path d="M6.3 6.8a8 8 0 1 0 11.4 0"/></svg></button>
       <button data-v="ollama" title="Modèles IA" aria-label="Modèles IA"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 3v2.2M12 18.8V21M21 12h-2.2M5.2 12H3M18.4 5.6l-1.6 1.6M7.2 16.8l-1.6 1.6M18.4 18.4l-1.6-1.6M7.2 7.2 5.6 5.6"/></svg></button>
       <a href="architecture.html" title="Architecture" aria-label="Architecture"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="6" rx="1.5"/><rect x="14" y="15" width="7" height="6" rx="1.5"/><rect x="3" y="15" width="7" height="6" rx="1.5"/><path d="M6.5 9v6M10 18h4M10 6h4.5a2.5 2.5 0 0 1 2.5 2.5V15"/></svg></a>
     </div>
@@ -216,6 +218,17 @@
       </div>
     </section>
 
+    <section class="vue" id="v-controle" data-titre="Contrôle du PC">
+      <div class="page">
+        <div class="entete"><span class="tuile-ic"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v8"/><path d="M6.3 6.8a8 8 0 1 0 11.4 0"/></svg></span><div><h1>Contrôle du PC</h1><p>Démarre ou arrête n8n et Ollama, et lance un agent à la main. Fonctionne depuis le PC qui fait tourner les agents.</p></div><div class="actions"><button class="btn" id="ct-rafraichir"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M20 11a8 8 0 1 0-2.3 5.7M20 4v7h-7"/></svg>Actualiser</button></div></div>
+        <div class="ct-bandeau" id="ct-bandeau" hidden></div>
+        <div class="ct-message" id="ct-message" role="status" hidden></div>
+        <div class="ct-services" id="ct-services"></div>
+        <div class="panneau"><div class="tableau"><table><thead><tr><th>Agent</th><th>Dernier passage (journal)</th><th>Lancement manuel</th><th></th></tr></thead><tbody id="ct-agents"></tbody></table></div></div>
+        <p class="muted" style="font-size:11px">Un agent lancé à la main tourne comme au passage automatique : ceux marqués d'une confirmation envoient de vrais emails. Arrêter n8n coupe tous les agents jusqu'à ce que tu le redémarres (le gardien ne le relance plus tout seul).</p>
+      </div>
+    </section>
+
     <section class="vue" id="v-ollama" data-titre="Modèles IA">
       <div class="page">
         <div class="entete"><span class="tuile-ic"><svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a1 1 0 0 1 1 1v2.06a7 7 0 0 1 5.94 5.94H21a1 1 0 1 1 0 2h-2.06a7 7 0 0 1-5.94 5.94V21a1 1 0 1 1-2 0v-2.06a7 7 0 0 1-5.94-5.94H3a1 1 0 1 1 0-2h2.06A7 7 0 0 1 11 5.06V3a1 1 0 0 1 1-1zm0 5a5 5 0 1 0 0 10 5 5 0 0 0 0-10zm0 3a2 2 0 1 1 0 4 2 2 0 0 1 0-4z"/></svg></span><div><h1>Modèles IA</h1><p>Agents B, C et D : modèle utilisé pour le tri, le chat et l'analyse des dossiers.</p></div><div class="actions"><button class="btn js-rafraichir" id="ol-rafraichir"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M20 11a8 8 0 1 0-2.3 5.7M20 4v7h-7"/></svg>Actualiser</button></div></div>
@@ -244,6 +257,7 @@
 <script src="commun.js?v=202611091048"></script>
 <script src="agents.js?v=202611091048"></script>
 <script src="analytics.js?v=202611112030"></script>
+<script src="controle.js?v=202611141045"></script>
 <script>
 let D = { profils: [], envoyees: [], analyses: [], demandes: [], runs: [], collecte24: 0, offresTotal: 0 };
 
@@ -826,13 +840,14 @@ async function ollamaAction(action, tag) {
 
 /* ---------- Navigation ---------- */
 function aller(v) {
-  if (!["ensemble", "analytics", "clients", "agents", "demandes", "ollama"].includes(v)) v = "ensemble";
+  if (!["ensemble", "analytics", "clients", "agents", "demandes", "controle", "ollama"].includes(v)) v = "ensemble";
   $$(".vue").forEach(s => s.classList.toggle("on", s.id === "v-" + v));
   $$(".nav [data-v]").forEach(b => b.dataset.v === v ? b.setAttribute("aria-current", "page") : b.removeAttribute("aria-current"));
   $("#titre").firstChild.textContent = $("#v-" + v).dataset.titre + " ";
   history.replaceState(null, "", "#" + v);
   if (v === "ollama" && !Ollama.chargee) { Ollama.chargee = true; rafraichirOllama(); }
   if (v === "analytics") rendreAnalytics(false);
+  if (v === "controle") ctOuvrir();
 }
 $$(".nav [data-v]").forEach(b => b.onclick = () => aller(b.dataset.v));
 /* Texte coupé : on affiche le texte complet au survol */

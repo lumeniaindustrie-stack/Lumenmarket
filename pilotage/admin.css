@@ -805,3 +805,22 @@ line.an-base { stroke: var(--line-2); stroke-width: 1 }
 .d-actions { white-space: nowrap }
 .d-actions .btn + .btn { margin-left: 4px }
 .btn.d-suppr:hover, .btn.d-suppr.confirmer { background: var(--rouge-f); border-color: var(--rouge-f); color: var(--rouge-t) }
+
+/* Contrôle du PC */
+.ct-bandeau { background: var(--orange-f); color: var(--orange-t); border-radius: var(--r-lg); padding: 10px 13px; font-size: 12px; line-height: 1.55 }
+.ct-bandeau code { font-size: 11px; background: rgba(255,255,255,.6); padding: 1px 4px; border-radius: 4px }
+.ct-message { border-radius: var(--r-lg); padding: 9px 13px; font-size: 12px }
+.ct-message.ok { background: var(--vert-f); color: var(--vert-t) }
+.ct-message.ko { background: var(--rouge-f); color: var(--rouge-t) }
+.ct-services { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 11.5px }
+.ct-svc { background: var(--panel); border: 1px solid var(--line); border-radius: var(--r-lg); padding: 13px 14px; box-shadow: var(--shadow); display: grid; gap: 8px; align-content: start }
+.ct-svc-tete { display: flex; align-items: center; justify-content: space-between; gap: 8px }
+.ct-svc-tete b { font-size: 14px; font-weight: 600; color: var(--t1) }
+.ct-svc p { font-size: 11.5px; line-height: 1.5; margin: 0 }
+.ct-actions { display: flex; gap: 6px }
+.btn.ct-danger:hover, .btn.ct-danger.confirmer { background: var(--rouge-f); border-color: var(--rouge-f); color: var(--rouge-t) }
+#ct-agents .btn.confirmer { background: var(--orange-f); border-color: var(--orange-f); color: var(--orange-t) }
+.ct-lancer { text-align: right; white-space: nowrap }
+.ct-alerte { display: block; color: var(--rouge-t); font-size: 10.5px; margin-top: 2px }
+
+#v-controle .btn:disabled { opacity: .45; cursor: not-allowed; box-shadow: none }

@@ -32,9 +32,15 @@ try {
   powercfg /setactive SCHEME_CURRENT
   Write-Host "OK  Pas de mise en veille sur secteur, même écran rabattu" -ForegroundColor Green
 
-  # 3. On lance le gardien tout de suite
+  # 3. On arrête l'ancien gardien s'il tourne (sinon le nouveau ne peut pas démarrer), puis on lance le nouveau
+  Get-CimInstance Win32_Process -Filter "Name='powershell.exe'" | Where-Object { $_.CommandLine -match "lumen_demarrage" -and $_.ProcessId -ne $PID } | ForEach-Object { Stop-Process -Id $_.ProcessId -Force -ErrorAction SilentlyContinue }
+  Start-Sleep -Seconds 2
+  # 3 bis. On lance le gardien tout de suite
   Start-Process -FilePath "powershell.exe" -ArgumentList $arguments -WindowStyle Hidden
   Write-Host "OK  Gardien lancé. Journal : $dossier\demarrage.log" -ForegroundColor Green
+  Start-Sleep -Seconds 4
+  try { $e = Invoke-RestMethod -Uri "http://localhost:5680/etat" -TimeoutSec 5; Write-Host "OK  Télécommande du pilotage active (version $($e.version))" -ForegroundColor Green }
+  catch { Write-Host "ATTENTION : la télécommande ne répond pas encore. Regarde $dossier\demarrage.log" -ForegroundColor Yellow }
   Write-Host ""
   Write-Host "Tu peux fermer cette fenêtre. Au prochain démarrage du PC, tout se relancera seul."
 } catch {

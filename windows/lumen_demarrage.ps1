@@ -14,6 +14,7 @@ $dossier = Join-Path $env:USERPROFILE ".lumen"
 New-Item -ItemType Directory -Force -Path $dossier | Out-Null
 $journal = Join-Path $dossier "demarrage.log"
 $pauseOllama = Join-Path $dossier "ollama_pause"   # présent = Ollama arrêté volontairement
+$pauseN8n = Join-Path $dossier "n8n_pause"         # présent = n8n arrêté volontairement
 $dossierExec = Join-Path $dossier "executions"
 New-Item -ItemType Directory -Force -Path $dossierExec | Out-Null
 
@@ -24,7 +25,9 @@ function Ecrire($message) {
   Add-Content -Path $journal -Value ("{0:yyyy-MM-dd HH:mm:ss}  {1}" -f (Get-Date), $message) -Encoding UTF8
 }
 function Ecoute($port) {
-  try { $c = New-Object Net.Sockets.TcpClient; $c.Connect("127.0.0.1", $port); $c.Close(); return $true } catch { return $false }
+  # Attente bornée à 700 ms (sous Windows, un port fermé met sinon 2 s à répondre)
+  $c = New-Object Net.Sockets.TcpClient
+  try { $t = $c.ConnectAsync("127.0.0.1", $port); $ok = $t.Wait(700) -and $c.Connected; return [bool]$ok } catch { return $false } finally { $c.Close() }
 }
 function N8nLance() {
   $p = Get-CimInstance Win32_Process -Filter "Name='node.exe'" -ErrorAction SilentlyContinue | Where-Object { $_.CommandLine -match "n8n" -and $_.CommandLine -notmatch " execute " }
@@ -36,6 +39,10 @@ function DemarrerOllama() {
 function ArreterOllama() {
   Get-Process -Name "ollama", "ollama app", "ollama_llama_server", "llama-server" -ErrorAction SilentlyContinue | Stop-Process -Force -ErrorAction SilentlyContinue
   Ecrire "Ollama arrêté depuis le pilotage"
+}
+function ArreterN8n() {
+  Get-CimInstance Win32_Process -Filter "Name='node.exe'" -ErrorAction SilentlyContinue | Where-Object { $_.CommandLine -match "n8n" } | ForEach-Object { Stop-Process -Id $_.ProcessId -Force -ErrorAction SilentlyContinue }
+  Ecrire "n8n arrêté depuis le pilotage"
 }
 function DemarrerN8n() {
   $log = Join-Path $dossier "n8n.log"
@@ -118,7 +125,7 @@ function Etat() {
   return @{
     version = $VERSION
     ollama = @{ actif = $ollamaTourne; pause = (Test-Path $pauseOllama); modeles_charges = $charges }
-    n8n = @{ actif = ((Ecoute 5678) -or (N8nLance)) }
+    n8n = @{ actif = ((Ecoute 5678) -or (N8nLance)); pret = (Ecoute 5678); pause = (Test-Path $pauseN8n) }
     workflows = $agents
     workflows_lus = ($script:workflows.Count -gt 0)
     executions = (EtatExecutions)
@@ -149,13 +156,15 @@ function Traiter($ctx) {
   if ($origine) { foreach ($o in $ORIGINES) { if ($origine -match $o) { $autorisee = $true } } }
   if ($origine -and -not $autorisee) { Repondre $ctx 403 @{ ok = $false; message = "Origine refusée" } $null; return }
   if (-not $origine -and $req.HttpMethod -ne "GET") { Repondre $ctx 403 @{ ok = $false; message = "Origine absente" } $null; return }
-  if ($req.HttpMethod -eq "OPTIONS") { Repondre $ctx 204 $null $origine; return }
+  if ($req.HttpMethod -eq "OPTIONS") { Repondre $ctx 200 $null $origine; return }
   $chemin = $req.Url.AbsolutePath.TrimEnd('/')
   try {
     switch ("$($req.HttpMethod) $chemin") {
       "GET /etat" { if (((Get-Date) - $script:workflowsLe).TotalMinutes -gt 10) { LancerLectureWorkflows }; Repondre $ctx 200 (Etat) $origine }
       "POST /ollama/arreter" { New-Item -ItemType File -Force -Path $pauseOllama | Out-Null; ArreterOllama; Repondre $ctx 200 @{ ok = $true } $origine }
       "POST /ollama/demarrer" { Remove-Item $pauseOllama -Force -ErrorAction SilentlyContinue; if (-not (Ecoute 11434)) { DemarrerOllama }; Repondre $ctx 200 @{ ok = $true } $origine }
+      "POST /n8n/arreter" { New-Item -ItemType File -Force -Path $pauseN8n | Out-Null; ArreterN8n; Repondre $ctx 200 @{ ok = $true } $origine }
+      "POST /n8n/demarrer" { Remove-Item $pauseN8n -Force -ErrorAction SilentlyContinue; if (-not (Ecoute 5678) -and -not (N8nLance)) { DemarrerN8n; $script:n8nPasAvant = (Get-Date).AddSeconds(120) }; Repondre $ctx 200 @{ ok = $true } $origine }
       "POST /agents/rafraichir" { LancerLectureWorkflows; Repondre $ctx 200 @{ ok = $true } $origine }
       "POST /agent/lancer" { Repondre $ctx 200 (LancerAgent ("" + $req.QueryString["code"])) $origine }
       default { Repondre $ctx 404 @{ ok = $false; message = "Inconnu" } $origine }
@@ -183,7 +192,7 @@ try {
 $attente = $null
 if ($serveur) { $attente = $serveur.GetContextAsync() }
 $prochaineVerif = (Get-Date).AddSeconds(15)
-$n8nPasAvant = Get-Date
+$script:n8nPasAvant = Get-Date
 LancerLectureWorkflows
 
 while ($true) {
@@ -198,10 +207,12 @@ while ($true) {
   # 2. Gardien : une vérification par minute
   if ((Get-Date) -ge $prochaineVerif) {
     $prochaineVerif = (Get-Date).AddSeconds(60)
-    if (-not (Test-Path $pauseOllama) -and -not (Ecoute 11434)) { Ecrire "Ollama ne répond pas : démarrage"; DemarrerOllama }
-    if ((Get-Date) -ge $n8nPasAvant -and -not (Ecoute 5678) -and -not (N8nLance)) {
+    if (Test-Path $pauseOllama) {
+      if (Ecoute 11434) { ArreterOllama }   # arrêté volontairement : on l'empêche aussi de se relancer seul au démarrage de Windows
+    } elseif (-not (Ecoute 11434)) { Ecrire "Ollama ne répond pas : démarrage"; DemarrerOllama }
+    if (-not (Test-Path $pauseN8n) -and (Get-Date) -ge $script:n8nPasAvant -and -not (Ecoute 5678) -and -not (N8nLance)) {
       Ecrire "n8n arrêté : démarrage"; DemarrerN8n
-      $n8nPasAvant = (Get-Date).AddSeconds(120)   # laisse le temps à n8n de démarrer
+      $script:n8nPasAvant = (Get-Date).AddSeconds(120)   # laisse le temps à n8n de démarrer
     }
   }
 }
