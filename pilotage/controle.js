@@ -10,7 +10,8 @@ const CT_ATTENTION = {
   "K-prospection": "envoie de vrais emails de prospection (10 par jour au plus)",
   "G-controle": "peut t'envoyer un email d'alerte",
   "I-inscriptions": "t'envoie un email par nouvelle inscription",
-  "L-relances": "envoie de vraies relances aux prospects"
+  "L-relances": "envoie de vraies relances aux prospects",
+  "M-abonnements": "envoie de vrais rappels d'abonnement à tes clients"
 };
 function ctAgents() {
   const liste = AGENTS.filter(a => a.code !== "H-comptable").map(a => ({ code: a.code, nom: a.nom, titre: a.titre, pole: a.pole }));
