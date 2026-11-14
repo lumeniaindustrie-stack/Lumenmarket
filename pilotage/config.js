@@ -10,11 +10,11 @@ window.CONFIG = {
   WEBHOOK_ANALYSE: "",     // agent « Réception analyse »
   WEBHOOK_DEMANDE: "",     // agent « Réception demande » (agents sur mesure, accompagnement)
 
-  // Lien de paiement Stripe de l'abonnement (99 € HT / mois)
+  // Lien de paiement Stripe de l'abonnement (49 € HT / mois)
   STRIPE_ABONNEMENT: "",
 
   // Prix affiché
-  PRIX: 99,
+  PRIX: 49,
 
   // Départements affichés par défaut dans le panneau « En direct » de l'accueil
   DEPARTEMENTS_ACCUEIL: ["04", "05", "06", "13", "83", "84"],

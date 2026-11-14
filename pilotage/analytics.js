@@ -99,7 +99,7 @@ function anTable(T, series, fmt = nf) {
 
 /* ---------- Calculs clients / rétention ---------- */
 function anClients() {
-  const auj = anJour(new Date()), P = CFG.PRIX || 99;
+  const auj = anJour(new Date()), P = CFG.PRIX || 49;
   const clients = D.profils.filter(p => !p.est_admin);
   const paie = p => p.actif !== false && (p.formule || "essai") !== "essai";
   const payants = clients.filter(paie);

@@ -972,7 +972,7 @@ function rendreProfil() {
   const essai = (c.formule || "essai") === "essai", j = joursRestants(c.fin_essai);
   $("#abo").innerHTML = `
     <h2 style="font-size:1.3rem">${essai ? "Essai gratuit" : "Abonnement actif"}</h2>
-    <div class="amount">${esc(CFG.PRIX || 99)} € <small>HT par mois, tout compris</small></div>
+    <div class="amount">${esc(CFG.PRIX || 49)} € <small>HT par mois, tout compris</small></div>
     <p class="muted">${essai ? (j > 0 ? `Votre essai se termine le ${esc(fmtJour(c.fin_essai))}, dans ${j} jour${j > 1 ? "s" : ""}. Abonnez-vous pour continuer à recevoir vos offres sans interruption.` : "Votre essai est terminé. Abonnez-vous pour continuer à recevoir vos offres.") : "Merci ! Votre abonnement comprend la veille, l'analyse des dossiers, le tableau de bord et le calendrier."}</p>
     <div style="display:flex;gap:12px;flex-wrap:wrap">
       ${essai ? (CFG.STRIPE_ABONNEMENT ? `<a class="btn yellow" href="${esc(CFG.STRIPE_ABONNEMENT)}?prefilled_email=${encodeURIComponent(c.email)}" target="_blank" rel="noopener">S'abonner maintenant</a>` : `<a class="btn yellow" href="mailto:${esc(CFG.EMAIL)}?subject=${encodeURIComponent("Abonnement – " + (c.entreprise || ""))}">S'abonner</a>`) : ""}

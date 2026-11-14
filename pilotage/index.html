@@ -329,7 +329,7 @@ function jauge(score) {
 
 /* ---------- Vue d'ensemble ---------- */
 function rendre() {
-  const P = CFG.PRIX || 99, auj = new Date(), J = PERIODE;
+  const P = CFG.PRIX || 49, auj = new Date(), J = PERIODE;
   const clientsSeuls = D.profils.filter(p => !p.est_admin);
   const actifs = clientsSeuls.filter(p => p.actif !== false);
   const abonnes = actifs.filter(p => p.formule === "abonne" || p.formule === "accompagnement");
@@ -638,7 +638,7 @@ function rendreAgents() {
     <text x="${cx}" y="${H.y + 222}" text-anchor="middle" fill="#111827" font-size="54" font-weight="700" letter-spacing="-2">${actifs.length}</text>
     <text x="${cx}" y="${H.y + 248}" text-anchor="middle" fill="#64748B" font-size="12.5">client${actifs.length > 1 ? "s" : ""} actif${actifs.length > 1 ? "s" : ""}</text>
     <line x1="${H.x + 18}" x2="${H.x + H.w - 18}" y1="${H.y + 300}" y2="${H.y + 300}" stroke="#E5EAF2"/>
-    ${ligne(H.y + 336, "Abonnés", ab)}${ligne(H.y + 366, "En essai", es)}${ligne(H.y + 396, "Revenu", nf(ab * (CFG.PRIX || 99)) + " €/mois")}
+    ${ligne(H.y + 336, "Abonnés", ab)}${ligne(H.y + 366, "En essai", es)}${ligne(H.y + 396, "Revenu", nf(ab * (CFG.PRIX || 49)) + " €/mois")}
     ${[[830, H.y], [900, H.y], [H.x, 340], [H.x, 470], [H.x, 590], [H.x + H.w, 345]].map(([x, y]) => `<circle class="port" cx="${x}" cy="${y}" r="4"/>`).join("")}${coin(H.x + H.w - 9, H.y + H.h - 9)}</g>`;
   const C = COLLECTE;
   const collecte = `<g><rect x="${C.x}" y="${C.y}" width="${C.w}" height="${C.h}" rx="14" fill="#F8FAFC" stroke="#DCE3EE" stroke-dasharray="5 4"/>
