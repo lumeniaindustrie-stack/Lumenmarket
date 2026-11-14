@@ -25,7 +25,7 @@ create table if not exists public.profils (
   montant_min   integer,
   formule       text not null default 'essai' check (formule in ('essai', 'abonne', 'accompagnement')),
   actif         boolean not null default true,
-  fin_essai     date not null default (current_date + 7),
+  fin_essai     date not null default (current_date + 14),
   notes_admin   text,                                   -- tes notes internes, invisibles pour le client
   cree_le       timestamptz not null default now(),
   maj_le        timestamptz not null default now()
