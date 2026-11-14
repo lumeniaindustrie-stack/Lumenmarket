@@ -13,11 +13,11 @@
 .hero{position:relative;overflow:hidden;border-bottom:1px solid var(--line);isolation:isolate}
 .slices{position:absolute;inset:0;z-index:-2;display:flex;gap:16px;width:128%;margin-left:-14%}
 .slice{flex:1;overflow:hidden;transform:skewX(-14deg);background:var(--sheet-2);border-radius:14px}
-.slice picture{display:contents}.slice img{display:block;height:100%;width:150%;margin-left:-25%;object-fit:cover;transform:skewX(14deg);filter:saturate(1.05)}
+.slice picture{display:contents}.slice img{display:block;height:100%;width:150%;margin-left:-25%;object-fit:cover;transform:skewX(14deg);filter:saturate(.9)}
 .slice:nth-child(3){outline:2px solid var(--accent);outline-offset:6px}
 .hero::before{content:"";position:absolute;inset:0;z-index:-1;background:
-  linear-gradient(90deg,rgba(255,255,255,.95) 0%,rgba(255,255,255,.88) 34%,rgba(255,255,255,.55) 50%,rgba(255,255,255,.12) 66%,rgba(255,255,255,.05) 100%),
-  linear-gradient(0deg,#fff 0%,rgba(255,255,255,0) 14%)}
+  linear-gradient(90deg,rgba(255,255,255,.98) 0%,rgba(255,255,255,.94) 40%,rgba(255,255,255,.72) 68%,rgba(255,255,255,.86) 100%),
+  linear-gradient(0deg,#fff 0%,rgba(255,255,255,0) 30%)}
 .hero .wrap{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,.9fr);gap:48px;padding-block:72px 64px;align-items:center}
 .hero h1{font-size:clamp(2rem,4vw,3.1rem);font-weight:700;letter-spacing:-.025em}
 .lead{font-size:1.05rem;color:#4B5262;margin-top:22px;max-width:56ch}
@@ -134,7 +134,6 @@ section{padding-block:76px}
   .offre2{padding:22px}
   .hero .wrap{padding-block:48px}
   .slices{width:200%;margin-left:-50%}
-  .hero::before{background:linear-gradient(180deg,rgba(255,255,255,.9) 0%,rgba(255,255,255,.82) 60%,rgba(255,255,255,.55) 100%)}
   .live-view{height:380px}
   .plan{position:static}
   section{padding-block:64px}
