@@ -288,23 +288,56 @@
 .abo .amount small{font-size:.95rem;font-weight:500;color:var(--muted)}
 
 /* assistant */
-.chat{display:grid;grid-template-rows:minmax(0,1fr) auto;height:min(70vh,720px);min-height:420px}
-.fil{overflow-y:auto;padding:20px;display:flex;flex-direction:column;gap:12px}
-.msg{max-width:min(660px,86%);padding:11px 14px;border-radius:12px;line-height:1.55;white-space:pre-wrap;overflow-wrap:anywhere;font-size:.95rem}
-.msg.client{align-self:flex-end;background:var(--blue);color:#fff;border-bottom-right-radius:4px}
-.msg.agent{align-self:flex-start;background:var(--sheet-2);border:1px solid var(--line);border-bottom-left-radius:4px}
-.msg.agent a{color:var(--blue)}
-.msg small{display:block;font-size:.75rem;opacity:.7;margin-top:6px}
-.msg.attente{color:var(--muted);font-style:italic}
-.msg .sur{display:block;font-size:.8rem;opacity:.8;margin-bottom:4px}
-.chat form{display:flex;gap:10px;padding:14px;border-top:1px solid var(--line);align-items:flex-end}
-.chat textarea{flex:1;font:inherit;font-size:.95rem;resize:none;min-height:44px;max-height:160px;padding:11px 13px;border:1px solid var(--line-2);border-radius:var(--r-sm);background:#fff;color:var(--ink)}
-.chat textarea:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 3px rgba(35,80,196,.12)}
-.chat form .btn{height:44px}
-.suggest{display:flex;gap:8px;flex-wrap:wrap;padding:0 20px 6px}
-.suggest button{font-size:.86rem;padding:7px 12px;border-radius:999px;border:1px solid var(--line-2);background:#fff;color:var(--ink)}
-.suggest button:hover{border-color:var(--blue);color:var(--blue)}
-.lien-offre{display:flex;justify-content:space-between;gap:10px;align-items:center;padding:8px 14px 0 20px;font-size:.86rem;color:var(--muted)}
+.chat{display:grid;grid-template-rows:auto minmax(0,1fr) auto;height:min(74vh,760px);min-height:460px;overflow:hidden}
+.chat-tete{display:flex;align-items:center;gap:11px;padding:13px 18px;border-bottom:1px solid var(--line);background:#fff}
+.chat-tete b{display:block;font-size:.95rem}
+.chat-tete small{display:flex;align-items:center;gap:6px;color:var(--muted);font-size:.8rem}
+.chat-tete small i{width:7px;height:7px;border-radius:50%;background:var(--ok);box-shadow:0 0 0 3px var(--ok-f)}
+.ia-av{flex:none;width:30px;height:30px;border-radius:9px;display:grid;place-items:center;background:linear-gradient(135deg,var(--blue),#4C7BEA);color:#fff}
+.ia-av svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.fil{overflow-y:auto;padding:22px clamp(14px,3vw,28px) 10px;display:flex;flex-direction:column;gap:16px;background:linear-gradient(#FBFBFC,#fff 220px);scroll-behavior:smooth}
+.jour-sep{align-self:center;font-size:.75rem;color:var(--muted);background:var(--sheet-2);border:1px solid var(--line);padding:3px 10px;border-radius:999px}
+.tour{display:flex;gap:10px;align-items:flex-start;max-width:min(760px,100%)}
+.tour.client{align-self:flex-end;flex-direction:row-reverse;max-width:min(560px,88%)}
+.tour .corps{min-width:0;display:flex;flex-direction:column;gap:5px}
+.tour.client .corps{align-items:flex-end}
+.msg{padding:11px 15px;border-radius:14px;line-height:1.6;overflow-wrap:anywhere;font-size:.94rem}
+.msg.client{background:var(--blue);color:#fff;border-top-right-radius:5px;white-space:pre-wrap}
+.msg.agent{background:#fff;border:1px solid var(--line);border-top-left-radius:5px;box-shadow:0 1px 2px rgba(16,24,40,.04)}
+.msg.agent p{margin:0}.msg.agent p+p,.msg.agent p+ul,.msg.agent ul+p,.msg.agent p+ol,.msg.agent ol+p,.msg.agent .cartes+p,.msg.agent p+.cartes{margin-top:9px}
+.msg.agent ul,.msg.agent ol{margin:0;padding-left:20px}.msg.agent li+li{margin-top:4px}
+.msg.agent a{color:var(--blue);font-weight:500;text-underline-offset:2px}
+.msg.agent strong{font-weight:650}
+.msg .sur{display:block;font-size:.78rem;opacity:.85;margin-bottom:5px;padding-bottom:5px;border-bottom:1px solid rgba(255,255,255,.25)}
+.heure{font-size:.72rem;color:var(--muted);padding:0 4px}
+.cartes{display:grid;gap:8px}
+.carte-of{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 12px;align-items:center;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--sheet-2)}
+.carte-of b{font-size:.9rem;line-height:1.35;font-weight:600}
+.carte-of .meta{grid-column:1;font-size:.8rem;color:var(--muted)}
+.carte-of a{grid-row:1/span 2;grid-column:2;font-size:.82rem;white-space:nowrap;padding:6px 10px;border-radius:8px;background:#fff;border:1px solid var(--line-2);text-decoration:none}
+.carte-of a:hover{border-color:var(--blue)}
+.msg.attente{display:flex;align-items:center;gap:10px;color:var(--muted);font-size:.88rem}
+.points{display:inline-flex;gap:4px}.points i{width:6px;height:6px;border-radius:50%;background:var(--blue);opacity:.35;animation:pt 1.2s infinite}
+.points i:nth-child(2){animation-delay:.15s}.points i:nth-child(3){animation-delay:.3s}
+@keyframes pt{0%,60%,100%{opacity:.25;transform:none}30%{opacity:.9;transform:translateY(-3px)}}
+@media (prefers-reduced-motion:reduce){.points i{animation:none}.fil{scroll-behavior:auto}}
+.accueil-chat{margin:auto;text-align:center;max-width:520px;padding:10px 0 4px;display:grid;justify-items:center;gap:8px}
+.accueil-chat .ia-av{width:44px;height:44px;border-radius:13px}.accueil-chat .ia-av svg{width:22px;height:22px}
+.accueil-chat h2{font-size:1.15rem;margin:6px 0 0}
+.accueil-chat p{color:var(--muted);font-size:.92rem;margin:0}
+.chat-bas{border-top:1px solid var(--line);background:#fff;padding:10px 14px 12px}
+.suggest{display:flex;gap:8px;flex-wrap:wrap;padding:0 0 10px}
+.suggest button{font:inherit;font-size:.84rem;padding:7px 12px;border-radius:999px;border:1px solid var(--line-2);background:#fff;color:var(--ink);cursor:pointer}
+.suggest button:hover{border-color:var(--blue);color:var(--blue);background:var(--blue-f)}
+.compo{display:flex;gap:8px;align-items:flex-end;border:1px solid var(--line-2);border-radius:14px;padding:6px 6px 6px 14px;background:#fff;transition:border-color .15s,box-shadow .15s}
+.compo:focus-within{border-color:var(--blue);box-shadow:0 0 0 3px rgba(35,80,196,.12)}
+.chat textarea{flex:1;font:inherit;font-size:.95rem;resize:none;min-height:38px;max-height:160px;padding:8px 0;border:0;background:transparent;color:var(--ink);outline:none}
+.envoi{flex:none;width:38px;height:38px;border-radius:10px;border:0;background:var(--accent);color:var(--accent-ink);display:grid;place-items:center;cursor:pointer}
+.envoi:hover{filter:brightness(.96)}.envoi:disabled{opacity:.45;cursor:default}
+.envoi svg{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.astuce{font-size:.74rem;color:var(--muted);margin:6px 2px 0}
+@media (max-width:700px){.astuce{display:none}.tour.client{max-width:92%}}
+.lien-offre{display:flex;justify-content:space-between;gap:10px;align-items:center;padding:0 2px 8px;font-size:.84rem;color:var(--muted)}
 .histo{list-style:none;margin:0;padding:0}
 .histo li{border-top:1px solid var(--line)}
 .histo li:first-child{border-top:0}
@@ -491,22 +524,22 @@
 
       <!-- Assistant -->
       <section class="view" id="v-assistant" aria-labelledby="h-assistant">
-        <div class="vhead"><div><h1 id="h-assistant">Assistant</h1><p>Posez vos questions sur vos offres : laquelle choisir, ce qu'il faut préparer, s'il y en a d'autres dans votre zone. L'assistant répond en général en moins d'une minute.</p></div></div>
+        <div class="vhead"><div><h1 id="h-assistant">Assistant</h1><p>Posez vos questions sur vos offres : laquelle choisir, ce qu'il faut préparer, s'il y en a d'autres dans votre zone.</p></div></div>
         <div class="panel chat">
-          <div style="display:flex;flex-direction:column;min-height:0">
-            <div class="fil" id="fil" aria-live="polite"></div>
+          <div class="chat-tete"><span class="ia-av"><svg viewBox="0 0 24 24"><path d="M12 3l1.8 4.7L18.5 9.5l-4.7 1.8L12 16l-1.8-4.7L5.5 9.5l4.7-1.8z"/><path d="M19 15l.8 2.2L22 18l-2.2.8L19 21l-.8-2.2L16 18l2.2-.8z"/></svg></span><div><b>Assistant Lumen</b><small><i></i>Répond en général en moins d'une minute</small></div></div>
+          <div class="fil" id="fil" aria-live="polite"></div>
+          <div class="chat-bas">
             <div class="suggest" id="suggest">
               <button type="button">Quelles offres me conseilles-tu cette semaine ?</button>
               <button type="button">Quelles échéances arrivent bientôt ?</button>
               <button type="button">Y a-t-il de nouvelles offres dans ma zone ?</button>
             </div>
-          </div>
-          <div>
             <div class="lien-offre" id="lien-offre" hidden><span id="lien-offre-txt"></span><button class="link-btn" type="button" id="lien-offre-x">Retirer</button></div>
-            <form id="f-chat">
-              <textarea id="chat-q" rows="1" maxlength="1500" placeholder="Votre question…" aria-label="Votre question"></textarea>
-              <button class="btn yellow" id="chat-go" type="submit">Envoyer</button>
+            <form id="f-chat" class="compo">
+              <textarea id="chat-q" rows="1" maxlength="1500" placeholder="Posez votre question sur vos offres…" aria-label="Votre question"></textarea>
+              <button class="envoi" id="chat-go" type="submit" aria-label="Envoyer"><svg viewBox="0 0 24 24"><path d="M5 12h13M13 6l6 6-6 6"/></svg></button>
             </form>
+            <p class="astuce">Entrée pour envoyer, Maj + Entrée pour aller à la ligne.</p>
           </div>
         </div>
         <p class="note" style="margin-top:10px">Réponses produites par une IA à partir de vos offres : vérifiez toujours dans l'avis avant de répondre à un marché.</p>
@@ -1195,21 +1228,79 @@ async function analyserOffre(o, relancer) {
 
 /* ---------- Assistant ---------- */
 let messages = [], offreLiee = null, suiviChat = null, chatCharge = false;
-const lienAuto = t => esc(t).replace(/https?:\/\/[^\s<)]+/g, u => `<a href="${u}" target="_blank" rel="noopener">${u.length > 60 ? "Voir l'offre" : u}</a>`);
+const IA_SVG = '<svg viewBox="0 0 24 24"><path d="M12 3l1.8 4.7L18.5 9.5l-4.7 1.8L12 16l-1.8-4.7L5.5 9.5l4.7-1.8z"/><path d="M19 15l.8 2.2L22 18l-2.2.8L19 21l-.8-2.2L16 18l2.2-.8z"/></svg>';
+// Mise en forme des réponses de l'IA : paragraphes, listes, gras, liens, et lignes « objet | acheteur | lieu | date | lien » en cartes d'offre
+function lienSur(u) { return /^https?:\/\//i.test(u) ? u : null; }
+function enLigne(t) {
+  const liens = [];
+  t = t.replace(/\[([^\]]{1,120})\]\((https?:\/\/[^\s)]+)\)/g, (_, txt, u) => { liens.push([txt, u]); return `\u0000${liens.length - 1}\u0000`; });
+  t = t.replace(/https?:\/\/[^\s<)]+/g, u => { liens.push([null, u]); return `\u0000${liens.length - 1}\u0000`; });
+  t = esc(t).replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>");
+  return t.replace(/\u0000(\d+)\u0000/g, (_, i) => {
+    const [txt, u] = liens[+i];
+    const lib = txt && !/^(lien|link|ici)$/i.test(txt.trim()) ? txt : (/boamp\.fr/.test(u) ? "Voir l'avis" : (u.length > 50 ? "Ouvrir le lien" : u));
+    return `<a href="${esc(u)}" target="_blank" rel="noopener">${esc(lib)}</a>`;
+  });
+}
+function carteOffreChat(l) {
+  const parts = l.split("|").map(x => x.trim()).filter(Boolean);
+  let url = null;
+  const reste = parts.filter(p => { const m = p.match(/\((https?:\/\/[^\s)]+)\)|^(https?:\/\/\S+)$/); if (m) { url = m[1] || m[2]; return false; } return true; });
+  const [titre, ...meta] = reste;
+  return `<div class="carte-of"><b>${esc(titre || "Offre")}</b><span class="meta">${esc(meta.join(" · "))}</span>${url ? `<a href="${esc(url)}" target="_blank" rel="noopener">Voir l'avis</a>` : ""}</div>`;
+}
+function miseEnForme(texte) {
+  const lignes = String(texte || "").replace(/\r/g, "").split("\n");
+  let html = "", liste = null, cartes = [], para = [];
+  const fermerPara = () => { if (para.length) { html += `<p>${para.map(enLigne).join("<br>")}</p>`; para = []; } };
+  const fermerListe = () => { if (liste) { html += `<${liste.t}>${liste.items.map(i => `<li>${enLigne(i)}</li>`).join("")}</${liste.t}>`; liste = null; } };
+  const fermerCartes = () => { if (cartes.length) { html += `<div class="cartes">${cartes.map(carteOffreChat).join("")}</div>`; cartes = []; } };
+  const tout = () => { fermerPara(); fermerListe(); fermerCartes(); };
+  for (const brut of lignes) {
+    const l = brut.trim();
+    if (!l) { tout(); continue; }
+    const puce = l.match(/^(?:[-*•]|(\d+)[.)])\s+(.*)$/);
+    const contenu = puce ? puce[2] : l;
+    if ((contenu.match(/\|/g) || []).length >= 2) { fermerPara(); fermerListe(); cartes.push(contenu.replace(/^\*\*|\*\*$/g, "")); continue; }
+    fermerCartes();
+    if (puce) { fermerPara(); const t = puce[1] ? "ol" : "ul"; if (!liste || liste.t !== t) { fermerListe(); liste = { t, items: [] }; } liste.items.push(contenu); continue; }
+    fermerListe(); para.push(l.replace(/^#{1,4}\s+/, ""));
+  }
+  tout();
+  return html;
+}
+const heureCourte = d => new Date(d).toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" });
+function jourLib(d) {
+  const j = new Date(d), auj = new Date(); const hier = new Date(); hier.setDate(auj.getDate() - 1);
+  if (j.toDateString() === auj.toDateString()) return "Aujourd'hui";
+  if (j.toDateString() === hier.toDateString()) return "Hier";
+  return j.toLocaleDateString("fr-FR", { weekday: "long", day: "numeric", month: "long" });
+}
+function tour(role, interieur, quand) {
+  return `<div class="tour ${role}">${role === "agent" ? `<span class="ia-av" aria-hidden="true">${IA_SVG}</span>` : ""}<div class="corps">${interieur}${quand ? `<span class="heure">${heureCourte(quand)}</span>` : ""}</div></div>`;
+}
 function rendreFil() {
   const f = $("#fil");
-  const html = messages.map(m => `<div class="msg ${m.role}">${m.avis_id && m.role === "client" && index.get(String(m.avis_id)) ? `<span class="sur">À propos de : ${esc(index.get(String(m.avis_id)).objet)}</span>` : ""}${m.role === "agent" ? lienAuto(m.contenu) : esc(m.contenu)}<small>${new Date(m.cree_le).toLocaleString("fr-FR", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" })}</small></div>`).join("");
+  const enBas = f.scrollHeight - f.scrollTop - f.clientHeight < 80;
+  let jourPrec = "", html = "";
+  for (const m of messages) {
+    const jl = jourLib(m.cree_le);
+    if (jl !== jourPrec) { html += `<div class="jour-sep">${esc(jl)}</div>`; jourPrec = jl; }
+    const sur = m.avis_id && m.role === "client" && index.get(String(m.avis_id)) ? `<span class="sur">À propos de : ${esc(index.get(String(m.avis_id)).objet)}</span>` : "";
+    html += m.role === "agent" ? tour("agent", `<div class="msg agent">${miseEnForme(m.contenu)}</div>`, m.cree_le)
+      : tour("client", `<div class="msg client">${sur}${esc(m.contenu)}</div>`, m.cree_le);
+  }
   // Question sans réponse : on prévient au bout de 90 s, et au bout de 5 min on arrête d'attendre et on propose de la reposer
   const pendante = messages.filter(m => m.role === "client" && (m.statut === "en_attente" || m.statut === "en_cours")).at(-1);
   const age = pendante ? (Date.now() - new Date(pendante.cree_le)) / 1000 : 0;
   const enAttente = !!pendante && age < 300;
-  const bulle = !pendante ? "" : age < 90 ? `<div class="msg agent attente">L'assistant réfléchit…</div>`
-    : age < 300 ? `<div class="msg agent attente">L'assistant met plus de temps que d'habitude. La réponse s'affichera ici dès qu'elle sera prête.</div>`
-    : `<div class="msg agent">L'assistant n'a pas pu répondre pour le moment. <button type="button" class="link-btn" id="chat-relancer">Reposer la question</button> ou <a href="mailto:${esc(CFG.EMAIL)}">écrivez-nous</a>.</div>`;
-  f.innerHTML = (html || `<div class="msg agent">Bonjour ! Je connais les offres que je vous ai proposées et je peux chercher dans les offres ouvertes de votre zone. Que voulez-vous savoir ?</div>`) + bulle;
+  const bulle = !pendante ? "" : age < 90 ? tour("agent", `<div class="msg agent attente"><span class="points"><i></i><i></i><i></i></span>L'assistant rédige sa réponse…</div>`)
+    : age < 300 ? tour("agent", `<div class="msg agent attente"><span class="points"><i></i><i></i><i></i></span>Un peu plus long que d'habitude, la réponse arrive ici dès qu'elle est prête.</div>`)
+    : tour("agent", `<div class="msg agent"><p>Je n'ai pas pu répondre pour le moment. <button type="button" class="link-btn" id="chat-relancer">Reposer la question</button> ou <a href="mailto:${esc(CFG.EMAIL)}">écrivez-nous</a>.</p></div>`);
+  f.innerHTML = (html || `<div class="accueil-chat"><span class="ia-av">${IA_SVG}</span><h2>Bonjour, je suis votre assistant</h2><p>Je connais les offres que je vous ai envoyées et je peux chercher parmi les offres ouvertes de votre zone. Posez-moi une question ou choisissez une suggestion ci-dessous.</p></div>`) + bulle;
   if ($("#chat-relancer")) $("#chat-relancer").onclick = () => { $("#chat-q").value = pendante.contenu; if (pendante.avis_id && index.get(String(pendante.avis_id))) lierOffre(index.get(String(pendante.avis_id))); $("#f-chat").requestSubmit(); };
   $("#suggest").hidden = messages.length > 0;
-  f.scrollTop = f.scrollHeight;
+  if (enBas || rendreFil.premier !== false) { f.style.scrollBehavior = "auto"; f.scrollTop = f.scrollHeight; f.style.scrollBehavior = ""; rendreFil.premier = false; }
   return enAttente;
 }
 async function chargerMessages() {
@@ -1221,7 +1312,7 @@ async function chargerMessages() {
   if (attente && $("#v-assistant").classList.contains("on")) suiviChat = setTimeout(chargerMessages, 3500);
 }
 function ouvrirAssistant() {
-  if (DEMO || !SB) { $("#fil").innerHTML = `<div class="msg agent">Mode démonstration : l'assistant répond une fois le site relié à la base.</div>`; return; }
+  if (DEMO || !SB) { $("#fil").innerHTML = tour("agent", `<div class="msg agent"><p>Mode démonstration : l'assistant répond une fois le site relié à la base.</p></div>`); return; }
   chargerMessages(); if (!chatCharge) { chatCharge = true; }
   if (window.innerWidth > 700) setTimeout(() => $("#chat-q").focus(), 50);
 }
@@ -1238,7 +1329,7 @@ $("#f-chat").addEventListener("submit", async ev => {
   $("#chat-go").disabled = false;
   if (error) { messages.push({ role: "agent", contenu: error.code === "P0001" ? error.message : traduireErreur(error), cree_le: new Date().toISOString() }); rendreFil(); return; }
   $("#chat-q").value = ""; $("#chat-q").style.height = ""; lierOffre(null);
-  messages.push(data); rendreFil();
+  messages.push(data); rendreFil(); $("#fil").scrollTop = $("#fil").scrollHeight;
   clearTimeout(suiviChat); suiviChat = setTimeout(chargerMessages, 3500);
 });
 
