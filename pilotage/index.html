@@ -542,8 +542,11 @@ const POS = { "F-commercial": [140, 100, "com"], "K-prospection": [360, 100, "co
 const HUB = { x: 760, y: 260, w: 200, h: 730 };
 const LIENS = [
   { de: "F-commercial", vers: "K-prospection", lib: "fiches", pts: [[220, 100], [280, 100]], fin: "r", et: [250, 100] },
-  { de: "K-prospection", vers: "CLIENTS", lib: "inscriptions", pts: [[360, 136], [360, 145], [830, 145], [830, 260]], fin: "d", et: [745, 145], rayon: 6 },
-  { de: "CLIENTS", vers: "R-demandes", lib: "demandes", pts: [[900, 260], [900, 100], [660, 100]], fin: "l", et: [790, 100] },
+  { de: "K-prospection", vers: "CLIENTS", lib: "inscriptions", pts: [[360, 136], [360, 145], [905, 145], [905, 260]], fin: "d", et: [720, 145], rayon: 6 },
+  { de: "K-prospection", vers: "L-relances", lib: "", pts: [[280, 124], [250, 124], [250, 190], [220, 190]], fin: "l", rayon: 8 },
+  { de: "CLIENTS", vers: "I-inscriptions", lib: "nouveaux comptes", pts: [[830, 260], [830, 190], [660, 190]], fin: "l", et: [745, 190], rayon: 8 },
+  { de: "M-abonnements", vers: "CLIENTS", lib: "rappels", pts: [[360, 226], [360, 252], [790, 252], [790, 260]], fin: "d", et: [575, 252], rayon: 5 },
+  { de: "CLIENTS", vers: "R-demandes", lib: "demandes", pts: [[945, 260], [945, 100], [660, 100]], fin: "l", et: [790, 100] },
   { de: "E9-boamp", vers: "A-collecteur", lib: "offres des 9 plateformes", pts: [[140, COLLECTE.y], [140, 376]], fin: "u", et: [140, 520] },
   { de: "A-collecteur", vers: "B-tri", lib: "offres", pts: [[220, 340], [280, 340]], fin: "r", et: [250, 340] },
   { de: "B-tri", vers: "CLIENTS", lib: "veille du matin", pts: [[440, 340], [760, 340]], fin: "r", et: [620, 340] },
