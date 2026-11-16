@@ -218,7 +218,7 @@ function normaliser(r) {
     url: r.url_avis || ("https://www.boamp.fr/pages/avis/?q=idweb:" + (r.idweb || ""))
   };
 }
-async function chercherOffres({ q = "", deps = [], types = [], ouvertes = true, depuis = 0, limit = 40 } = {}) {
+async function chercherOffres({ q = "", deps = [], types = [], ouvertes = true, depuis = 0, limit = 40, offset = 0 } = {}) {
   const w = [`nature="APPEL_OFFRE"`];
   if (ouvertes) w.push(`datelimitereponse>=now()`);
   if (depuis) w.push(`dateparution>=date'${new Date(Date.now() - depuis * 86400000).toISOString().slice(0, 10)}'`);
@@ -229,7 +229,7 @@ async function chercherOffres({ q = "", deps = [], types = [], ouvertes = true, 
   if (types.length) w.push("(" + types.map(t => `type_marche="${t}"`).join(" OR ") + ")");
   const mots = String(q).trim();
   if (mots) w.push("(" + mots.split(/\s*,\s*/).filter(Boolean).slice(0, 8).map(m => `search(objet, "${m.replace(/"/g, "")}")`).join(" OR ") + ")");
-  const url = `${BOAMP_URL}?limit=${limit}&order_by=dateparution%20desc&where=${encodeURIComponent(w.join(" AND "))}`;
+  const url = `${BOAMP_URL}?limit=${limit}${offset ? "&offset=" + offset : ""}&order_by=dateparution%20desc&where=${encodeURIComponent(w.join(" AND "))}`;
   const ctrl = new AbortController(); const timer = setTimeout(() => ctrl.abort(), 15000);
   try {
     const r = await fetch(url, { signal: ctrl.signal });

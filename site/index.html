@@ -429,7 +429,7 @@ section{padding-block:76px}
 </footer>
 
 <script src="config.js"></script>
-<script src="commun.js"></script>
+<script src="commun.js?v=20261116"></script>
 <script>
 $("#c-mail").textContent = CFG.EMAIL; $("#c-mail").href = "mailto:" + CFG.EMAIL;
 $("#c-tel").textContent = CFG.TEL; $("#c-tel").href = "tel:" + String(CFG.TEL).replace(/\s/g, "");
@@ -537,7 +537,17 @@ setInterval(chargerDirect, 5 * 60000);
     $("#rch-go").disabled = true; $("#rch-statut").textContent = "Recherche dans les avis ouverts…"; $("#rch-res").innerHTML = ""; $("#rch-suite").hidden = true;
     const q = motsUtiles(motsAuto(metier).split(/\s*,\s*/).filter(Boolean)).join(", ") || metier;
     try {
-      const trouver = async deps => { const x = await chercherOffres({ q, deps, limit: 100 }); const ok = x.offres.filter(o => correspond(o, metier)); return { offres: ok.slice(0, 6), total: ok.length, plus: x.total > 100 }; };
+      // Un département : on lit toutes ses offres ouvertes (jusqu'à 400) puis on trie par métier.
+      // Toute la France : trop d'offres, on passe d'abord par les mots-clés du métier.
+      const trouver = async deps => {
+        const base = deps.length ? { deps, limit: 100 } : { q, deps, limit: 100 };
+        const p1 = await chercherOffres(base);
+        const pages = [p1];
+        if (p1.total > 100) pages.push(...await Promise.all([100, 200, 300].filter(o => o < p1.total).map(offset => chercherOffres({ ...base, offset }).catch(() => ({ offres: [] })))));
+        const vus = new Set(), ok = [];
+        for (const pg of pages) for (const o of pg.offres) if (!vus.has(o.id) && correspond(o, metier)) { vus.add(o.id); ok.push(o); }
+        return { offres: ok.slice(0, 6), total: ok.length, plus: p1.total > 400 };
+      };
       let r = await trouver(dep ? [dep] : []), large = false;
       if (dep && !r.total) { r = await trouver([]); large = true; }
       derniere = r.offres;
