@@ -223,6 +223,66 @@ section{padding-block:76px}
     </div>
   </div>
 
+  <section id="recherche" class="rch" aria-labelledby="rch-titre">
+    <div class="wrap">
+      <div class="rch-box">
+        <div class="rch-tete">
+          <h2 id="rch-titre">Quels marchés pour vous en ce moment ?</h2>
+          <p>Choisissez votre métier et votre département : voici les appels d'offres ouverts, gratuitement et sans inscription.</p>
+        </div>
+        <form id="rch-form" class="rch-form">
+          <label class="rch-champ"><span>Votre métier</span>
+            <select id="rch-metier" required>
+              <option value="">Choisir un métier</option>
+              <option value="électricité" data-slug="electricite">Électricité</option>
+              <option value="génie climatique" data-slug="genie-climatique">Génie climatique</option>
+              <option value="plomberie" data-slug="plomberie">Plomberie</option>
+              <option value="maçonnerie" data-slug="maconnerie-gros-oeuvre">Maçonnerie, gros œuvre</option>
+              <option value="menuiserie" data-slug="menuiserie-serrurerie">Menuiserie, serrurerie</option>
+              <option value="peinture" data-slug="peinture-facade">Peinture, façade</option>
+              <option value="plâtrerie" data-slug="platrerie-cloisons">Plâtrerie</option>
+              <option value="couverture" data-slug="couverture-etancheite">Couverture, étanchéité</option>
+              <option value="terrassement" data-slug="terrassement-vrd">Terrassement, VRD</option>
+              <option value="nettoyage" data-slug="nettoyage-proprete">Nettoyage, propreté</option>
+              <option value="espaces verts" data-slug="espaces-verts">Espaces verts</option>
+              <option value="informatique" data-slug="informatique-numerique">Informatique, numérique</option>
+              <option value="sécurité" data-slug="securite-gardiennage">Sécurité, gardiennage</option>
+              <option value="transport" data-slug="transport-demenagement">Transport, logistique</option>
+              <option value="restauration" data-slug="restauration-collective">Restauration</option>
+              <option value="formation" data-slug="formation">Formation</option>
+              <option value="études" data-slug="etudes-maitrise-oeuvre">Études, conseil</option>
+              <option value="fournitures" data-slug="fournitures">Fournitures, équipement</option>
+              <option value="communication" data-slug="communication-impression">Communication, impression</option>
+            </select>
+          </label>
+          <label class="rch-champ"><span>Département</span>
+            <select id="rch-dep"><option value="">Toute la France</option></select>
+          </label>
+          <button class="btn yellow" type="submit" id="rch-go">Voir les offres</button>
+        </form>
+        <p id="rch-statut" class="rch-statut" aria-live="polite"></p>
+        <div id="rch-res" class="rch-res"></div>
+        <div id="rch-suite" class="rch-suite" hidden>
+          <p><b id="rch-plus"></b> Recevez chaque matin les nouvelles offres de votre métier, résumées et notées.</p>
+          <a class="btn blue" id="rch-cta" href="inscription.html">Essayer gratuitement 14 jours</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <dialog id="rch-dialog" class="rch-dialog" aria-labelledby="rch-d-titre">
+    <button type="button" class="rch-x" id="rch-fermer" aria-label="Fermer"><svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>
+    <p class="rch-d-label">Offre réservée aux inscrits</p>
+    <h3 id="rch-d-titre"></h3>
+    <p class="rch-d-meta" id="rch-d-meta"></p>
+    <p class="rch-d-txt">Créez votre compte gratuit pour lire l'offre complète, son résumé et ses pièces, et recevoir les prochaines chaque matin.</p>
+    <div class="rch-d-actions">
+      <a class="btn yellow" id="rch-d-inscr" href="inscription.html">Créer mon compte gratuit</a>
+      <a class="btn alt" href="tableau.html" id="rch-d-cnx">J'ai déjà un compte</a>
+    </div>
+    <p class="rch-d-rassure">14 jours offerts · Sans carte bancaire · Sans engagement</p>
+  </dialog>
+
   <section id="fonctionnement">
     <div class="wrap">
       <div class="sec-head">
@@ -422,6 +482,64 @@ async function chargerDirect() {
 $("#live-zone").addEventListener("change", chargerDirect);
 chargerDirect();
 setInterval(chargerDirect, 5 * 60000);
+
+/* --- Recherche gratuite d'offres (métier + département) --- */
+(function () {
+  const selDep = $("#rch-dep");
+  Object.entries(DEPTS).sort((a, b) => a[0].localeCompare(b[0], "fr", { numeric: true })).forEach(([code, nom]) => {
+    const o = document.createElement("option"); o.value = code; o.textContent = code + " – " + nom; selDep.appendChild(o);
+  });
+  try { const m = JSON.parse(localStorage.getItem("lumen-recherche") || "null"); if (m) { $("#rch-metier").value = m.metier || ""; selDep.value = m.dep || ""; } } catch (e) {}
+  const dlg = $("#rch-dialog");
+  let derniere = [], lienInscr = "inscription.html";
+  const lien = (metierOpt, dep) => "inscription.html?src=recherche" + (metierOpt ? "&metier=" + encodeURIComponent(metierOpt.dataset.slug) : "") + (dep ? "&deps=" + encodeURIComponent(dep) : "");
+  const carte = (o, i) => `<article class="rch-carte">
+      <h3>${esc(o.objet)}</h3>
+      <p class="rch-meta"><span>${esc(o.lieu || "")}</span>${toDate(o.limite) ? `<span>Avant le ${esc(fmtJour(o.limite))}</span>` : ""}<span>${esc(o.montantTxt)}</span></p>
+      <p class="rch-qui">${esc(o.acheteur)}</p>
+      <button type="button" class="btn alt small" data-i="${i}">Voir l'offre</button>
+    </article>`;
+  const floues = n => Array.from({ length: n }, () => `<article class="rch-carte rch-floue" aria-hidden="true"><h3>Offre réservée aux inscrits, réservée aux inscrits</h3><p class="rch-meta"><span>Département</span><span>Avant le 00 mois</span></p><p class="rch-qui">Acheteur public</p></article>`).join("");
+  async function chercher(e) {
+    if (e) e.preventDefault();
+    const opt = $("#rch-metier").selectedOptions[0];
+    const metier = $("#rch-metier").value, dep = selDep.value;
+    if (!metier) { $("#rch-statut").textContent = "Choisissez d'abord votre métier."; $("#rch-metier").focus(); return; }
+    try { localStorage.setItem("lumen-recherche", JSON.stringify({ metier, dep })); } catch (err) {}
+    lienInscr = lien(opt, dep);
+    $("#rch-cta").href = lienInscr; $("#rch-d-inscr").href = lienInscr;
+    $("#rch-go").disabled = true; $("#rch-statut").textContent = "Recherche dans les avis ouverts…"; $("#rch-res").innerHTML = ""; $("#rch-suite").hidden = true;
+    const q = motsUtiles(motsAuto(metier).split(/\s*,\s*/).filter(Boolean)).join(", ") || metier;
+    try {
+      let r = await chercherOffres({ q, deps: dep ? [dep] : [], limit: 6 }), large = false;
+      if (dep && !r.total) { r = await chercherOffres({ q, deps: [], limit: 6 }); large = true; }
+      derniere = r.offres;
+      const nomM = opt.textContent.toLowerCase(), ou = dep && !large ? nomDep(dep) : "toute la France";
+      if (!r.total) { $("#rch-statut").textContent = `Aucune offre ouverte pour ${nomM} en ce moment. Inscrivez-vous : vous serez prévenu dès la prochaine.`; $("#rch-suite").hidden = false; $("#rch-plus").textContent = ""; return; }
+      $("#rch-statut").innerHTML = (large ? `Rien d'ouvert ${dep ? "dans ce département" : ""} pour l'instant. ` : "") + `<b>${r.total.toLocaleString("fr-FR")} offre${r.total > 1 ? "s" : ""} ouverte${r.total > 1 ? "s" : ""}</b> en ${esc(nomM)}, ${esc(ou)}.`;
+      const reste = Math.max(0, r.total - r.offres.length);
+      $("#rch-res").innerHTML = r.offres.map(carte).join("") + (reste ? floues(Math.min(2, reste)) : "");
+      $("#rch-plus").textContent = reste ? `+ ${reste.toLocaleString("fr-FR")} autre${reste > 1 ? "s" : ""} offre${reste > 1 ? "s" : ""} dans votre espace.` : "";
+      $("#rch-suite").hidden = false;
+    } catch (err) {
+      $("#rch-statut").textContent = "La recherche n'a pas pu aboutir, le BOAMP ne répond pas. Réessayez dans un instant.";
+    } finally { $("#rch-go").disabled = false; }
+  }
+  $("#rch-form").addEventListener("submit", chercher);
+  $("#rch-metier").addEventListener("change", () => chercher());
+  selDep.addEventListener("change", () => { if ($("#rch-metier").value) chercher(); });
+  $("#rch-res").addEventListener("click", e => {
+    const b = e.target.closest("button[data-i]"); if (!b) return;
+    const o = derniere[+b.dataset.i]; if (!o) return;
+    if (Compte.semblerConnecte()) { location.href = "tableau.html"; return; }
+    $("#rch-d-titre").textContent = o.objet;
+    $("#rch-d-meta").textContent = [o.acheteur, o.lieu, toDate(o.limite) ? "avant le " + fmtJour(o.limite) : ""].filter(Boolean).join(" · ");
+    if (dlg.showModal) dlg.showModal(); else location.href = lienInscr;
+  });
+  $("#rch-fermer").addEventListener("click", () => dlg.close());
+  dlg.addEventListener("click", e => { if (e.target === dlg) dlg.close(); });
+  if ($("#rch-metier").value) chercher();
+})();
 
 /* --- Email d'exemple --- */
 const VEILLE = [
