@@ -294,6 +294,40 @@
 .psuppr{font-size:.84rem;padding:0 4px}
 @media (max-width:1060px){ .profil-grille{grid-template-columns:1fr} .profil-side{position:static} }
 @media (max-width:760px){ .pbar{position:static;box-shadow:none} .pbar .btn{width:100%} }
+/* carte des départements */
+.carte-bloc{position:relative}
+.carte-tete{display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap}
+.carte-maj{font-size:.82rem;color:var(--muted)}
+.carte-grille{display:grid;grid-template-columns:minmax(0,1fr) 230px;gap:18px;align-items:start;margin:4px 0 2px}
+.carte-fr{border:1px solid var(--line);border-radius:var(--r);background:var(--sheet-2);padding:10px;min-height:200px}
+.carte-fr svg{display:block;width:100%;height:auto;max-height:520px}
+.carte-charge{color:var(--muted);font-size:.88rem;padding:20px}
+.carte-fr path{stroke:var(--sheet);stroke-width:.7;cursor:pointer;transition:filter .12s}
+.carte-fr path:hover,.carte-fr path:focus-visible{filter:brightness(.9);outline:none}
+.carte-fr path.q0{fill:var(--c-q0)}.carte-fr path.q1{fill:var(--c-q1)}.carte-fr path.q2{fill:var(--c-q2)}.carte-fr path.q3{fill:var(--c-q3)}.carte-fr path.q4{fill:var(--c-q4)}
+.carte-fr path.sel{stroke:var(--accent);stroke-width:2.2;paint-order:stroke}
+.carte-fr g.sel-couche path{fill:none;pointer-events:none;stroke:var(--accent);stroke-width:2.4}
+.carte-fr text{font-size:7px;font-weight:700;fill:var(--ink);pointer-events:none;paint-order:stroke;stroke:var(--sheet);stroke-width:2px}
+:root{--c-q0:#E9ECF2;--c-q1:#CFDBF6;--c-q2:#9DB5EC;--c-q3:#5F86DE;--c-q4:#2350C4}
+:root[data-theme="dark"]{--c-q0:#252B36;--c-q1:#22345C;--c-q2:#2E4F94;--c-q3:#4470D6;--c-q4:#7FA2F2}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--c-q0:#252B36;--c-q1:#22345C;--c-q2:#2E4F94;--c-q3:#4470D6;--c-q4:#7FA2F2}}
+.carte-legende{display:grid;gap:6px;font-size:.8rem;color:var(--ink-2)}
+.carte-legende .ech{display:flex;gap:2px}
+.carte-legende .ech i{flex:1;height:10px;border-radius:2px}
+.carte-legende .ech-txt{display:flex;justify-content:space-between;color:var(--muted)}
+.carte-legende .zone-cle{display:flex;align-items:center;gap:8px}
+.carte-legende .zone-cle i{width:18px;height:12px;border-radius:3px;border:2.4px solid var(--accent);background:var(--c-q2)}
+.carte-sugg{display:grid;gap:8px;margin-top:16px}
+.carte-sugg h3,.carte-dom h3{font-size:.84rem;font-weight:600}
+.carte-sugg button,.carte-dom button{display:flex;justify-content:space-between;align-items:center;gap:8px;width:100%;text-align:left;font-size:.84rem;padding:7px 10px;border:1px solid var(--line-2);border-radius:var(--r-sm);background:var(--sheet)}
+.carte-sugg button:hover,.carte-dom button:hover{border-color:var(--blue);background:var(--blue-f)}
+.carte-sugg button b,.carte-dom button b{color:var(--blue);font-weight:600;white-space:nowrap}
+.carte-dom{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:16px}
+.carte-dom h3{grid-column:1/-1}
+.carte-dom button{padding:5px 8px;font-size:.8rem}
+.carte-dom button[aria-pressed="true"]{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent)}
+.carte-bulle{position:absolute;z-index:5;pointer-events:none;background:var(--ink);color:var(--paper);font-size:.8rem;padding:6px 9px;border-radius:7px;white-space:nowrap;box-shadow:0 4px 14px rgba(0,0,0,.2)}
+@media (max-width:900px){ .carte-grille{grid-template-columns:1fr} }
 .pcarte .status:empty{display:none}
 .pgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px 18px;padding:20px}
 .pgrid .full{grid-column:1/-1}
@@ -597,6 +631,19 @@
             <div class="panel psec">
               <div class="psec-tete"><span class="psec-num" aria-hidden="true">3</span><div><h2>Zone et taille des marchés</h2><p>Où vous intervenez et à partir de quel montant.</p></div></div>
               <div class="pgrid">
+                <div class="field full carte-bloc">
+                  <div class="carte-tete"><span class="lbl">Carte des offres ouvertes dans votre activité</span><span class="carte-maj" id="carte-maj" aria-live="polite"></span></div>
+                  <div class="carte-grille">
+                    <div class="carte-fr" id="carte-fr"><p class="carte-charge">Chargement de la carte…</p></div>
+                    <div class="carte-cote">
+                      <div class="carte-legende" id="carte-legende" aria-hidden="true"></div>
+                      <div class="carte-sugg" id="carte-sugg"></div>
+                      <div class="carte-dom" id="carte-dom"></div>
+                    </div>
+                  </div>
+                  <small>Cliquez sur un département pour l'ajouter à votre zone ou l'en retirer, puis enregistrez. Les chiffres comptent les offres ouvertes qui contiennent vos mots-clés.</small>
+                  <div class="carte-bulle" id="carte-bulle" hidden></div>
+                </div>
                 <div class="field"><label for="p-deps">Départements où vous intervenez</label><input id="p-deps" placeholder="Exemple : 13, 83, 84 (vide : toute la France)"><small id="p-deps-noms"></small></div>
                 <div class="field curseur"><label for="pm-curseur">Montant minimum des marchés</label>
                   <output class="curseur-valeur" id="pm-sortie" for="pm-curseur">Pas de minimum</output>
@@ -1010,7 +1057,7 @@ function rendreProfil() {
   $("#p-deps").value = c.departements || ""; $("#p-deps").dispatchEvent(new Event("input"));
   // Adresse de réception : seulement si la colonne existe (supabase_inscription_v2.sql exécuté)
   $("#p-veille-bloc").hidden = !("email_veille" in c); $("#p-veille").value = c.email_veille || "";
-  majPilote();
+  majPilote(); initCarte();
   $("#p-montant").regler(c.montant_min || 0);
   const t = typesProfil(); $$("#p-types input").forEach(i => i.checked = !t.length || t.includes(i.value));
   $("#p-suppr").textContent = CFG.EMAIL; $("#p-suppr").href = `mailto:${CFG.EMAIL}?subject=${encodeURIComponent("Supprimer mon compte – " + (c.entreprise || c.email))}`;
@@ -1040,6 +1087,81 @@ function rendreProfil() {
     <div class="pied"><a class="btn alt" href="sur-mesure.html?offre=ia_locale">Demander un devis</a></div>`;
 }
 
+/* ---------- Carte des départements : offres ouvertes de l'activité, clic pour ajouter / retirer ---------- */
+const Carte = { geo: null, n: {}, cle: "", charge: false };
+const normDep = c => { c = String(c || "").toUpperCase(); return /^\d$/.test(c) ? "0" + c : c; };
+const DOM_CODES = ["971", "972", "973", "974", "976"];
+async function chargerGeo() {
+  if (Carte.geo) return Carte.geo;
+  const r = await fetch("img/departements.json"); Carte.geo = await r.json(); return Carte.geo;
+}
+async function compterParDep() {
+  const mots = motsUtiles([...new Set(String($("#p-metiers").value + "," + $("#p-mots").value).split(/[,;]+/).map(x => x.trim()).filter(x => x.length > 2))]).slice(0, 8);
+  const types = $$("#p-types input:checked").map(i => i.value);
+  const cle = mots.join("|") + "#" + types.join(",");
+  if (cle === Carte.cle) return;
+  const w = [`nature="APPEL_OFFRE"`, `datelimitereponse>=now()`];
+  if (types.length && types.length < 3) w.push("(" + types.map(t => `type_marche="${t}"`).join(" OR ") + ")");
+  if (mots.length) w.push("(" + mots.map(m => `search(objet, "${m.replace(/"/g, "")}")`).join(" OR ") + ")");
+  const url = `${BOAMP_URL}?select=${encodeURIComponent("code_departement, count(*) as n")}&group_by=code_departement&limit=200&where=${encodeURIComponent(w.join(" AND "))}`;
+  const j = await fetch(url).then(r => r.json());
+  const n = {}; (j.results || []).forEach(x => { const c = normDep(x.code_departement); if (c) n[c] = (n[c] || 0) + x.n; });
+  Carte.n = n; Carte.cle = cle; Carte.mots = mots.length;
+}
+const classeQ = (v, max) => !v ? "q0" : v >= max * .6 ? "q4" : v >= max * .3 ? "q3" : v >= max * .12 ? "q2" : "q1";
+function basculerDep(code) {
+  const deps = parseDeps($("#p-deps").value), i = deps.indexOf(code);
+  if (i >= 0) deps.splice(i, 1); else deps.push(code);
+  deps.sort((a, b) => a.localeCompare(b, "fr", { numeric: true }));
+  $("#p-deps").value = deps.join(", "); $("#p-deps").dispatchEvent(new Event("input"));
+  const st = $("#p-status"); st.className = "status"; st.textContent = (i >= 0 ? `${nomDep(code)} retiré` : `${nomDep(code)} ajouté`) + ". Pensez à enregistrer le profil.";
+}
+function dessinerCarte() {
+  const g = Carte.geo; if (!g) return;
+  const sel = new Set(parseDeps($("#p-deps").value)), n = Carte.n;
+  const vals = Object.entries(n).filter(([c]) => g.deps[c]).map(([, v]) => v), max = Math.max(1, ...vals);
+  const total = Object.values(n).reduce((a, b) => a + b, 0), dansZone = [...sel].reduce((a, c) => a + (n[c] || 0), 0);
+  const paths = Object.entries(g.deps).map(([c, d]) => `<path d="${d.d}" class="${classeQ(n[c] || 0, max)}${sel.has(c) ? " sel" : ""}" data-dep="${c}" tabindex="0" role="button" aria-pressed="${sel.has(c)}" aria-label="${esc(d.n)} (${c}) : ${n[c] || 0} offre${(n[c] || 0) > 1 ? "s" : ""}${sel.has(c) ? ", dans votre zone" : ""}"></path>`).join("");
+  const contour = [...sel].filter(c => g.deps[c]).map(c => `<path d="${g.deps[c].d}"></path>`).join("");
+  const nums = Object.entries(g.deps).filter(([c]) => (n[c] || 0) > 0 && !/^75$|^9[234]$/.test(c)).map(([c, d]) => `<text x="${d.c[0]}" y="${d.c[1] + 2.5}" text-anchor="middle">${n[c]}</text>`).join("");
+  $("#carte-fr").innerHTML = `<svg viewBox="0 0 ${g.w} ${g.h}" role="group" aria-label="Carte de France des départements">${paths}<g class="sel-couche">${contour}</g>${nums}</svg>`;
+  $("#carte-legende").innerHTML = `<div class="ech">${["q0", "q1", "q2", "q3", "q4"].map(q => `<i style="background:var(--c-${q})"></i>`).join("")}</div>
+    <div class="ech-txt"><span>0</span><span>${max} offres</span></div>
+    <span class="zone-cle"><i></i>Votre zone</span>`;
+  const proches = sel.size
+    ? Object.entries(g.deps).filter(([c, d]) => !sel.has(c) && (n[c] || 0) > 0 && [...sel].some(s => g.deps[s] && Math.hypot(g.deps[s].c[0] - d.c[0], g.deps[s].c[1] - d.c[1]) < 95))
+    : Object.entries(g.deps).filter(([c]) => (n[c] || 0) > 0);
+  const top = proches.sort((a, b) => (n[b[0]] || 0) - (n[a[0]] || 0)).slice(0, 5);
+  $("#carte-sugg").innerHTML = top.length ? `<h3>${sel.size ? "À ajouter, tout près de votre zone" : "Départements avec le plus d'offres"}</h3>` +
+    top.map(([c, d]) => `<button type="button" data-dep="${c}"><span>+ ${esc(d.n)} (${c})</span><b>${n[c]} offre${n[c] > 1 ? "s" : ""}</b></button>`).join("") : "";
+  $("#carte-dom").innerHTML = `<h3>Outre-mer</h3>` + DOM_CODES.map(c => `<button type="button" data-dep="${c}" aria-pressed="${sel.has(c)}"><span>${sel.has(c) ? "✓ " : ""}${esc(DEPTS[c])}</span><b>${n[c] || 0}</b></button>`).join("");
+  $("#carte-maj").textContent = Carte.mots ? (sel.size ? `${dansZone} offre${dansZone > 1 ? "s" : ""} dans votre zone, ${total} en France` : `${total} offres en France`) : "Ajoutez des mots-clés pour compter vos offres";
+}
+async function initCarte() {
+  try {
+    await chargerGeo();
+    await compterParDep();
+    dessinerCarte();
+  } catch (e) { $("#carte-fr").innerHTML = `<p class="carte-charge">La carte n'a pas pu être chargée. Vous pouvez saisir vos départements dans le champ ci-dessous.</p>`; }
+}
+(function brancherCarte() {
+  const fr = $("#carte-fr"), bulle = $("#carte-bulle"), bloc = $(".carte-bloc");
+  fr.addEventListener("click", e => { const p = e.target.closest("path[data-dep]"); if (p) basculerDep(p.dataset.dep); });
+  fr.addEventListener("keydown", e => { const p = e.target.closest("path[data-dep]"); if (p && (e.key === "Enter" || e.key === " ")) { e.preventDefault(); basculerDep(p.dataset.dep); setTimeout(() => { const q = $(`#carte-fr path[data-dep="${p.dataset.dep}"]`); if (q) q.focus(); }, 0); } });
+  [$("#carte-sugg"), $("#carte-dom")].forEach(el => el.addEventListener("click", e => { const b = e.target.closest("button[data-dep]"); if (b) basculerDep(b.dataset.dep); }));
+  fr.addEventListener("mousemove", e => {
+    const p = e.target.closest("path[data-dep]"); if (!p) { bulle.hidden = true; return; }
+    const c = p.dataset.dep, v = Carte.n[c] || 0, dedans = parseDeps($("#p-deps").value).includes(c);
+    bulle.textContent = `${Carte.geo.deps[c].n} (${c}) · ${v} offre${v > 1 ? "s" : ""} · ${dedans ? "clic pour retirer" : "clic pour ajouter"}`;
+    const r = bloc.getBoundingClientRect(); bulle.hidden = false;
+    bulle.style.left = Math.min(e.clientX - r.left + 14, r.width - bulle.offsetWidth - 4) + "px"; bulle.style.top = (e.clientY - r.top + 14) + "px";
+  });
+  fr.addEventListener("mouseleave", () => bulle.hidden = true);
+  $("#p-deps").addEventListener("input", () => dessinerCarte());
+  let minuteur;
+  ["p-metiers", "p-mots"].forEach(id => $("#" + id).addEventListener("input", () => { clearTimeout(minuteur); minuteur = setTimeout(() => initCarte(), 900); }));
+  $("#p-types").addEventListener("change", () => initCarte());
+})();
 brancherCurseur("pm-curseur", "p-montant", "pm-sortie");
 $("#p-deps").addEventListener("input", () => { const c = parseDeps($("#p-deps").value); $("#p-deps-noms").textContent = c.length ? c.map(nomDep).join(", ") : "Aucun département : les offres de toute la France sont proposées."; });
 $("#f-profil").addEventListener("submit", async ev => {
