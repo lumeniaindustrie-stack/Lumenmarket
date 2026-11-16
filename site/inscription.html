@@ -95,28 +95,25 @@ form{max-width:620px;display:flex;flex-direction:column;flex:1}
 <div class="page">
   <aside class="side">
     <div>
-      <h1>Créez votre compte en deux minutes</h1>
+      <h1>Créez votre compte en une minute</h1>
       <p style="margin-top:12px">14 jours d'essai offerts. Vos offres arrivent chaque matin à 9 h, du lundi au vendredi, dès le prochain jour ouvré.</p>
     </div>
     <ol class="steps-list" id="steps-list">
-      <li><span>1</span>Votre entreprise</li>
-      <li><span>2</span>Vos identifiants</li>
-      <li><span>3</span>Votre activité</li>
-      <li><span>4</span>Zone et marchés</li>
-      <li><span>5</span>Vérification</li>
+      <li><span>1</span>Votre compte</li>
+      <li><span>2</span>Votre activité et votre zone</li>
     </ol>
     <div class="perks"><span>Sans carte bancaire</span><span>Sans engagement</span><span>Toutes les fonctions incluses</span></div>
   </aside>
 
   <main class="main">
     <div class="progress" aria-hidden="true"><span id="bar"></span></div>
-    <p class="count" id="count">Étape 1 sur 5</p>
+    <p class="count" id="count">Étape 1 sur 2</p>
 
     <form id="wizard" novalidate>
       <!-- 1 -->
       <section class="step on" data-step="1">
-        <h2>Votre entreprise</h2>
-        <p>Avec votre numéro SIREN ou SIRET, nous retrouvons le nom et les informations légales de l'entreprise. Vous pouvez aussi passer cette étape et tout saisir à la main.</p>
+        <h2>Votre compte</h2>
+        <p>Avec votre SIREN ou SIRET, nous retrouvons automatiquement le nom de votre entreprise.</p>
         <div class="field"><label for="siren">SIREN ou SIRET <small>(facultatif)</small></label>
           <div class="siren-wrap"><input id="siren" inputmode="numeric" maxlength="17" placeholder="123 456 789" autocomplete="off" aria-describedby="siren-aide"><button type="button" class="btn alt" id="siren-go">Rechercher</button></div>
           <small id="siren-aide">9 chiffres pour le SIREN, 14 pour le SIRET.</small>
@@ -124,27 +121,20 @@ form{max-width:620px;display:flex;flex-direction:column;flex:1}
         </div>
         <div class="field"><label for="entreprise">Nom de l'entreprise</label><input id="entreprise" autocomplete="organization" required aria-describedby="entreprise-aide">
           <small id="entreprise-aide">Le nom qui apparaîtra dans vos emails et votre espace. Si votre nom commercial diffère du nom légal, modifiez-le ici.</small></div>
-      </section>
-
-      <!-- 2 -->
-      <section class="step" data-step="2">
-        <h2>Vos identifiants</h2>
-        <p>Votre email de connexion sert à vous identifier sur votre espace. Par défaut, la veille quotidienne est aussi envoyée à cette adresse. Choisissez un mot de passe que vous n'utilisez nulle part ailleurs.</p>
         <div class="field"><label for="email">Email professionnel de connexion</label><input id="email" type="email" autocomplete="username" required></div>
         <div class="field"><label for="mdp">Mot de passe</label>
           <div class="mdp-wrap"><input id="mdp" type="password" autocomplete="new-password" minlength="10" required aria-describedby="mdp-aide"><button type="button" class="voir" data-voir="mdp">Afficher</button></div>
           <small id="mdp-aide">Au moins 10 caractères, avec des lettres et des chiffres.</small></div>
-        <div class="field"><label for="mdp2">Confirmez le mot de passe</label><input id="mdp2" type="password" autocomplete="new-password" required></div>
-        <div class="field"><label for="telephone">Téléphone <small>(facultatif)</small></label><input id="telephone" type="tel" autocomplete="tel"></div>
+        <div class="field"><label for="telephone">Téléphone <small>(facultatif, recommandé)</small></label><input id="telephone" type="tel" autocomplete="tel" placeholder="06 12 34 56 78"><small>Pour vous aider à bien démarrer si besoin. Jamais transmis à des tiers.</small></div>
         <label class="consent opt"><input type="checkbox" id="autre-email" aria-controls="bloc-veille"><span>Recevoir les offres sur une autre adresse <small class="muted">(par exemple une adresse partagée de l'équipe)</small></span></label>
         <div class="field" id="bloc-veille" hidden><label for="email-veille">Email de réception des offres</label><input id="email-veille" type="email" autocomplete="off" placeholder="appels-offres@votre-entreprise.fr" aria-describedby="veille-aide">
           <small id="veille-aide">Seule la veille quotidienne des offres sera envoyée à cette adresse. La connexion à votre espace, le mot de passe et les messages liés à votre compte restent sur l'email de connexion.</small></div>
       </section>
 
-      <!-- 3 -->
-      <section class="step" data-step="3">
-        <h2>Votre activité</h2>
-        <p>Cochez tout ce que vous faites. Les agents s'en servent pour trier les offres.</p>
+      <!-- 2 -->
+      <section class="step" data-step="2">
+        <h2>Votre activité et votre zone</h2>
+        <p>Les agents s'en servent pour trier les offres. Vous pourrez tout affiner ensuite depuis votre espace.</p>
         <div class="field"><span class="lbl" id="l-act">Activités <small>(plusieurs choix possibles)</small></span>
           <div class="chips" id="metiers" role="group" aria-labelledby="l-act">
             <label><input type="checkbox" value="électricité">Électricité</label>
@@ -168,16 +158,6 @@ form{max-width:620px;display:flex;flex-direction:column;flex:1}
             <label><input type="checkbox" value="communication">Communication, impression</label>
           </div>
         </div>
-        <div class="field"><label for="mots">Mots-clés en plus <small>(facultatif)</small></label><input id="mots" placeholder="éclairage public, borne de recharge, groupe scolaire"><small>Séparés par des virgules. Utile si votre activité n'est pas dans la liste.</small></div>
-        <div class="field"><label for="prestations">Activités secondaires ou prestations spécifiques <small>(facultatif)</small></label>
-          <textarea id="prestations" maxlength="600" placeholder="Exemple : maintenance d'installations de chauffage, dépannage en urgence, petits travaux de plomberie en sous-traitance."></textarea>
-          <small>En quelques mots, ce que vous faites en plus de votre activité principale. L'IA s'en sert pour juger si une offre vous concerne.</small></div>
-      </section>
-
-      <!-- 4 -->
-      <section class="step" data-step="4">
-        <h2>Votre zone et vos marchés</h2>
-        <p>Où acceptez-vous d'intervenir, et quels marchés vous intéressent ?</p>
         <div class="field"><label for="deps">Départements où vous acceptez d'intervenir</label><input id="deps" placeholder="13, 83, 84"><small id="deps-noms">Numéros séparés par des virgules.</small>
           <div class="presets" aria-label="Raccourcis">
             <button type="button" data-deps="04, 05, 06, 13, 83, 84">Région Sud (6 départements)</button>
@@ -193,32 +173,28 @@ form{max-width:620px;display:flex;flex-direction:column;flex:1}
           </div>
           <small id="zone-aide" aria-live="polite"></small>
         </div>
-        <div class="field"><span class="lbl" id="l-types">Types de marchés</span>
+        <div class="field"><label for="prestations">Précisez votre activité en quelques mots <small>(facultatif)</small></label>
+          <textarea id="prestations" maxlength="600" placeholder="Exemple : maintenance d'installations de chauffage, dépannage en urgence, petits travaux de plomberie en sous-traitance."></textarea>
+          <small>En quelques mots, ce que vous faites en plus de votre activité principale. L'IA s'en sert pour juger si une offre vous concerne.</small></div>
+        <label class="consent"><input type="checkbox" id="rgpd"><span>J'accepte que Lumen Marchés utilise ces informations pour m'envoyer la veille et me contacter au sujet de mon essai (voir la <a href="confidentialite.html" target="_blank" rel="noopener">politique de confidentialité</a>).</span></label>
+        <!-- Réglages avancés : valeurs par défaut, modifiables ensuite dans l'espace client -->
+        <div hidden>
+          <div class="field"><label for="mots">Mots-clés en plus <small>(facultatif)</small></label><input id="mots" placeholder="éclairage public, borne de recharge, groupe scolaire"><small>Séparés par des virgules. Utile si votre activité n'est pas dans la liste.</small></div>
+          <div class="field"><span class="lbl" id="l-types">Types de marchés</span>
           <div class="chips" id="types" role="group" aria-labelledby="l-types">
             <label><input type="checkbox" value="TRAVAUX" checked>Travaux</label>
             <label><input type="checkbox" value="SERVICES" checked>Services</label>
             <label><input type="checkbox" value="FOURNITURES" checked>Fournitures</label>
           </div>
         </div>
-        <div class="field curseur"><label for="m-curseur">Montant minimum des marchés</label>
+          <div class="field curseur"><label for="m-curseur">Montant minimum des marchés</label>
           <output class="curseur-valeur" id="m-sortie" for="m-curseur">Pas de minimum</output>
           <input type="range" id="m-curseur" value="0">
           <input type="hidden" id="montant" value="">
           <div class="curseur-reperes" aria-hidden="true"><span>Aucun</span><span>100 k€</span><span>1 M€</span></div>
           <small>Les marchés sans montant publié restent affichés, même si vous fixez un minimum.</small></div>
-      </section>
-
-      <!-- 5 -->
-      <section class="step" data-step="5">
-        <h2>Vérifiez votre profil</h2>
-        <p>Vos critères de veille. Vous pourrez les modifier plus tard depuis votre espace.</p>
-        <dl class="recap" id="recap"></dl>
-        <div class="exemples" id="exemples">
-          <h3>Exemples d'offres récentes selon vos critères</h3>
-          <p>À titre indicatif : ces offres correspondent à vos mots-clés et à votre zone, ce qui ne veut pas dire que votre entreprise remplit les conditions du marché. Indiquez si elles vous intéressent, l'IA en tiendra compte pour trier votre veille. Facultatif.</p>
-          <div id="ex-liste" class="exemples" aria-live="polite"></div>
+          <dl id="recap"></dl><div id="ex-liste"></div><input type="password" id="mdp2" tabindex="-1">
         </div>
-        <label class="consent"><input type="checkbox" id="rgpd"><span>J'accepte que Lumen Marchés utilise ces informations pour m'envoyer la veille et me contacter au sujet de mon essai (voir la <a href="confidentialite.html" target="_blank" rel="noopener">politique de confidentialité</a>).</span></label>
       </section>
 
       <p class="status" id="status" role="status" style="margin-top:14px"></p>
@@ -241,8 +217,8 @@ form{max-width:620px;display:flex;flex-direction:column;flex:1}
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
 <script src="commun.js"></script>
 <script>
-const TOTAL = 5; let etape = 1;
-const NOMS = ["Votre entreprise", "Vos identifiants", "Votre activité", "Zone et marchés", "Vérification"];
+const TOTAL = 2; let etape = 1;
+const NOMS = ["Votre compte", "Votre activité et votre zone"];
 const MAX_DEPS_TXT = 200;   // limite de la colonne « departements » à l'enregistrement
 const coches = sel => $$(sel + " input:checked").map(i => i.value);
 const libelles = sel => $$(sel + " input:checked").map(i => i.parentElement.textContent.trim());
@@ -258,7 +234,6 @@ function afficher() {
   $("#prev").style.visibility = etape === 1 ? "hidden" : "visible";
   $("#next").textContent = etape === TOTAL ? "Créer mon compte" : "Continuer";
   $("#status").textContent = ""; $("#status").className = "status";
-  if (etape === TOTAL) { recap(); exemples(); }
   const first = $(`.step[data-step="${etape}"] input, .step[data-step="${etape}"] select`);
   if (first && window.innerWidth > 900) first.focus({ preventScroll: true });
   window.scrollTo({ top: 0 });
@@ -300,21 +275,21 @@ function donnees() {
 }
 function erreur(etapeN) {
   const d = donnees();
-  if (etapeN === 1 && d.numero && !/^\d{9}(\d{5})?$/.test(d.numero)) return ["#siren", "Le SIREN compte 9 chiffres et le SIRET 14. Corrigez le numéro, ou laissez le champ vide."];
-  if (etapeN === 1 && !d.entreprise) return ["#entreprise", "Indiquez le nom de votre entreprise."];
-  if (etapeN === 2 && !emailOk(d.email)) return ["#email", "Indiquez une adresse email valide."];
-  if (etapeN === 2 && verifierMdp($("#mdp").value)) return ["#mdp", verifierMdp($("#mdp").value)];
-  if (etapeN === 2 && $("#mdp").value !== $("#mdp2").value) return ["#mdp2", "Les deux mots de passe ne sont pas identiques."];
-  if (etapeN === 2 && $("#autre-email").checked && !emailOk($("#email-veille").value.trim())) return ["#email-veille", "Indiquez l'adresse qui recevra les offres, ou décochez la case."];
-  if (etapeN === 3 && !d.metiers && !d.mots_cles) return ["#mots", "Cochez au moins une activité, ou indiquez des mots-clés."];
-  if (etapeN === 4) {
+  if (etapeN === 1) {
+    if (d.numero && !/^\d{9}(\d{5})?$/.test(d.numero)) return ["#siren", "Le SIREN compte 9 chiffres et le SIRET 14. Corrigez le numéro, ou laissez le champ vide."];
+    if (!d.entreprise) return ["#entreprise", "Indiquez le nom de votre entreprise."];
+    if (!emailOk(d.email)) return ["#email", "Indiquez une adresse email valide."];
+    if (verifierMdp($("#mdp").value)) return ["#mdp", verifierMdp($("#mdp").value)];
+    if ($("#autre-email").checked && !emailOk($("#email-veille").value.trim())) return ["#email-veille", "Indiquez l'adresse qui recevra les offres, ou décochez la case."];
+  }
+  if (etapeN === 2) {
+    if (!d.metiers && !d.mots_cles && !d.description) return ["#metiers input", "Cochez au moins une activité, ou décrivez-la en quelques mots."];
     const z = zone();
     if (z.mode !== "france" && !z.base.length) return ["#deps", "Indiquez au moins un département, choisissez un raccourci, ou cochez « Toute la France »."];
     if (z.base.some(c => !DEPTS[c])) return ["#deps", "Un des numéros de département n'existe pas."];
     if (d.departements.length > MAX_DEPS_TXT) return ["#zone input[value=france]", "Avec les voisins, la zone devient très large : choisissez plutôt « Toute la France », ou moins de départements."];
-    if (!d.types) return ["#types input", "Cochez au moins un type de marché."];
+    if (!$("#rgpd").checked) return ["#rgpd", "Cochez la case de consentement pour créer votre compte."];
   }
-  if (etapeN === 5 && !$("#rgpd").checked) return ["#rgpd", "Cochez la case de consentement pour créer votre compte."];
   return null;
 }
 
@@ -461,7 +436,7 @@ $("#wizard").addEventListener("submit", async ev => {
   $("#next").disabled = true; st.textContent = "Création de votre compte…";
   try {
     const r = await Compte.inscrire(d.email, $("#mdp").value, meta);
-    $("#mdp").value = ""; $("#mdp2").value = "";
+    $("#mdp").value = "";
     const dest = d.email_veille ? ` sur <strong>${esc(d.email_veille)}</strong>` : "";
     if (r.confirmer) {
       $("#done-titre").textContent = "Confirmez votre adresse email";
