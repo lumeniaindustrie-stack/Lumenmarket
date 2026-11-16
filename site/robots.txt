@@ -3,4 +3,5 @@ Allow: /
 Disallow: /pour.html
 Disallow: /tableau.html
 Disallow: /nouveau-mdp.html
+Allow: /marches-publics/
 Sitemap: https://lumen-marche.fr/sitemap.xml

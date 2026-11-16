@@ -1,0 +1,31 @@
+# Régénère chaque matin les pages « appels d'offres par métier et département » (site/marches-publics)
+# à partir des consultations ouvertes du BOAMP, puis les publie (Cloudflare Pages redéploie à chaque push).
+name: Pages SEO appels d'offres
+on:
+  schedule:
+    - cron: "17 4 * * *"   # chaque jour vers 5 h 17 (heure de Paris en hiver)
+  workflow_dispatch: {}
+permissions:
+  contents: write
+concurrency:
+  group: seo
+  cancel-in-progress: false
+jobs:
+  generer:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Générer les pages
+        run: node seo/generer.mjs
+      - name: Publier si quelque chose a changé
+        run: |
+          git config user.name "Lumen SEO"
+          git config user.email "seo@lumen-marche.fr"
+          git add site/marches-publics site/sitemap.xml
+          if git diff --cached --quiet; then echo "Rien de nouveau"; exit 0; fi
+          git commit -m "Pages SEO : mise à jour du $(date -u +%Y-%m-%d)"
+          git push
