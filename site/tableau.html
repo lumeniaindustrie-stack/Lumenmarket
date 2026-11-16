@@ -235,10 +235,16 @@
 
 /* explications : pourquoi une offre est proposée, ce qui pilote la veille */
 .carte-pourquoi{font-size:.84rem;color:var(--accent-t);background:var(--accent-f);border-radius:8px;padding:7px 10px;margin:0}
-.p-pilote{grid-column:1/-1;border:1px solid var(--line);border-radius:12px;padding:14px 16px;display:grid;gap:6px;background:var(--sheet-2);margin-top:6px}
-.p-pilote h3{font-size:.95rem}
-.p-pilote p{font-size:.9rem;margin:0}
-.p-alerte{color:var(--accent-t);background:var(--accent-f);border-radius:8px;padding:7px 10px}
+.p-pilote{padding:20px;display:grid;gap:14px;background:linear-gradient(180deg,var(--blue-f),var(--sheet) 70%)}
+.p-pilote h2{font-size:1.02rem}
+.p-pilote .pp-bloc{display:grid;gap:7px}
+.p-pilote .pp-lbl{font-size:.78rem;font-weight:600;letter-spacing:.03em;text-transform:uppercase;color:var(--muted)}
+.p-pilote .pp-tags{display:flex;flex-wrap:wrap;gap:6px}
+.p-pilote .pp-tags span{font-size:.84rem;font-weight:500;padding:4px 10px;border-radius:999px;background:var(--sheet);border:1px solid var(--line-2);color:var(--ink)}
+.p-pilote .pp-tags span.ign{color:var(--muted);text-decoration:line-through;border-style:dashed}
+.p-pilote .pp-vide{font-size:.88rem;color:var(--muted)}
+.p-pilote .note{font-size:.84rem;margin:0}
+.p-alerte{color:var(--accent-t);background:var(--accent-f);border-radius:8px;padding:9px 11px;font-size:.86rem;margin:0}
 /* questionnaire de première connexion */
 .onb{position:fixed;inset:0;z-index:50;background:var(--sheet);display:flex;flex-direction:column}
 .onb-top{display:flex;justify-content:space-between;align-items:center;gap:16px;padding:16px clamp(18px,4vw,48px);border-bottom:1px solid var(--line)}
@@ -271,6 +277,24 @@
 @media (prefers-reduced-motion:reduce){ .onb-q.on{animation:none} .onb-prog span{transition:none} }
 
 /* profil, abonnement */
+.profil-grille{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:22px;align-items:start;max-width:1180px}
+.profil-main{display:grid;gap:18px;min-width:0}
+.profil-side{display:grid;gap:18px;position:sticky;top:20px;min-width:0}
+.psec-tete{display:flex;gap:14px;align-items:flex-start;padding:18px 22px;border-bottom:1px solid var(--line)}
+.psec-tete h2{font-size:1.02rem}
+.psec-tete p{color:var(--muted);font-size:.88rem;margin-top:2px}
+.psec-num{flex:none;width:28px;height:28px;border-radius:8px;display:grid;place-items:center;background:var(--blue-f);color:var(--blue);font-weight:700;font-size:.88rem}
+.psec .pgrid{padding:20px 22px 22px}
+.pbar{position:sticky;bottom:0;z-index:2;display:flex;justify-content:flex-end;align-items:center;gap:14px;flex-wrap:wrap;padding:14px 18px;border:1px solid var(--line);border-radius:var(--r);background:color-mix(in srgb,var(--sheet) 92%,transparent);backdrop-filter:blur(6px);box-shadow:0 -6px 20px rgba(16,24,40,.06)}
+.pbar .status{margin-right:auto}
+.pcarte{padding:20px;display:grid;gap:12px}
+.pcarte h2{font-size:1.02rem}
+.pcarte > p{color:var(--muted);font-size:.88rem}
+.pcarte .btn{justify-self:start}
+.psuppr{font-size:.84rem;padding:0 4px}
+@media (max-width:1060px){ .profil-grille{grid-template-columns:1fr} .profil-side{position:static} }
+@media (max-width:760px){ .pbar{position:static;box-shadow:none} .pbar .btn{width:100%} }
+.pcarte .status:empty{display:none}
 .pgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px 18px;padding:20px}
 .pgrid .full{grid-column:1/-1}
 .pfoot{display:flex;gap:14px;align-items:center;flex-wrap:wrap;padding:0 20px 20px}
@@ -548,40 +572,59 @@
 
       <!-- Profil -->
       <section class="view" id="v-profil" aria-labelledby="h-profil">
-        <div class="vhead"><div><h1 id="h-profil">Mon profil</h1><p>Ces informations servent aux agents pour choisir vos offres. Les changements comptent dès la prochaine veille.</p></div><button class="btn alt" type="button" id="p-onb">Présentation de l'entreprise</button></div>
-        <div class="stack">
-          <form class="panel pform" id="f-profil" novalidate>
-            <div class="panel-head"><h2>Profil de veille</h2></div>
-            <div class="pgrid">
-              <div class="field"><label for="p-entreprise">Entreprise</label><input id="p-entreprise" required></div>
-              <div class="field"><label for="p-siren">SIREN</label><input id="p-siren" inputmode="numeric" maxlength="11"></div>
-              <div class="field"><label for="p-email">Email de connexion</label><input id="p-email" disabled></div>
-              <div class="field"><label for="p-telephone">Téléphone</label><input id="p-telephone" type="tel"></div>
-              <div class="field full" id="p-veille-bloc" hidden><label for="p-veille">Email de réception des offres <small>(facultatif)</small></label><input id="p-veille" type="email" autocomplete="off"><small>La veille quotidienne est envoyée à cette adresse. Laissez vide pour la recevoir sur l'email de connexion, qui reste celui de votre compte.</small></div>
-              <div class="field full"><label for="p-metiers">Activité</label><input id="p-metiers"><small>Exemple : électricité, génie climatique</small></div>
-              <div class="field full"><label for="p-mots">Mots-clés suivis</label><input id="p-mots"><small>Séparés par des virgules</small></div>
-              <div class="field"><label for="p-deps">Départements où vous intervenez</label><input id="p-deps" placeholder="Vide : toute la France"><small id="p-deps-noms"></small></div>
-              <div class="field curseur"><label for="pm-curseur">Montant minimum des marchés</label>
-          <output class="curseur-valeur" id="pm-sortie" for="pm-curseur">Pas de minimum</output>
-          <input type="range" id="pm-curseur" value="0">
-          <input type="hidden" id="p-montant" value="">
-          <div class="curseur-reperes" aria-hidden="true"><span>Aucun</span><span>100 k€</span><span>1 M€</span></div></div>
-              <div class="field full"><span class="lbl" id="l-ptypes">Types de marchés</span>
-                <div class="chips" id="p-types" role="group" aria-labelledby="l-ptypes"><label><input type="checkbox" value="TRAVAUX">Travaux</label><label><input type="checkbox" value="SERVICES">Services</label><label><input type="checkbox" value="FOURNITURES">Fournitures</label></div></div>
+        <div class="vhead"><div><h1 id="h-profil">Mon profil</h1><p>Ces informations servent aux agents pour choisir vos offres. Les changements comptent dès la prochaine veille.</p></div></div>
+        <div class="profil-grille">
+          <form class="profil-main" id="f-profil" novalidate>
+            <div class="panel psec">
+              <div class="psec-tete"><span class="psec-num" aria-hidden="true">1</span><div><h2>Votre entreprise</h2><p>Identité et coordonnées du compte.</p></div></div>
+              <div class="pgrid">
+                <div class="field"><label for="p-entreprise">Nom de l'entreprise</label><input id="p-entreprise" required></div>
+                <div class="field"><label for="p-siren">SIREN</label><input id="p-siren" inputmode="numeric" maxlength="11" placeholder="9 chiffres"></div>
+                <div class="field"><label for="p-telephone">Téléphone</label><input id="p-telephone" type="tel" placeholder="06 12 34 56 78"></div>
+                <div class="field"><label for="p-email">Email de connexion</label><input id="p-email" disabled></div>
+                <div class="field full" id="p-veille-bloc" hidden><label for="p-veille">Email de réception des offres <small>(facultatif)</small></label><input id="p-veille" type="email" autocomplete="off" placeholder="Laissez vide pour utiliser l'email de connexion"><small>La veille quotidienne est envoyée à cette adresse. L'email de connexion reste celui de votre compte.</small></div>
+              </div>
             </div>
-            <div class="p-pilote" id="p-pilote" aria-live="polite"></div>
-            <div class="pfoot"><button class="btn yellow" type="submit" id="p-go">Enregistrer</button><p class="status" id="p-status" role="status"></p></div>
+            <div class="panel psec">
+              <div class="psec-tete"><span class="psec-num" aria-hidden="true">2</span><div><h2>Votre activité</h2><p>Ce que les agents recherchent dans les avis.</p></div></div>
+              <div class="pgrid">
+                <div class="field full"><label for="p-metiers">Activités</label><input id="p-metiers" placeholder="Exemple : électricité, génie climatique"><small>Vos métiers, séparés par des virgules.</small></div>
+                <div class="field full"><label for="p-mots">Mots-clés suivis</label><input id="p-mots" placeholder="Exemple : éclairage public, borne de recharge"><small>Des termes précis donnent des offres plus pertinentes. Séparés par des virgules.</small></div>
+                <div class="field full"><span class="lbl" id="l-ptypes">Types de marchés</span>
+                  <div class="chips" id="p-types" role="group" aria-labelledby="l-ptypes"><label><input type="checkbox" value="TRAVAUX">Travaux</label><label><input type="checkbox" value="SERVICES">Services</label><label><input type="checkbox" value="FOURNITURES">Fournitures</label></div></div>
+              </div>
+            </div>
+            <div class="panel psec">
+              <div class="psec-tete"><span class="psec-num" aria-hidden="true">3</span><div><h2>Zone et taille des marchés</h2><p>Où vous intervenez et à partir de quel montant.</p></div></div>
+              <div class="pgrid">
+                <div class="field"><label for="p-deps">Départements où vous intervenez</label><input id="p-deps" placeholder="Exemple : 13, 83, 84 (vide : toute la France)"><small id="p-deps-noms"></small></div>
+                <div class="field curseur"><label for="pm-curseur">Montant minimum des marchés</label>
+                  <output class="curseur-valeur" id="pm-sortie" for="pm-curseur">Pas de minimum</output>
+                  <input type="range" id="pm-curseur" value="0">
+                  <input type="hidden" id="p-montant" value="">
+                  <div class="curseur-reperes" aria-hidden="true"><span>Aucun</span><span>100 k€</span><span>1 M€</span></div></div>
+              </div>
+            </div>
+            <div class="pbar"><p class="status" id="p-status" role="status"></p><button class="btn yellow" type="submit" id="p-go">Enregistrer le profil</button></div>
           </form>
-          <form class="panel pform" id="f-mdp" novalidate>
-            <div class="panel-head"><h2>Mot de passe</h2></div>
-            <div class="pgrid">
+
+          <aside class="profil-side">
+            <div class="panel p-pilote" id="p-pilote" aria-live="polite"></div>
+            <div class="panel pcarte">
+              <h2>Présentation de l'entreprise</h2>
+              <p>Description, qualifications, chiffre d'affaires, références et exclusions : l'IA s'en sert pour noter les offres et analyser les dossiers.</p>
+              <button class="btn alt" type="button" id="p-onb">Compléter la présentation</button>
+            </div>
+            <form class="panel pcarte" id="f-mdp" novalidate>
+              <h2>Mot de passe</h2>
               <input type="email" autocomplete="username" id="m-user" hidden>
               <div class="field"><label for="m-mdp">Nouveau mot de passe</label><input id="m-mdp" type="password" autocomplete="new-password"><small>Au moins 10 caractères, avec des lettres et des chiffres.</small></div>
               <div class="field"><label for="m-mdp2">Confirmez</label><input id="m-mdp2" type="password" autocomplete="new-password"></div>
-            </div>
-            <div class="pfoot"><button class="btn alt" type="submit" id="m-go">Changer le mot de passe</button><p class="status" id="m-status" role="status"></p></div>
-          </form>
-          <p class="note">Pour supprimer votre compte et vos données, écrivez à <a id="p-suppr" href="#"></a>.</p>
+              <button class="btn alt" type="submit" id="m-go">Changer le mot de passe</button>
+              <p class="status" id="m-status" role="status"></p>
+            </form>
+            <p class="note psuppr">Pour supprimer votre compte et vos données, écrivez à <a id="p-suppr" href="#"></a>.</p>
+          </aside>
         </div>
       </section>
 
@@ -950,11 +993,12 @@ function majPilote() {
   if (!deps.length) alertes.push("Aucun département : vous recevez les offres de toute la France. Indiquez les départements où vous intervenez pour des offres plus proches.");
   if (nbAct >= 3) alertes.push("Vos activités sont variées : la veille est plus large et certaines offres seront moins pertinentes. Ajoutez des mots-clés précis, et des exclusions dans « Présentation de l'entreprise ».");
   if (!utiles.length) alertes.push("Aucun mot-clé exploitable : ajoutez votre activité ou des mots-clés précis.");
-  $("#p-pilote").innerHTML = `<h3>Ce qui pilote votre veille</h3>
-    <p><strong>Mots recherchés dans les offres :</strong> ${utiles.length ? utiles.map(esc).join(", ") : "aucun"}</p>
-    ${ignores.length ? `<p class="note">Ignorés car trop généraux : ${ignores.map(esc).join(", ")}.</p>` : ""}
-    <p><strong>Zone :</strong> ${deps.length ? deps.map(nomDep).map(esc).join(", ") : "toute la France"}</p>
-    <p class="note">L'IA lit ensuite chaque offre pré-sélectionnée et ne vous envoie que celles qu'elle juge proches de votre activité (pertinence 3/5 ou plus).</p>
+  const tags = (l, cls) => l.map(m => `<span${cls ? ` class="${cls}"` : ""}>${esc(m)}</span>`).join("");
+  $("#p-pilote").innerHTML = `<h2>Ce qui pilote votre veille</h2>
+    <div class="pp-bloc"><span class="pp-lbl">Mots recherchés</span>${utiles.length || ignores.length ? `<div class="pp-tags">${tags(utiles)}${tags(ignores, "ign")}</div>` : `<span class="pp-vide">Aucun pour l'instant</span>`}
+      ${ignores.length ? `<p class="note">Barrés : ignorés car trop généraux.</p>` : ""}</div>
+    <div class="pp-bloc"><span class="pp-lbl">Zone</span>${deps.length ? `<div class="pp-tags">${tags(deps.map(nomDep))}</div>` : `<span class="pp-vide">Toute la France</span>`}</div>
+    <p class="note">L'IA lit ensuite chaque offre présélectionnée et ne vous envoie que celles qu'elle juge proches de votre activité (pertinence 3/5 ou plus).</p>
     ${alertes.map(a => `<p class="p-alerte">${esc(a)}</p>`).join("")}`;
 }
 ["p-metiers", "p-mots", "p-deps"].forEach(id => $("#" + id).addEventListener("input", majPilote));
