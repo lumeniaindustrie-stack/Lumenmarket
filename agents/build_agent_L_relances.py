@@ -24,7 +24,7 @@ PREPARER = r"""
 // ===== RÉGLAGES =====
 const PLAFOND_JOUR = 12;          // emails de prospection par jour, K et L confondus
 const SITE = 'https://lumen-marche.fr/', INSCRIPTION = SITE + 'inscription.html';
-const LEGAL = 'Lumen IA, SIRET 985 215 474 00018, 205 chemin de la Halte, 13090 Aix-en-Provence · lumeniaindustrie@gmail.com';
+const LEGAL = 'Lumen IA, SIRET 985 215 474 00018, 205 chemin de la Halte, 13090 Aix-en-Provence · contact@lumen-marche.fr';
 // ====================
 const tous = n => { try { return $(n).all().map(i => i.json).filter(x => x && Object.keys(x).length && !x.error); } catch (e) { return []; } };
 const leads = tous('Lire les relances à faire').filter(l => l.siret && l.email);
@@ -95,8 +95,8 @@ ${P(esc(p4))}
 <p style="margin:6px 0 0;font-size:11px;color:#9CA3AF;">${esc(LEGAL)}</p>
 </div></body></html>`;
   const corps = { sender: { name: 'Marin Sauzay — Lumen', email: 'marin@lumen-marche.fr' },
-    replyTo: { email: 'lumeniaindustrie@gmail.com', name: 'Marin Sauzay — Lumen' },
-    to: [{ email: l.email, name: l.dirigeant || co }], bcc: [{ email: 'lumeniaindustrie@gmail.com' }],
+    replyTo: { email: 'contact@lumen-marche.fr', name: 'Marin Sauzay — Lumen' },
+    to: [{ email: l.email, name: l.dirigeant || co }], bcc: [{ email: 'contact@lumen-marche.fr' }],
     subject: sujet, htmlContent: html, textContent: texte, tags: ['lumen-relance-l'] };
   if (l.brevo_message_id) corps.headers = { 'In-Reply-To': l.brevo_message_id, 'References': l.brevo_message_id };
   out.push({ json: { action: 'send', siret: l.siret, nom: co, email: l.email, offre: titre || null, brevo: corps } });

@@ -28,7 +28,7 @@ const MSG_ERREURS = [
   [/database error saving new user|database error/i, "Le compte n'a pas pu être enregistré dans la base. Écrivez-nous, nous réglons cela rapidement."],
   [/signups not allowed|signup.*disabled/i, "Les inscriptions sont momentanément fermées."],
   [/email address .* is invalid|invalid email/i, "Cette adresse email n'est pas acceptée. Vérifiez-la ou utilisez une autre adresse."],
-  [/profil absent/i, "Votre compte existe, mais votre profil d'entreprise n'a pas été créé. Écrivez-nous à lumeniaindustrie@gmail.com : nous le réglons rapidement."],
+  [/profil absent/i, "Votre compte existe, mais votre profil d'entreprise n'a pas été créé. Écrivez-nous à contact@lumen-marche.fr : nous le réglons rapidement."],
   [/failed to fetch|network/i, "Connexion impossible. Vérifiez votre accès à internet puis réessayez."]
 ];
 const traduireErreur = e => { const m = String(e?.message || e || ""); const t = MSG_ERREURS.find(([r]) => r.test(m)); if (m) console.warn("Lumen, détail de l'erreur :", m); return t ? t[1] : "Une erreur est survenue. Réessayez dans un instant." + (m ? " (détail : " + m.slice(0, 120) + ")" : ""); };

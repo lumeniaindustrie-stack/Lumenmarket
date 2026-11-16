@@ -20,7 +20,7 @@ window.CONFIG = {
   DEPARTEMENTS_ACCUEIL: ["04", "05", "06", "13", "83", "84"],
 
   // Contact
-  EMAIL: "lumeniaindustrie@gmail.com",
+  EMAIL: "contact@lumen-marche.fr",
   TEL: "06 50 93 85 52",
 
   // Mode démonstration : laisser à false sur le vrai site

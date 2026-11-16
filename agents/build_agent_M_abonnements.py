@@ -24,9 +24,9 @@ const STRIPE = 'https://buy.stripe.com/28E9AU6KN6jxbHl5tncbC01';   // lien de pa
 const PROMO_CODE = 'REVIENS50';                                     // code Stripe : -50 % pendant 12 mois
 const PRIX = 49;
 const SITE = 'https://lumen-marche.fr/', ESPACE = SITE + 'tableau.html';
-const CONTACT = 'lumeniaindustrie@gmail.com';
+const CONTACT = 'contact@lumen-marche.fr';
 const LOGO = 'https://lumen-marche.fr/logo-email.png?v=3';
-const LEGAL = 'Lumen IA, SIRET 985 215 474 00018, 205 chemin de la Halte, 13090 Aix-en-Provence · lumeniaindustrie@gmail.com';
+const LEGAL = 'Lumen IA, SIRET 985 215 474 00018, 205 chemin de la Halte, 13090 Aix-en-Provence · contact@lumen-marche.fr';
 // ====================
 const tous = n => { try { return $(n).all().map(i => i.json).filter(x => x && Object.keys(x).length && !x.error); } catch (e) { return []; } };
 const clients = tous('Lire les clients').filter(c => c.id && (c.email || c.email_veille));

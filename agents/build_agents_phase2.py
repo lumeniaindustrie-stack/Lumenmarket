@@ -206,7 +206,7 @@ const html = `<div style="font-family:Arial,sans-serif;max-width:640px;color:#1a
 <p><b>Pièces à fournir</b></p><ul>${li((a.pieces || []).map(p => esc(p.piece) + (p.ref ? ' <span style="color:#566275">(' + esc(p.ref) + ')</span>' : '')))}</ul>
 <p><b>Points à risque</b></p><ul>${li((a.risques || []).map(r => '<b>' + esc(r.point) + '</b> (risque ' + esc(r.niveau) + ') : ' + esc(r.explication)))}</ul>
 <p>Retrouvez cette analyse dans votre espace, menu « Analyser un dossier ».</p>
-<p>L'équipe Lumen<br>lumeniaindustrie@gmail.com, 06 50 93 85 52</p>
+<p>L'équipe Lumen<br>contact@lumen-marche.fr, 06 50 93 85 52</p>
 <p style="font-size:12px;color:#566275">Analyse produite par une IA : vérifiez les dates et les pièces dans le règlement de consultation avant de déposer votre offre.</p>
 </div>`;
 return [{ json: { to: j.email, subject: 'Analyse du dossier : ' + String(a.objet || '').slice(0, 90), html } }];
@@ -219,7 +219,7 @@ const esc = s => String(s ?? '').replace(/[&<>"]/g, ch => ({ '&': '&amp;', '<': 
 const sortie = [{ json: { to: EMAIL_ADMIN, subject: `⚠️ Analyse échouée pour ${j.entreprise || 'un client'}`,
   html: `<div style="font-family:Arial,sans-serif;font-size:15px"><p>L'agent D n'a pas réussi à analyser le dossier n° ${j.id} de <b>${esc(j.entreprise)}</b> (${esc(j.email)}), même après un nouvel essai.</p><p>Raison : ${esc(j.raison)}</p><p>Le client voit un message d'échec dans son espace et a reçu un email. Pense à le recontacter.</p></div>` } }];
 if (j.email) sortie.push({ json: { to: j.email, subject: "Votre analyse de dossier n'a pas abouti",
-  html: `<div style="font-family:Arial,sans-serif;font-size:15px;color:#1a2433"><p>Bonjour,</p><p>Notre agent n'a pas réussi à analyser le dossier que vous avez déposé. Nous sommes prévenus et revenons vers vous rapidement.</p><p>En attendant, vous pouvez relancer l'analyse depuis votre espace, ou nous envoyer le dossier à lumeniaindustrie@gmail.com.</p><p>L'équipe Lumen<br>06 50 93 85 52</p></div>` } });
+  html: `<div style="font-family:Arial,sans-serif;font-size:15px;color:#1a2433"><p>Bonjour,</p><p>Notre agent n'a pas réussi à analyser le dossier que vous avez déposé. Nous sommes prévenus et revenons vers vous rapidement.</p><p>En attendant, vous pouvez relancer l'analyse depuis votre espace, ou nous envoyer le dossier à contact@lumen-marche.fr.</p><p>L'équipe Lumen<br>06 50 93 85 52</p></div>` } });
 return sortie;
 """
 

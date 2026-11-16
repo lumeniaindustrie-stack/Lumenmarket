@@ -15,7 +15,7 @@ S = SUPABASE_URL + "/rest/v1/"
 
 PREPARER = r"""
 // ===== RÉGLAGE =====
-const EMAIL_ADMIN = 'lumeniaindustrie@gmail.com';   // qui reçoit les nouvelles demandes
+const EMAIL_ADMIN = 'contact@lumen-marche.fr';   // qui reçoit les nouvelles demandes
 // ===================
 const demandes = $input.all().map(i => i.json).filter(d => d && d.id && d.email);
 if (!demandes.length) return [];
@@ -28,7 +28,7 @@ const cadre = (contenu) => `<!doctype html><html><body style="margin:0;padding:0
 <table role="presentation" width="600" cellpadding="0" cellspacing="0" style="background:#FFFFFF;border-radius:14px;overflow:hidden;border:1px solid #E6E8EC;">
 <tr><td style="padding:22px 32px;border-bottom:1px solid #E6E8EC;"><img src="${LOGO}" width="180" height="29" alt="Lumen Marchés" style="display:block;border:0;width:180px;height:29px;"></td></tr>
 <tr><td style="padding:28px 32px;font-size:15px;line-height:1.6;color:#171A21;">${contenu}</td></tr>
-<tr><td style="background:#F6F7F9;padding:16px 32px;border-top:1px solid #E6E8EC;"><p style="margin:0;font-size:12px;color:#6B7280;">Lumen IA, SIRET 985 215 474 00018 · lumeniaindustrie@gmail.com · 06 50 93 85 52</p></td></tr>
+<tr><td style="background:#F6F7F9;padding:16px 32px;border-top:1px solid #E6E8EC;"><p style="margin:0;font-size:12px;color:#6B7280;">Lumen IA, SIRET 985 215 474 00018 · contact@lumen-marche.fr · 06 50 93 85 52</p></td></tr>
 </table></td></tr></table></body></html>`;
 const out = [];
 for (const d of demandes) {
@@ -45,7 +45,7 @@ for (const d of demandes) {
       <p style="margin:0;font-size:13px;color:#6B7280;">Répondez à cet email pour écrire directement au client. Demande n° ${esc(d.id)}, visible dans le pilotage (onglet Demandes).</p>`) } });
   // 2. Pour le client : accusé de réception
   const prenom = String(d.nom || '').trim().split(/\s+/)[0];
-  out.push({ json: { to: d.email, replyTo: 'lumeniaindustrie@gmail.com', subject: d.offre === 'diagnostic' ? 'Votre demande de diagnostic IA est bien reçue' : 'Votre demande est bien reçue',
+  out.push({ json: { to: d.email, replyTo: 'contact@lumen-marche.fr', subject: d.offre === 'diagnostic' ? 'Votre demande de diagnostic IA est bien reçue' : 'Votre demande est bien reçue',
     html: cadre(`<p style="margin:0 0 16px;">Bonjour${prenom ? ' ' + esc(prenom) : ''},</p>
       <p style="margin:0 0 16px;">Merci pour votre demande${d.offre === 'diagnostic' ? ' de <b>diagnostic IA sur place (300 € HT)</b>' : ''}. Nous l'avons bien reçue et nous vous recontactons rapidement${d.rappel ? ', de préférence ' + esc(String(d.rappel).toLowerCase()) : ''}, au ${esc(d.telephone || 'numéro indiqué')}.</p>
       ${d.offre === 'diagnostic' ? `<p style="margin:0 0 16px;">Lors de cet échange, nous fixerons ensemble la date de passage de l'ingénieur dans vos locaux et les tâches à observer en priorité.</p>` : d.offre === 'ia_locale' ? `<p style="margin:0 0 16px;">Lors de cet échange, nous ferons le point sur vos usages, le volume de documents et le nombre d'utilisateurs, pour vous proposer un serveur et un modèle d'IA adaptés, avec un devis détaillé.</p>` : `<p style="margin:0 0 16px;">Lors de cet échange, nous préciserons votre besoin pour vous proposer une solution chiffrée, sans engagement.</p>`}
