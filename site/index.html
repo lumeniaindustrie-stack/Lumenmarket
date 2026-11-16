@@ -16,7 +16,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&display=swap">
 <script>try{var t=localStorage.getItem("lumen-theme");if(t)document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
-<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="style.css?v=20261116">
 <style>
 /* ---------- haut de page ---------- */
 .hero{position:relative;overflow:hidden;border-bottom:1px solid var(--line);isolation:isolate}
@@ -492,11 +492,37 @@ setInterval(chargerDirect, 5 * 60000);
   try { const m = JSON.parse(localStorage.getItem("lumen-recherche") || "null"); if (m) { $("#rch-metier").value = m.metier || ""; selDep.value = m.dep || ""; } } catch (e) {}
   const dlg = $("#rch-dialog");
   let derniere = [], lienInscr = "inscription.html";
+  // Règles de tri par métier (les mêmes que les pages « marchés publics par métier ») : [à garder, à écarter]
+  const REGLES = {
+    "électricité": [/electri|eclairage|courants? (faibles?|forts?)|bornes? de recharge|photovolta|\bcfo\b|\bcfa\b/, /vehicules?.{0,20}electri|carburant|(fourniture|achat|acheminement|approvisionnement).{0,25}(d'|en )electricite|diagnostic|velos?/],
+    "génie climatique": [/chauffage|climatisation|ventilation|\bcvc\b|pompes? a chaleur|chaufferie|\bvmc\b|genie climatique/, /fourniture de (fioul|gaz|combustible)|vehicule/],
+    "plomberie": [/plomberie|sanitaires?\b|robinetterie|reseaux? d'eau|\bcvcp\b/, /diagnostic|amiante|produits? sanitaires?/],
+    "maçonnerie": [/maconnerie|gros (oe)?uvre|demolition|beton arme/, null],
+    "menuiserie": [/menuiserie|fenetres?|serrurerie|metallerie|portes?\b/, /nettoyage des vitres|portes? ouvertes/],
+    "peinture": [/peinture|ravalement|facades?\b|revetements? de sols?|sols souples/, /nettoyage|peinture routiere|signalisation/],
+    "plâtrerie": [/platrerie|cloisons?|faux plafonds?|doublage|plaquiste/, null],
+    "couverture": [/couverture|toiture|etancheite|charpente|zinguerie/, /couverture (sociale|des risques|assurance|reseau|mobile|wifi)/],
+    "terrassement": [/terrassement|\bvrd\b|voirie|assainissement|enrobes?|chaussees?/, /nettoyage des voiries|balayage|vehicule/],
+    "nettoyage": [/nettoyage|proprete|entretien des locaux|vitrerie/, /produits|vmc|conduits|vehicule/],
+    "espaces verts": [/espaces? verts?|paysag|elagage|tonte|arbres?\b|fauchage/, null],
+    "informatique": [/informatique|logiciels?|numerique|infogerance|cybersecurite|\bsaas\b|reseaux? (informatique|telecom)/, /tableaux? numeriques? interactifs? en location/],
+    "sécurité": [/gardiennage|surveillance|securite incendie|videoprotection|video-?surveillance|controle d'acces|agents? de securite|ssiap/, /surveillance (medicale|sanitaire|de la qualite)/],
+    "transport": [/transports?\b|demenagement|logistique/, /transport scolaire? de denrees/],
+    "restauration": [/restauration|repas|traiteur|denrees|alimentaire/, /restauration (de|du|des) (batiment|facade|monument|tableau|oeuvre|cours d'eau|zone)/],
+    "formation": [/\bformations?\b/, /formation (de|du) (sol|terrain)/],
+    "études": [/maitrise d'(oe)?uvre|assistance a maitrise d'ouvrage|\bamo\b|\betudes?\b/, null],
+    "fournitures": [/fournitures?|mobilier|equipements?|materiels?/, /travaux/],
+    "communication": [/communication|impression|imprimerie|signaletique|evenementiel/, null]
+  };
+  const plat = t => String(t || "").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/œ/g, "oe").replace(/[’`]/g, "'");
+  const correspond = (o, metier) => { const r = REGLES[metier]; if (!r) return true; const t = plat(o.objet + " " + o.resume); return r[0].test(t) && !(r[1] && r[1].test(t)); };
+  const phrase = s => { s = String(s || "").replace(/\s+/g, " ").trim(); const l = s.replace(/[^\p{L}]/gu, ""), m = l.replace(/[^\p{Lu}]/gu, "").length; if (l.length && m / l.length > 0.6) s = s.toLowerCase(); return s.charAt(0).toUpperCase() + s.slice(1); };
+  const joli = s => { s = String(s || "").replace(/\s+/g, " ").trim(); if (s && s === s.toUpperCase()) s = s.toLowerCase().replace(/(^|[\s'’-])(\p{L})/gu, (m, a, c) => a + c.toUpperCase()); return s; };
   const lien = (metierOpt, dep) => "inscription.html?src=recherche" + (metierOpt ? "&metier=" + encodeURIComponent(metierOpt.dataset.slug) : "") + (dep ? "&deps=" + encodeURIComponent(dep) : "");
   const carte = (o, i) => `<article class="rch-carte">
-      <h3>${esc(o.objet)}</h3>
+      <h3>${esc(phrase(o.objet))}</h3>
       <p class="rch-meta"><span>${esc(o.lieu || "")}</span>${toDate(o.limite) ? `<span>Avant le ${esc(fmtJour(o.limite))}</span>` : ""}<span>${esc(o.montantTxt)}</span></p>
-      <p class="rch-qui">${esc(o.acheteur)}</p>
+      <p class="rch-qui">${esc(joli(o.acheteur))}</p>
       <button type="button" class="btn alt small" data-i="${i}">Voir l'offre</button>
     </article>`;
   const floues = n => Array.from({ length: n }, () => `<article class="rch-carte rch-floue" aria-hidden="true"><h3>Offre réservée aux inscrits, réservée aux inscrits</h3><p class="rch-meta"><span>Département</span><span>Avant le 00 mois</span></p><p class="rch-qui">Acheteur public</p></article>`).join("");
@@ -511,12 +537,13 @@ setInterval(chargerDirect, 5 * 60000);
     $("#rch-go").disabled = true; $("#rch-statut").textContent = "Recherche dans les avis ouverts…"; $("#rch-res").innerHTML = ""; $("#rch-suite").hidden = true;
     const q = motsUtiles(motsAuto(metier).split(/\s*,\s*/).filter(Boolean)).join(", ") || metier;
     try {
-      let r = await chercherOffres({ q, deps: dep ? [dep] : [], limit: 6 }), large = false;
-      if (dep && !r.total) { r = await chercherOffres({ q, deps: [], limit: 6 }); large = true; }
+      const trouver = async deps => { const x = await chercherOffres({ q, deps, limit: 100 }); const ok = x.offres.filter(o => correspond(o, metier)); return { offres: ok.slice(0, 6), total: ok.length, plus: x.total > 100 }; };
+      let r = await trouver(dep ? [dep] : []), large = false;
+      if (dep && !r.total) { r = await trouver([]); large = true; }
       derniere = r.offres;
       const nomM = opt.textContent.toLowerCase(), ou = dep && !large ? nomDep(dep) : "toute la France";
       if (!r.total) { $("#rch-statut").textContent = `Aucune offre ouverte pour ${nomM} en ce moment. Inscrivez-vous : vous serez prévenu dès la prochaine.`; $("#rch-suite").hidden = false; $("#rch-plus").textContent = ""; return; }
-      $("#rch-statut").innerHTML = (large ? `Rien d'ouvert ${dep ? "dans ce département" : ""} pour l'instant. ` : "") + `<b>${r.total.toLocaleString("fr-FR")} offre${r.total > 1 ? "s" : ""} ouverte${r.total > 1 ? "s" : ""}</b> en ${esc(nomM)}, ${esc(ou)}.`;
+      $("#rch-statut").innerHTML = (large ? `Rien d'ouvert ${dep ? "dans ce département" : ""} pour l'instant. ` : "") + `<b>${r.plus ? "Plus de " : ""}${r.total.toLocaleString("fr-FR")} offre${r.total > 1 ? "s" : ""} ouverte${r.total > 1 ? "s" : ""}</b> en ${esc(nomM)}, ${esc(ou)}.`;
       const reste = Math.max(0, r.total - r.offres.length);
       $("#rch-res").innerHTML = r.offres.map(carte).join("") + (reste ? floues(Math.min(2, reste)) : "");
       $("#rch-plus").textContent = reste ? `+ ${reste.toLocaleString("fr-FR")} autre${reste > 1 ? "s" : ""} offre${reste > 1 ? "s" : ""} dans votre espace.` : "";
@@ -532,8 +559,8 @@ setInterval(chargerDirect, 5 * 60000);
     const b = e.target.closest("button[data-i]"); if (!b) return;
     const o = derniere[+b.dataset.i]; if (!o) return;
     if (Compte.semblerConnecte()) { location.href = "tableau.html"; return; }
-    $("#rch-d-titre").textContent = o.objet;
-    $("#rch-d-meta").textContent = [o.acheteur, o.lieu, toDate(o.limite) ? "avant le " + fmtJour(o.limite) : ""].filter(Boolean).join(" · ");
+    $("#rch-d-titre").textContent = phrase(o.objet);
+    $("#rch-d-meta").textContent = [joli(o.acheteur), o.lieu, toDate(o.limite) ? "avant le " + fmtJour(o.limite) : ""].filter(Boolean).join(" · ");
     if (dlg.showModal) dlg.showModal(); else location.href = lienInscr;
   });
   $("#rch-fermer").addEventListener("click", () => dlg.close());
