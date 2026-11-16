@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+Disallow: /pour.html
+Disallow: /tableau.html
+Disallow: /nouveau-mdp.html
+Sitemap: https://lumen-marche.fr/sitemap.xml
