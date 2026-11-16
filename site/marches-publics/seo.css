@@ -1,0 +1,28 @@
+/* Pages de référencement « appels d'offres par métier et département » */
+.seo{padding:28px 0 64px;max-width:980px}
+.fil{font-size:.85rem;color:var(--muted);display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px}
+.fil a{color:var(--muted)}
+.seo h1{font-size:clamp(1.6rem,3.4vw,2.3rem);font-weight:700;letter-spacing:-.02em;line-height:1.2;margin:0 0 10px}
+.chapo{color:var(--ink-2);font-size:1.02rem;margin:0 0 20px;max-width:75ch}
+.chapo b{color:var(--ink)}
+.cta-seo{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;background:var(--blue-f);border:1px solid color-mix(in srgb,var(--blue) 25%,transparent);border-radius:14px;padding:16px 18px;margin:18px 0}
+.cta-seo div{display:grid;gap:3px}.cta-seo span{color:var(--muted);font-size:.88rem}
+.liste{display:grid;gap:10px;margin:18px 0}
+.liste h2,.sous{font-size:1.15rem;margin:22px 0 8px}
+.of{background:var(--sheet);border:1px solid var(--line);border-radius:12px;padding:14px 16px;display:grid;gap:6px}
+.of h3{font-size:1rem;font-weight:600;line-height:1.4;margin:0}
+.of h3 a{color:var(--ink);text-decoration:none}.of h3 a:hover{color:var(--blue);text-decoration:underline}
+.of .meta{display:flex;flex-wrap:wrap;gap:4px 14px;color:var(--muted);font-size:.86rem;margin:0}
+.of .lim{margin:0;font-size:.86rem;color:var(--ink-2)}
+.reste{font-weight:600;color:var(--accent-t);background:var(--accent-f);padding:2px 8px;border-radius:999px;margin-right:6px;font-size:.8rem}
+.explique{margin:28px 0;color:var(--ink-2)}.explique h2{font-size:1.15rem;margin:0 0 8px;color:var(--ink)}
+.liens{margin:22px 0}.liens h2{font-size:1.05rem;margin:0 0 10px}
+.liens p,.grille-metiers{display:flex;flex-wrap:wrap;gap:8px;margin:0}
+.liens a,.grille-metiers a,.grille-deps a{display:inline-flex;align-items:center;gap:8px;padding:7px 12px;border:1px solid var(--line-2);border-radius:999px;background:var(--sheet);color:var(--ink);text-decoration:none;font-size:.9rem}
+.liens a:hover,.grille-metiers a:hover,.grille-deps a:hover{border-color:var(--blue);color:var(--blue)}
+.grille-metiers span,.grille-deps span{font-size:.78rem;color:var(--muted);background:var(--sheet-2);padding:1px 7px;border-radius:999px}
+.grille-deps{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:18px;margin:12px 0}
+.grille-deps div{display:flex;flex-wrap:wrap;gap:6px;align-content:flex-start}
+.grille-deps h2{width:100%;font-size:.95rem;margin:0 0 4px;color:var(--ink-2)}
+.top nav a:not(.btn){color:var(--ink);text-decoration:none;font-size:.92rem;margin-right:14px}
+@media (max-width:640px){.top nav a:not(.btn){display:none}}
