@@ -167,3 +167,26 @@ button{font:inherit;cursor:pointer;color:inherit}
   .rch-form .btn{width:100%}
   .rch-d-actions .btn{flex:1}
 }
+
+/* ---- Cartes de France (accueil et espace client) ---- */
+:root{--c-q0:#E9ECF2;--c-q1:#CFDBF6;--c-q2:#9DB5EC;--c-q3:#5F86DE;--c-q4:#2350C4}
+:root[data-theme="dark"]{--c-q0:#252B36;--c-q1:#22345C;--c-q2:#2E4F94;--c-q3:#4470D6;--c-q4:#7FA2F2}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--c-q0:#252B36;--c-q1:#22345C;--c-q2:#2E4F94;--c-q3:#4470D6;--c-q4:#7FA2F2}}
+.carte-bulle{position:absolute;z-index:5;pointer-events:none;background:var(--ink);color:var(--paper);font-size:.8rem;padding:6px 9px;border-radius:7px;white-space:nowrap;box-shadow:0 4px 14px rgba(0,0,0,.2)}
+.rch-corps{display:grid;grid-template-columns:minmax(260px,360px) minmax(0,1fr);gap:20px;align-items:start;margin-top:12px}
+.rch-corps .rch-res{margin-top:0;grid-template-columns:repeat(auto-fill,minmax(250px,1fr))}
+.rch-carte-bloc{position:relative;border:1px solid var(--line);border-radius:var(--r);padding:14px;background:var(--paper)}
+.rch-carte-tete{display:flex;flex-direction:column;gap:2px;margin-bottom:8px}
+.rch-carte-tete b{font-size:.92rem}
+.rch-carte-tete span{font-size:.82rem;color:var(--muted)}
+.rch-fr svg{display:block;width:100%;height:auto}
+.rch-fr path[data-dep]{stroke:var(--paper);stroke-width:.7;cursor:pointer}
+.rch-fr path[data-dep]:hover,.rch-fr path[data-dep]:focus-visible{filter:brightness(.88);outline:none}
+.rch-fr path.q0{fill:var(--c-q0)}.rch-fr path.q1{fill:var(--c-q1)}.rch-fr path.q2{fill:var(--c-q2)}.rch-fr path.q3{fill:var(--c-q3)}.rch-fr path.q4{fill:var(--c-q4)}
+.rch-fr path.rch-sel{fill:none;stroke:var(--accent);stroke-width:2.6;pointer-events:none}
+.rch-fr-charge{color:var(--muted);font-size:.86rem;padding:30px 6px;text-align:center}
+.rch-legende{display:grid;gap:4px;margin-top:8px;font-size:.78rem}
+.rch-legende .ech{display:flex;gap:2px}.rch-legende .ech i{flex:1;height:8px;border-radius:2px}
+.rch-legende .ech-txt{display:flex;justify-content:space-between;color:var(--muted)}
+.rch-carte-aide{font-size:.8rem;color:var(--muted);margin-top:6px}
+@media (max-width:860px){ .rch-corps{grid-template-columns:1fr} .rch-carte-bloc{max-width:420px;width:100%;justify-self:center} }

@@ -16,7 +16,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&display=swap">
 <script>try{var t=localStorage.getItem("lumen-theme");if(t)document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
-<link rel="stylesheet" href="style.css?v=20261116c">
+<link rel="stylesheet" href="style.css?v=20261116d">
 <style>
 /* ---------- haut de page ---------- */
 .hero{position:relative;overflow:hidden;border-bottom:1px solid var(--line);isolation:isolate}
@@ -227,7 +227,7 @@ section{padding-block:76px}
     <div class="wrap">
       <div class="rch-box">
         <div class="rch-tete">
-          <h2 id="rch-titre">Quels marchés pour vous en ce moment ?</h2>
+          <h2 id="rch-titre">Quels sont les marchés pour vous en ce moment ?</h2>
           <p>Choisissez votre métier et votre département : voici les appels d'offres ouverts, gratuitement et sans inscription.</p>
         </div>
         <form id="rch-form" class="rch-form">
@@ -261,7 +261,16 @@ section{padding-block:76px}
           <button class="btn yellow" type="submit" id="rch-go">Voir les offres</button>
         </form>
         <p id="rch-statut" class="rch-statut" aria-live="polite"></p>
-        <div id="rch-res" class="rch-res"></div>
+        <div class="rch-corps">
+          <div class="rch-carte-bloc">
+            <div class="rch-carte-tete"><b id="rch-carte-titre">Offres ouvertes par département</b><span id="rch-carte-sous">Toutes activités</span></div>
+            <div class="rch-fr" id="rch-fr"><p class="rch-fr-charge">Chargement de la carte…</p></div>
+            <div class="rch-legende" id="rch-legende" aria-hidden="true"></div>
+            <p class="rch-carte-aide">Cliquez sur un département pour voir ses offres.</p>
+            <div class="carte-bulle" id="rch-bulle" hidden></div>
+          </div>
+          <div id="rch-res" class="rch-res"></div>
+        </div>
         <div id="rch-suite" class="rch-suite" hidden>
           <p><b id="rch-plus"></b> Recevez chaque matin les nouvelles offres de votre métier, résumées et notées.</p>
           <a class="btn blue" id="rch-cta" href="inscription.html">Essayer gratuitement 14 jours</a>
@@ -562,6 +571,53 @@ setInterval(chargerDirect, 5 * 60000);
       $("#rch-statut").textContent = "La recherche n'a pas pu aboutir, le BOAMP ne répond pas. Réessayez dans un instant.";
     } finally { $("#rch-go").disabled = false; }
   }
+  /* Carte : offres ouvertes par département (toutes activités, puis le métier choisi) ; clic = recherche dans ce département */
+  const cfr = { geo: null, n: {}, cle: null };
+  const normD = c => { c = String(c || "").toUpperCase(); return /^\d$/.test(c) ? "0" + c : c; };
+  const classeQ = (v, max) => !v ? "q0" : v >= max * .6 ? "q4" : v >= max * .3 ? "q3" : v >= max * .12 ? "q2" : "q1";
+  async function majCarte() {
+    const metier = $("#rch-metier").value;
+    try {
+      if (!cfr.geo) cfr.geo = await fetch("img/departements.json").then(r => r.json());
+      if (cfr.cle !== metier) {
+        const w = [`nature="APPEL_OFFRE"`, `datelimitereponse>=now()`];
+        if (metier) {
+          const mots = motsUtiles(motsAuto(metier).split(/\s*,\s*/).filter(Boolean)).slice(0, 8);
+          if (mots.length) w.push("(" + mots.map(m => `search(objet, "${m.replace(/"/g, "")}")`).join(" OR ") + ")");
+        }
+        const j = await fetch(`${BOAMP_URL}?select=${encodeURIComponent("code_departement, count(*) as n")}&group_by=code_departement&limit=200&where=${encodeURIComponent(w.join(" AND "))}`).then(r => r.json());
+        cfr.n = {}; (j.results || []).forEach(x => { const c = normD(x.code_departement); if (c) cfr.n[c] = (cfr.n[c] || 0) + x.n; });
+        cfr.cle = metier;
+      }
+      dessiner();
+    } catch (e) { $("#rch-fr").innerHTML = `<p class="rch-fr-charge">La carte n'a pas pu être chargée.</p>`; }
+  }
+  function dessiner() {
+    const g = cfr.geo, n = cfr.n, dep = selDep.value; if (!g) return;
+    const max = Math.max(1, ...Object.keys(g.deps).map(c => n[c] || 0));
+    const opt = $("#rch-metier").selectedOptions[0];
+    $("#rch-carte-sous").textContent = $("#rch-metier").value ? opt.textContent + " (estimation)" : "Toutes activités";
+    $("#rch-fr").innerHTML = `<svg viewBox="0 0 ${g.w} ${g.h}" role="group" aria-label="Carte des offres ouvertes par département">` +
+      Object.entries(g.deps).map(([c, d]) => `<path d="${d.d}" class="${classeQ(n[c] || 0, max)}" data-dep="${c}" tabindex="0" role="button" aria-label="${esc(d.n)} (${c}) : ${n[c] || 0} offres"></path>`).join("") +
+      (dep && g.deps[dep] ? `<path class="rch-sel" d="${g.deps[dep].d}"></path>` : "") + `</svg>`;
+    $("#rch-legende").innerHTML = `<div class="ech">${["q0", "q1", "q2", "q3", "q4"].map(q => `<i style="background:var(--c-${q})"></i>`).join("")}</div><div class="ech-txt"><span>0</span><span>${max.toLocaleString("fr-FR")} offres</span></div>`;
+  }
+  const choisirDep = c => { selDep.value = c; dessiner(); if ($("#rch-metier").value) chercher(); else { $("#rch-statut").textContent = `${nomDep(c)} sélectionné. Choisissez votre métier pour voir les offres.`; $("#rch-metier").focus(); } };
+  $("#rch-fr").addEventListener("click", e => { const p = e.target.closest("path[data-dep]"); if (p) choisirDep(p.dataset.dep); });
+  $("#rch-fr").addEventListener("keydown", e => { const p = e.target.closest("path[data-dep]"); if (p && (e.key === "Enter" || e.key === " ")) { e.preventDefault(); choisirDep(p.dataset.dep); } });
+  const bulle = $("#rch-bulle"), blocC = $(".rch-carte-bloc");
+  $("#rch-fr").addEventListener("mousemove", e => {
+    const p = e.target.closest("path[data-dep]"); if (!p) { bulle.hidden = true; return; }
+    const c = p.dataset.dep, v = cfr.n[c] || 0;
+    bulle.textContent = `${cfr.geo.deps[c].n} (${c}) · ${v.toLocaleString("fr-FR")} offre${v > 1 ? "s" : ""}`;
+    const r = blocC.getBoundingClientRect(); bulle.hidden = false;
+    bulle.style.left = Math.max(4, Math.min(e.clientX - r.left + 12, r.width - bulle.offsetWidth - 4)) + "px"; bulle.style.top = (e.clientY - r.top + 14) + "px";
+  });
+  $("#rch-fr").addEventListener("mouseleave", () => bulle.hidden = true);
+  $("#rch-metier").addEventListener("change", majCarte);
+  selDep.addEventListener("change", dessiner);
+  if ("IntersectionObserver" in window) { const io = new IntersectionObserver(es => { if (es.some(x => x.isIntersecting)) { io.disconnect(); majCarte(); } }, { rootMargin: "300px" }); io.observe($("#rch-fr")); } else majCarte();
+
   $("#rch-form").addEventListener("submit", chercher);
   $("#rch-metier").addEventListener("change", () => chercher());
   selDep.addEventListener("change", () => { if ($("#rch-metier").value) chercher(); });
