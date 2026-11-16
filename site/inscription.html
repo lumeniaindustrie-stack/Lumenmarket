@@ -481,6 +481,14 @@ $("#wizard").addEventListener("submit", async ev => {
   } finally { $("#next").disabled = false; }
 });
 brancherCurseur("m-curseur", "montant", "m-sortie");
+// Pré-remplissage depuis la page personnalisée d'un prospect (pour.html) : SIREN, email, département
+(function () {
+  const q = new URLSearchParams(location.search);
+  const siren = (q.get("siren") || "").replace(/\D/g, ""), email = q.get("email") || "", deps = q.get("deps") || "";
+  if (/^\d{9}(\d{5})?$/.test(siren)) { $("#siren").value = siren; rechercherEntreprise(); }
+  if (email && /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) $("#email").value = email;
+  if (deps && !$("#deps").value) { $("#deps").value = parseDeps(deps).join(", "); $("#deps").dispatchEvent(new Event("input")); }
+})();
 majZone();
 afficher();
 </script>

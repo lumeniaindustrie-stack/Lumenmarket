@@ -55,6 +55,7 @@ const ignores = [], out = [];
 for (const l of leads) {
   if (l.siren && inscrits.has(String(l.siren))) { ignores.push({ siret: l.siret, nom: l.nom, raison: 'déjà inscrit sur Lumen' }); continue; }
   if (out.length >= restantes) { ignores.push({ siret: l.siret, nom: l.nom, raison: 'plafond du jour atteint, relance demain' }); continue; }
+  const LIEN = l.jeton ? SITE + 'pour.html?p=' + l.jeton : INSCRIPTION;   // page personnalisée du prospect
   const prenom = l.dirigeant ? joli(String(l.dirigeant).split(/\s+/)[0].toUpperCase()) : '';
   const co = joli(l.nom) || 'votre entreprise';
   const o = offres.get(String(l.offre_id || '')) || null;
@@ -76,17 +77,17 @@ for (const l of leads) {
   const p4 = `Si ce n’est pas le bon moment, dites-le-moi simplement : je ne vous relancerai pas.`;
   const bonjour = prenom ? `Bonjour ${prenom},` : 'Bonjour,';
 
-  const texte = [bonjour, '', p1, p2, ouverte && o.url ? 'Voir l’avis : ' + o.url : '', '', p3, 'Essayer Lumen : ' + INSCRIPTION, '', p4, '',
+  const texte = [bonjour, '', p1, p2, ouverte ? (l.jeton ? 'Voir l’offre : ' + LIEN : (o.url ? 'Voir l’avis : ' + o.url : '')) : '', '', p3, 'Essayer Lumen : ' + LIEN, '', p4, '',
     'Bien cordialement,', 'Marin Sauzay', 'Fondateur de Lumen Marchés', SITE, '', 'Pour ne plus recevoir de messages de Lumen, répondez simplement « STOP ».', LEGAL]
     .filter((x, i, a) => x !== '' || a[i - 1] !== '').join('\n');
   const P = t => `<p style="margin:0 0 14px;">${t}</p>`;
   const html = `<!doctype html><html><body style="margin:0;padding:20px;font-family:Arial,Helvetica,sans-serif;font-size:15px;line-height:1.6;color:#171A21;background:#FFFFFF;">
 <div style="max-width:600px;">
 ${P(esc(bonjour))}
-${P(esc(p1) + (p2 ? ' ' + esc(p2) : '') + (ouverte && o.url ? ` <a href="${esc(o.url)}" style="color:#2350C4;">Voir l’avis</a>` : ''))}
+${P(esc(p1) + (p2 ? ' ' + esc(p2) : '') + (ouverte && (l.jeton || o.url) ? ` <a href="${esc(l.jeton ? LIEN : o.url)}" style="color:#2350C4;">Voir l’offre</a>` : ''))}
 ${P(esc(p3))}
 <table role="presentation" cellpadding="0" cellspacing="0" style="margin:4px 0 20px;"><tr><td style="border-radius:8px;background:#2350C4;">
-  <a href="${INSCRIPTION}" style="display:inline-block;padding:13px 26px;font-size:14px;font-weight:700;color:#FFFFFF;text-decoration:none;border-radius:8px;">Essayer gratuitement 14 jours</a>
+  <a href="${LIEN}" style="display:inline-block;padding:13px 26px;font-size:14px;font-weight:700;color:#FFFFFF;text-decoration:none;border-radius:8px;">Essayer gratuitement 14 jours</a>
 </td></tr></table>
 ${P(esc(p4))}
 <p style="margin:0 0 18px;">Bien cordialement,<br><b>Marin Sauzay</b><br>Fondateur de Lumen Marchés<br><a href="${SITE}" style="color:#2350C4;">lumen-marche.fr</a></p>
@@ -135,7 +136,7 @@ nodes = [
     {"id": "l1", "name": "Lun-ven à 11 h 20", "type": "n8n-nodes-base.scheduleTrigger", "typeVersion": 1.2, "position": [0, 0],
      "parameters": {"rule": {"interval": [{"field": "cronExpression", "expression": "20 11 * * 1-5"}]}}},
     once(sb_http("l2", "Lire les relances à faire", [220, 0], "GET",
-            S + "entreprises?select=siret,siren,nom,dirigeant,email,offre_id,objet_email,brevo_message_id,date_envoi"
+            S + "entreprises?select=siret,siren,jeton,nom,dirigeant,email,offre_id,objet_email,brevo_message_id,date_envoi"
                 "&statut=eq.envoy%C3%A9&relance_le=is.null&email_valide=eq.true"
                 "&date_envoi=lt.{{ $now.minus({days:7}).toUTC().toISO() }}&order=date_envoi.asc&limit=30")),
     once(sb_http("l3", "Compter les envois K du jour", [440, 0], "GET", S + "entreprises?select=siret&date_envoi=gte." + DEBUT_JOUR + "&limit=1000")),
