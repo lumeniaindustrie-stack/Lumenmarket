@@ -616,7 +616,10 @@ setInterval(chargerDirect, 5 * 60000);
   $("#rch-fr").addEventListener("mouseleave", () => bulle.hidden = true);
   $("#rch-metier").addEventListener("change", majCarte);
   selDep.addEventListener("change", dessiner);
-  if ("IntersectionObserver" in window) { const io = new IntersectionObserver(es => { if (es.some(x => x.isIntersecting)) { io.disconnect(); majCarte(); } }, { rootMargin: "300px" }); io.observe($("#rch-fr")); } else majCarte();
+  // Chargement quand la section approche de l'écran, et au plus tard après 2,5 s
+  let carteLancee = false; const lancerCarte = () => { if (!carteLancee) { carteLancee = true; majCarte(); } };
+  if ("IntersectionObserver" in window) { const io = new IntersectionObserver(es => { if (es.some(x => x.isIntersecting)) { io.disconnect(); lancerCarte(); } }, { rootMargin: "300px" }); io.observe($("#rch-fr")); }
+  setTimeout(lancerCarte, 2500);
 
   $("#rch-form").addEventListener("submit", chercher);
   $("#rch-metier").addEventListener("change", () => chercher());
