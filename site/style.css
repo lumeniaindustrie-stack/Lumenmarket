@@ -151,8 +151,8 @@ button{font:inherit;cursor:pointer;color:inherit}
 .rch-suite{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-top:18px;padding:16px 18px;border-radius:var(--r);background:var(--blue-f)}
 .rch-suite p{color:var(--ink-2)}
 .rch-suite b{color:var(--ink)}
-.rch-dialog{border:0;border-radius:16px;padding:28px;max-width:460px;width:calc(100% - 32px);background:var(--sheet);color:var(--ink);box-shadow:0 20px 60px rgba(0,0,0,.25)}
-.rch-dialog::backdrop{background:rgba(10,14,22,.55)}
+.rch-voile{position:fixed;inset:0;z-index:100;display:grid;place-items:center;padding:16px;background:rgba(10,14,22,.6)}
+.rch-dialog{position:relative;border:1px solid var(--line);border-radius:16px;padding:28px;max-width:460px;width:100%;background:var(--sheet);color:var(--ink);box-shadow:0 20px 60px rgba(0,0,0,.3)}
 .rch-x{position:absolute;top:12px;right:12px;width:32px;height:32px;display:grid;place-items:center;padding:0;border:0;border-radius:50%;background:var(--sheet-2);color:var(--ink-2)}
 .rch-x:hover{background:var(--line)}
 .rch-d-label{font-size:.82rem;font-weight:600;color:var(--accent-t);margin-bottom:6px}

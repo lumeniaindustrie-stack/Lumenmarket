@@ -16,7 +16,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&display=swap">
 <script>try{var t=localStorage.getItem("lumen-theme");if(t)document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
-<link rel="stylesheet" href="style.css?v=20261116">
+<link rel="stylesheet" href="style.css?v=20261116b">
 <style>
 /* ---------- haut de page ---------- */
 .hero{position:relative;overflow:hidden;border-bottom:1px solid var(--line);isolation:isolate}
@@ -270,7 +270,7 @@ section{padding-block:76px}
     </div>
   </section>
 
-  <dialog id="rch-dialog" class="rch-dialog" aria-labelledby="rch-d-titre">
+  <div id="rch-dialog" class="rch-voile" hidden><div class="rch-dialog" role="dialog" aria-modal="true" aria-labelledby="rch-d-titre">
     <button type="button" class="rch-x" id="rch-fermer" aria-label="Fermer"><svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>
     <p class="rch-d-label">Offre réservée aux inscrits</p>
     <h3 id="rch-d-titre"></h3>
@@ -281,7 +281,7 @@ section{padding-block:76px}
       <a class="btn alt" href="tableau.html" id="rch-d-cnx">J'ai déjà un compte</a>
     </div>
     <p class="rch-d-rassure">14 jours offerts · Sans carte bancaire · Sans engagement</p>
-  </dialog>
+  </div></div>
 
   <section id="fonctionnement">
     <div class="wrap">
@@ -571,10 +571,12 @@ setInterval(chargerDirect, 5 * 60000);
     if (Compte.semblerConnecte()) { location.href = "tableau.html"; return; }
     $("#rch-d-titre").textContent = phrase(o.objet);
     $("#rch-d-meta").textContent = [joli(o.acheteur), o.lieu, toDate(o.limite) ? "avant le " + fmtJour(o.limite) : ""].filter(Boolean).join(" · ");
-    if (dlg.showModal) dlg.showModal(); else location.href = lienInscr;
+    dlg.hidden = false; document.body.style.overflow = "hidden"; $("#rch-d-inscr").focus();
   });
-  $("#rch-fermer").addEventListener("click", () => dlg.close());
-  dlg.addEventListener("click", e => { if (e.target === dlg) dlg.close(); });
+  const fermer = () => { dlg.hidden = true; document.body.style.overflow = ""; };
+  $("#rch-fermer").addEventListener("click", fermer);
+  dlg.addEventListener("click", e => { if (e.target === dlg) fermer(); });
+  document.addEventListener("keydown", e => { if (e.key === "Escape" && !dlg.hidden) fermer(); });
   if ($("#rch-metier").value) chercher();
 })();
 
