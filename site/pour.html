@@ -12,12 +12,16 @@
 <style>
 main{padding:40px 0 64px}
 .pp{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:28px;align-items:start}
-@media (max-width:900px){.pp{grid-template-columns:1fr}}
+@media (max-width:900px){.pp{grid-template-columns:minmax(0,1fr)}}
+.pp > *{min-width:0}
 .salut{color:var(--muted);font-size:1rem;margin:0 0 6px}
 h1{font-size:clamp(1.6rem,3.2vw,2.3rem);font-weight:700;letter-spacing:-.02em;line-height:1.2;margin:0 0 12px}
 .intro{color:var(--muted);font-size:1rem;max-width:62ch;margin:0 0 8px}
-.gagne{display:flex;gap:10px;align-items:flex-start;background:var(--ok-f);color:var(--ink-2);border-radius:12px;padding:12px 14px;margin:18px 0 6px;font-size:.93rem}
-.gagne b{color:var(--ink)}
+.infos{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0 4px}
+.puce{display:inline-flex;align-items:center;gap:6px;font-size:.84rem;padding:5px 11px;border-radius:999px;background:var(--sheet-2);border:1px solid var(--line);color:var(--ink-2);max-width:100%}
+.puce > span{flex:none;white-space:nowrap}
+.puce b{min-width:0;color:var(--ink);font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.puce.ok{background:var(--ok-f);border-color:transparent}
 .liste{display:grid;gap:12px;margin-top:22px}
 .of{background:var(--sheet);border:1px solid var(--line);border-radius:14px;padding:16px 18px;display:grid;gap:8px;box-shadow:var(--ombre)}
 .of.top{border-color:var(--blue);box-shadow:0 0 0 3px var(--blue-f)}
@@ -62,8 +66,7 @@ h1{font-size:clamp(1.6rem,3.2vw,2.3rem);font-weight:700;letter-spacing:-.02em;li
     <section aria-live="polite">
       <p class="salut" id="salut">Bonjour,</p>
       <h1 id="titre">Vos consultations publiques ouvertes</h1>
-      <p class="intro" id="intro">Lumen repère chaque matin les appels d'offres publics qui correspondent à votre métier et à votre zone, sur le BOAMP et 8 plateformes d'acheteurs.</p>
-      <div id="gagne"></div>
+      <div class="infos" id="infos"></div>
       <div class="liste" id="liste"><div class="squelette"></div><div class="squelette"></div></div>
       <div class="qui"><span class="ini" aria-hidden="true">MS</span><div><b>Marin Sauzay</b>, fondateur de Lumen Marchés, ingénieur à Aix-en-Provence. Une question ? Répondez simplement à mon email, ou appelez-moi au <a href="tel:+33650938552">06 50 93 85 52</a>.</div></div>
     </section>
@@ -95,6 +98,8 @@ h1{font-size:clamp(1.6rem,3.2vw,2.3rem);font-weight:700;letter-spacing:-.02em;li
     return s.toLowerCase().replace(/(^|[\s'’-])([a-zà-ÿ])/g, (m, a, c, i) => a + c.toUpperCase()).replace(/\b(De|Du|Des|Et|En|Sur|Aux|La|Le|Les)\b/g, (m, w, i) => i ? w.toLowerCase() : w); };
   const phrase = s => { s = String(s || "").trim(); return s && s === s.toUpperCase() ? s.charAt(0) + s.slice(1).toLowerCase() : s; };
   const acheteurJoli = s => { s = joli(s); s = s.replace(/(\s)([DL])(['’])/g, (m, a, b, c) => a + b.toLowerCase() + c); return s ? s.charAt(0).toUpperCase() + s.slice(1) : s; };
+  const sansCaps = s => String(s || "").replace(/\b[A-ZÀ-ÝŒ]{5,}\b/g, w => w.toLowerCase()).replace(/^\s*\S/, c => c.toUpperCase());
+  const court = (s, n) => { s = String(s || "").replace(/\s+/g, " ").trim(); return s.length > n ? s.slice(0, n).replace(/\s+\S*$/, "") + "…" : s; };
   const typo = s => String(s || "").replace(/\bma[iî]trise d['’]\s?oeuvre\b/gi, m => (m[0] === "M" ? "M" : "m") + "aîtrise d’œuvre").replace(/\boeuvre/g, "œuvre").replace(/\bbatiment/g, "bâtiment");
   const vide = (msg) => { $("#liste").innerHTML = `<div class="vide">${msg}</div>`; };
   if (!SB || !/^[0-9a-f-]{36}$/i.test(p)) { vide(`Ce lien n'est plus valable. Découvrez les offres ouvertes dans votre région sur <a href="index.html">la page d'accueil</a>.`); return; }
@@ -113,8 +118,12 @@ h1{font-size:clamp(1.6rem,3.2vw,2.3rem);font-weight:700;letter-spacing:-.02em;li
   $("#titre").textContent = offres.length
     ? `${offres.length} consultation${offres.length > 1 ? "s" : ""} ouverte${offres.length > 1 ? "s" : ""} pour ${nom}`
     : `Les consultations publiques pour ${nom}`;
-  $("#intro").textContent = `Sélectionnées par Lumen d'après votre activité${zone ? ` et votre zone (${zone})` : ""}. Elles sont publiées sur le BOAMP et les plateformes des acheteurs : Lumen les repère pour vous et vous les envoie chaque matin.`;
-  if (e.marche_gagne) $("#gagne").innerHTML = `<div class="gagne"><span aria-hidden="true">🏆</span><div>Vous avez récemment remporté le marché <b>« ${esc(typo(phrase(e.marche_gagne)).slice(0, 140))}${String(e.marche_gagne).length > 140 ? "…" : ""} »</b>. Voici d'autres consultations du même type, encore ouvertes.</div></div>`;
+  const gagne = e.marche_gagne ? court(typo(sansCaps(String(e.marche_gagne).replace(/^\s*relance\s+/i, ""))), 70) : "";
+  $("#infos").innerHTML = [
+    zone ? `<span class="puce"><span>Zone</span> <b>${esc(zone)}</b></span>` : "",
+    gagne ? `<span class="puce ok"><span>Marché remporté</span> <b title="${esc(e.marche_gagne)}">${esc(gagne)}</b></span>` : "",
+    `<span class="puce"><span>Sources</span> <b>BOAMP + 8 plateformes</b></span>`
+  ].join("");
 
   if (!offres.length) vide(`La consultation que nous vous avions signalée est désormais close. De nouvelles offres de ce type sont publiées chaque semaine : essayez Lumen gratuitement pour les recevoir dès leur parution.`);
   else $("#liste").innerHTML = offres.map((o, i) => {
