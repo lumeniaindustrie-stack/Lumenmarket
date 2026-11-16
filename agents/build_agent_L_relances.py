@@ -22,7 +22,7 @@ S = SUPABASE_URL + "/rest/v1/"
 
 PREPARER = r"""
 // ===== RÉGLAGES =====
-const PLAFOND_JOUR = 10;          // emails de prospection par jour, K et L confondus
+const PLAFOND_JOUR = 12;          // emails de prospection par jour, K et L confondus
 const SITE = 'https://lumen-marche.fr/', INSCRIPTION = SITE + 'inscription.html';
 const LEGAL = 'Lumen IA, SIRET 985 215 474 00018, 205 chemin de la Halte, 13090 Aix-en-Provence · lumeniaindustrie@gmail.com';
 // ====================
