@@ -245,6 +245,16 @@
 .p-pilote .pp-vide{font-size:.88rem;color:var(--muted)}
 .p-pilote .note{font-size:.84rem;margin:0}
 .p-alerte{color:var(--accent-t);background:var(--accent-f);border-radius:8px;padding:9px 11px;font-size:.86rem;margin:0}
+/* essai en 1 clic : bienvenue et finalisation */
+.bienvenue{display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap;padding:14px 18px;margin-bottom:18px;border-radius:var(--r);background:var(--accent-f);border:1px solid var(--accent);color:var(--ink)}
+.bienvenue-act{display:flex;gap:10px;align-items:center}
+.fin-voile{position:fixed;inset:0;z-index:200;display:grid;place-items:center;padding:16px;background:rgba(10,14,22,.62)}
+.fin-voile[hidden]{display:none}
+.fin-boite{width:100%;max-width:440px;display:grid;gap:14px;padding:28px;border-radius:16px;background:var(--sheet);border:1px solid var(--line);box-shadow:0 20px 60px rgba(0,0,0,.3)}
+.fin-label{font-size:.82rem;font-weight:600;color:var(--accent-t)}
+.fin-boite h2{font-size:1.25rem}
+.fin-txt{color:var(--ink-2);font-size:.92rem}
+.fin-boite .status:empty{display:none}
 /* questionnaire de première connexion */
 .onb{position:fixed;inset:0;z-index:50;background:var(--sheet);display:flex;flex-direction:column}
 .onb-top{display:flex;justify-content:space-between;align-items:center;gap:16px;padding:16px clamp(18px,4vw,48px);border-bottom:1px solid var(--line)}
@@ -483,6 +493,10 @@
 
       <!-- Tableau de bord -->
       <section class="view" id="v-accueil" aria-labelledby="h-accueil">
+        <div class="bienvenue" id="bienvenue" hidden>
+          <div><b>Bienvenue, votre essai gratuit de 14 jours a commencé.</b> Vos premières offres arrivent par email demain matin. Vérifiez vos activités et votre zone pour qu'elles soient justes.</div>
+          <div class="bienvenue-act"><button class="btn yellow small" type="button" data-goto="profil">Vérifier mon profil</button><button class="link-btn" type="button" id="bienvenue-x">Fermer</button></div>
+        </div>
         <div class="vhead"><div><h1 id="h-accueil">Bonjour</h1><p id="plan-line"></p></div></div>
         <div class="barre-rech">
           <form class="champ-rech" id="quick" role="search"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg><input class="input" id="quick-q" placeholder="Rechercher une offre…" aria-label="Rechercher une offre"></form>
@@ -686,6 +700,21 @@
 </div>
 
 
+<!-- Finalisation du compte d'essai en 1 clic (2e connexion) -->
+<div class="fin-voile" id="fin" role="dialog" aria-modal="true" aria-labelledby="fin-titre" hidden>
+  <form class="fin-boite" id="f-fin" novalidate>
+    <p class="fin-label">Votre essai gratuit est en cours</p>
+    <h2 id="fin-titre">Finalisez votre compte en 30 secondes</h2>
+    <p class="fin-txt">Choisissez votre mot de passe pour retrouver votre espace sur tous vos appareils, et laissez un numéro pour être prévenu des offres urgentes.</p>
+    <input type="email" autocomplete="username" id="fin-user" hidden>
+    <div class="field"><label for="fin-tel">Téléphone</label><input id="fin-tel" type="tel" autocomplete="tel" placeholder="06 12 34 56 78" required></div>
+    <div class="field"><label for="fin-mdp">Mot de passe</label><input id="fin-mdp" type="password" autocomplete="new-password" required><small>Au moins 10 caractères, avec des lettres et des chiffres.</small></div>
+    <div class="field"><label for="fin-mdp2">Confirmez le mot de passe</label><input id="fin-mdp2" type="password" autocomplete="new-password" required></div>
+    <button class="btn yellow" type="submit" id="fin-go">Valider et continuer</button>
+    <p class="status" id="fin-st" role="status"></p>
+  </form>
+</div>
+
 <!-- Questionnaire de première connexion -->
 <div class="onb" id="onb" role="dialog" aria-modal="true" aria-labelledby="onb-titre" hidden>
   <div class="onb-top">
@@ -818,7 +847,12 @@ $("#f-oubli").addEventListener("submit", async ev => {
   finally { $("#o-go").disabled = false; }
 });
 $("#logout").onclick = async () => { await Compte.deconnecter(); session = null; suivies = []; history.replaceState(null, "", location.pathname); afficherConnexion(); };
-function afficherConnexion() { $("#app").hidden = true; $("#login-view").hidden = false; $("#f-oubli").hidden = true; $("#f-login").hidden = false; $("#l-email").focus(); }
+function afficherConnexion() {
+  $("#app").hidden = true; $("#login-view").hidden = false; $("#f-oubli").hidden = true; $("#f-login").hidden = false;
+  const em = new URLSearchParams(location.search).get("email");
+  if (em && !$("#l-email").value) { $("#l-email").value = em; $("#l-status").className = "status"; $("#l-status").textContent = "Vous avez déjà un compte Lumen avec cette adresse : connectez-vous avec votre mot de passe."; $("#l-mdp").focus(); }
+  else $("#l-email").focus();
+}
 
 /* ---------- Navigation ---------- */
 function majTitre(v) { v = v || (location.hash.slice(1) || "accueil"); const h = $("#v-" + v + " h1"); if (h) $("#ctop-titre").textContent = h.textContent; }
@@ -1607,8 +1641,54 @@ function demarrer() {
   if (enCours && SB && !DEMO) suivreAnalyse(enCours.id);
   aller(location.hash.slice(1).split("&")[0] || "accueil");
   let plusTard = false; try { plusTard = sessionStorage.getItem("lumen_onb_plus_tard") === "1"; } catch (e) {}
-  if (!session.compte.onboarding_fait && !plusTard) ouvrirQuestionnaire();
+  suivreVisite().then(premiere => {
+    // Essai en 1 clic : la 1re visite va droit au tableau de bord, sans questionnaire
+    if (!session.compte.onboarding_fait && !plusTard && !premiere && $("#fin").hidden) ouvrirQuestionnaire();
+  });
 }
+/* ---------- Essai en 1 clic : bienvenue, puis finalisation à la 2e connexion ---------- */
+async function suivreVisite() {
+  const c = session.compte, url = new URLSearchParams(location.search);
+  if (url.has("bienvenue")) { $("#bienvenue").hidden = false; history.replaceState(null, "", location.pathname + location.hash); }
+  if (!c.essai_1clic && !c.compte_a_finaliser) return false;
+  let visites = c.visites || 0, aFinaliser = !!c.compte_a_finaliser;
+  let nouvelle = false; try { nouvelle = !sessionStorage.getItem("lumen-visite"); sessionStorage.setItem("lumen-visite", "1"); } catch (e) {}
+  if (nouvelle && SB && !DEMO) {
+    try { const r = await SB.rpc("compter_visite"); if (r.data) { visites = r.data.visites; aFinaliser = r.data.compte_a_finaliser; } } catch (e) {}
+  }
+  if (aFinaliser && visites >= 2) { ouvrirFinalisation(); return false; }
+  return aFinaliser;   // 1re visite d'un compte d'essai : pas de questionnaire tout de suite
+}
+function ouvrirFinalisation() {
+  $("#fin-user").value = session.compte.email || "";
+  $("#fin-tel").value = session.compte.telephone || "";
+  $("#fin").hidden = false; document.body.style.overflow = "hidden";
+  setTimeout(() => $(session.compte.telephone ? "#fin-mdp" : "#fin-tel").focus(), 50);
+}
+$("#bienvenue-x").onclick = () => { $("#bienvenue").hidden = true; };
+$("#bienvenue [data-goto]").onclick = () => { $("#bienvenue").hidden = true; aller("profil"); };
+$("#f-fin").addEventListener("submit", async ev => {
+  ev.preventDefault();
+  const st = $("#fin-st"); st.className = "status";
+  const tel = $("#fin-tel").value.trim(), mdp = $("#fin-mdp").value, mdp2 = $("#fin-mdp2").value;
+  const err = t => { st.classList.add("err"); st.textContent = t; };
+  if (tel.replace(/\D/g, "").length < 9) return err("Indiquez un numéro de téléphone valide.");
+  if (mdp.length < 10 || !/[a-zA-Z]/.test(mdp) || !/\d/.test(mdp)) return err("Le mot de passe doit faire au moins 10 caractères, avec des lettres et des chiffres.");
+  if (mdp !== mdp2) return err("Les deux mots de passe ne sont pas identiques.");
+  $("#fin-go").disabled = true; st.textContent = "Enregistrement…";
+  try {
+    await Compte.changerMotDePasse(mdp);
+    if (SB && !DEMO) { const r = await SB.rpc("finaliser_compte", { p_telephone: tel }); if (r.error) throw r.error; }
+    session.compte.telephone = tel; session.compte.compte_a_finaliser = false;
+    $("#fin-mdp").value = ""; $("#fin-mdp2").value = "";
+    $("#fin").hidden = true; document.body.style.overflow = "";
+    rendreProfil();
+    let plusTard = false; try { plusTard = sessionStorage.getItem("lumen_onb_plus_tard") === "1"; } catch (e) {}
+    if (!session.compte.onboarding_fait && !plusTard) ouvrirQuestionnaire();
+  } catch (e) {
+    err("L'enregistrement n'a pas abouti. Réessayez dans un instant.");
+  } finally { $("#fin-go").disabled = false; }
+});
 (async () => {
   try {
     if (await Compte.session()) { await chargerSession(); demarrer(); }

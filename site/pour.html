@@ -34,6 +34,8 @@ h1{font-size:clamp(1.6rem,3.2vw,2.3rem);font-weight:700;letter-spacing:-.02em;li
 .reste{font-size:.82rem;font-weight:600;color:var(--accent-t);background:var(--accent-f);padding:3px 9px;border-radius:999px}
 .of a.avis{font-size:.88rem;font-weight:600;color:var(--blue);text-decoration:none}
 .of a.avis:hover{text-decoration:underline}
+.of-tete h2{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.cta-note{font-size:.82rem;color:var(--muted);text-align:center;margin-top:-6px}
 .cta{position:sticky;top:84px;background:var(--sheet);border:1px solid var(--line);border-radius:16px;padding:22px;display:grid;gap:14px;box-shadow:var(--ombre)}
 .cta h3{font-size:1.15rem;margin:0;line-height:1.35}
 .cta ul{margin:0;padding:0;list-style:none;display:grid;gap:8px;font-size:.92rem;color:var(--ink-2)}
@@ -78,6 +80,7 @@ h1{font-size:clamp(1.6rem,3.2vw,2.3rem);font-weight:700;letter-spacing:-.02em;li
         <li>Un assistant pour vos questions sur chaque marché</li>
       </ul>
       <a class="btn yellow" id="cta" style="height:46px" href="inscription.html">Essayer gratuitement 14 jours</a>
+      <p class="cta-note" id="cta-note">Accès immédiat à votre espace, sans formulaire</p>
       <small>Sans carte bancaire · Sans engagement · Puis 49 € HT / mois</small>
       <div class="compteur" id="compteur" hidden></div>
     </aside>
@@ -128,10 +131,10 @@ h1{font-size:clamp(1.6rem,3.2vw,2.3rem);font-weight:700;letter-spacing:-.02em;li
   if (!offres.length) vide(`La consultation que nous vous avions signalée est désormais close. De nouvelles offres de ce type sont publiées chaque semaine : essayez Lumen gratuitement pour les recevoir dès leur parution.`);
   else $("#liste").innerHTML = offres.map((o, i) => {
     const deps = (o.departements || []).slice(0, 3).map(nomDep).join(", ");
-    const lieu = o.lieu && String(o.lieu).length < 60 ? joli(o.lieu) : deps;
+    const lieu = o.lieu && String(o.lieu).length < 60 && !/^\s*\d+\s*$/.test(o.lieu) ? joli(o.lieu) : deps;
     const j = joursRestants(o.limite);
     return `<article class="of${o.avis_id === d.offre_principale ? " top" : ""}">
-      <div class="of-tete"><h2>${esc(typo(phrase(o.objet)))}</h2>${o.avis_id === d.offre_principale ? '<span class="badge">Sélectionnée pour vous</span>' : ""}</div>
+      <div class="of-tete"><h2 title="${esc(o.objet)}">${esc(typo(phrase(o.objet)))}</h2>${o.avis_id === d.offre_principale ? '<span class="badge">Sélectionnée pour vous</span>' : ""}</div>
       <div class="meta"><span>Acheteur : <b>${esc(typo(acheteurJoli(o.acheteur)) || "non précisé")}</b></span>${lieu ? `<span>Lieu : <b>${esc(lieu)}</b></span>` : ""}${o.type_marche ? `<span>${esc(o.type_marche)}</span>` : ""}<span>Montant : <b>${o.montant ? esc(fmtMontant(o.montant)) : "non communiqué"}</b></span></div>
       <div class="bas"><span class="reste">${j != null && j <= 30 ? `Plus que ${j} jour${j > 1 ? "s" : ""}` : "Date limite"} · ${esc(fmtLimite(o.limite))}</span>${o.url ? `<a class="avis" href="${esc(o.url)}" target="_blank" rel="noopener">Voir l'avis officiel →</a>` : ""}</div>
     </article>`;
@@ -148,6 +151,39 @@ h1{font-size:clamp(1.6rem,3.2vw,2.3rem);font-weight:700;letter-spacing:-.02em;li
   if (e.departement) q.set("deps", e.departement);
   const lien = "inscription.html?" + q.toString();
   $("#cta").href = lien; $("#cta-haut").href = lien; $("#cta-bas").href = lien;
+
+  // Essai en 1 clic : le compte est créé à partir de ce lien personnel, et la personne arrive
+  // directement dans son espace. Elle choisira son mot de passe à sa prochaine connexion.
+  const boutons = [$("#cta"), $("#cta-haut"), $("#cta-bas")];
+  let enCours = false;
+  const motDePasseAleatoire = () => { const a = new Uint8Array(24); crypto.getRandomValues(a); return Array.from(a, x => x.toString(16).padStart(2, "0")).join(""); };
+  async function activerEssai(ev) {
+    ev.preventDefault();
+    if (enCours) return; enCours = true;
+    const textes = boutons.map(b => b.textContent);
+    boutons.forEach(b => { b.textContent = "Ouverture de votre espace…"; b.setAttribute("aria-busy", "true"); });
+    const remettre = () => { boutons.forEach((b, i) => { b.textContent = textes[i]; b.removeAttribute("aria-busy"); }); enCours = false; };
+    try {
+      const metiers = String(e.activite || "").split("—").pop().trim();
+      const mots = [motsAuto(metiers + " " + (e.marche_gagne || "")), motsAuto(offres.map(o => o.objet).join(" "))].filter(Boolean).join(", ");
+      const mdp = motDePasseAleatoire();
+      const r = await SB.rpc("activer_essai_prospect", { p_jeton: p, p_mdp: mdp, p_metiers: metiers, p_mots: mots });
+      if (r.error) throw r.error;
+      const etat = r.data && r.data.etat;
+      if (etat === "ok") {
+        const c = await SB.auth.signInWithPassword({ email: r.data.email, password: mdp });
+        if (c.error) throw c.error;
+        location.href = "tableau.html?bienvenue=1";
+        return;
+      }
+      if (etat === "existe") { location.href = "tableau.html?email=" + encodeURIComponent(r.data.email); return; }
+      location.href = lien;   // lien expiré ou invalide : inscription classique pré-remplie
+    } catch (err) {
+      remettre();
+      location.href = lien;
+    }
+  }
+  boutons.forEach(b => b.addEventListener("click", activerEssai));
   $("#cta-titre").textContent = `Recevez chaque matin les offres pour ${nom}`;
 })();
 </script>
