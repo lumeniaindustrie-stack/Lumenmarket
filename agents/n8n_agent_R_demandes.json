@@ -87,7 +87,7 @@
         }
       },
       "parameters": {
-        "fromEmail": "Lumen Marchés <lumeniaindustrie@gmail.com>",
+        "fromEmail": "Lumen Marchés <contact@lumen-marche.fr>",
         "toEmail": "={{ $json.to }}",
         "subject": "={{ $json.subject }}",
         "emailFormat": "html",

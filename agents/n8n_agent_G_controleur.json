@@ -133,7 +133,7 @@
         }
       },
       "parameters": {
-        "fromEmail": "Lumen Pilotage <lumeniaindustrie@gmail.com>",
+        "fromEmail": "Lumen Pilotage <contact@lumen-marche.fr>",
         "toEmail": "={{ $json.email.to }}",
         "subject": "={{ $json.email.subject }}",
         "emailFormat": "html",
