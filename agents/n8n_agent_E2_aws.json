@@ -44,7 +44,7 @@
         0
       ],
       "parameters": {
-        "jsCode": "const sortie = $('Lancer le navigateur').first().json;\nlet r = { offres: [], total: 0, erreur: \"Sortie du script illisible : \" + String(sortie.stdout || '').slice(0, 200) };\ntry { r = JSON.parse(sortie.stdout); } catch (e) {}\nif (sortie.exitCode && sortie.exitCode !== 0) r.erreur = r.erreur || ('Le script a échoué (code ' + sortie.exitCode + ') : ' + String(sortie.stderr || '').slice(0, 300));\nreturn [{ json: { debut: new Date().toISOString(), offres: r.offres || [], total: r.total || 0, erreur: r.erreur || null } }];"
+        "jsCode": "const sortie = $('Lancer le navigateur').first().json;\nlet r = { offres: [], total: 0, erreur: \"Sortie du script illisible : \" + String(sortie.stdout || '').slice(0, 200) };\n// Le résultat est la dernière ligne JSON de la sortie : on ignore les avertissements affichés avant\nconst lignes = String(sortie.stdout || '').split(/\\r?\\n/).map(l => l.trim()).filter(Boolean);\nfor (let i = lignes.length - 1; i >= 0; i--) { if (lignes[i].startsWith('{')) { try { r = JSON.parse(lignes[i]); break; } catch (e) {} } }\nif (!Array.isArray(r.offres)) { try { const t = String(sortie.stdout || ''); r = JSON.parse(t.slice(t.indexOf('{'), t.lastIndexOf('}') + 1)); } catch (e) {} }\nif (sortie.exitCode && sortie.exitCode !== 0) r.erreur = r.erreur || ('Le script a échoué (code ' + sortie.exitCode + ') : ' + String(sortie.stderr || '').slice(0, 300));\nreturn [{ json: { debut: new Date().toISOString(), offres: r.offres || [], total: r.total || 0, erreur: r.erreur || null } }];"
       }
     },
     {
