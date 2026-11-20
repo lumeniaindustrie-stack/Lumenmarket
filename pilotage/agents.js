@@ -83,6 +83,8 @@ function sante(ag, tousLesRuns) {
   const heuresDepuis = (Date.now() - new Date(der.debut)) / 36e5;
   const now = new Date();
   const attendu = (!ag.jours || ag.jours.includes(now.getDay())) && (!ag.heures || (now.getHours() >= ag.heures[0] && now.getHours() < ag.heures[1]));
+  // Site source fermé (maintenance, panne) : ce n'est pas une panne de l'agent, il repartira seul à la réouverture.
+  if (der.statut === "erreur" && /indisponible/i.test(der.message || "")) return { cle: "vide", txt: "Source fermée temporairement", der, runs };
   if (der.statut === "erreur") return { cle: "erreur", txt: "En erreur", der, runs };
   if (attendu && heuresDepuis > ag.rythme) return { cle: "retard", txt: "En retard", der, runs };
   if (der.statut === "en_cours") return { cle: "ok", txt: "En cours d'exécution", der, runs };
