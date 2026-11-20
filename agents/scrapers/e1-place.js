@@ -52,7 +52,16 @@ async function main() {
   const erreurs = [];
   let toutesLignes = [];
   try {
-    await page.goto(`${BASE}/?page=Entreprise.EntrepriseAdvancedSearch`, { waitUntil: 'domcontentloaded', timeout: 60000 });
+    const rep = await page.goto(`${BASE}/?page=Entreprise.EntrepriseAdvancedSearch`, { waitUntil: 'domcontentloaded', timeout: 60000 });
+    // Site fermé ou en maintenance (ex. 503 avec un message "accès suspendu") : on le dit clairement au lieu d'attendre le bouton 30 s.
+    if (!(await page.locator('#ctl0_CONTENU_PAGE_AdvancedSearch_lancerRecherche').count())) {
+      const statut = rep ? rep.status() : 0;
+      const texte = (await page.locator('body').innerText().catch(() => '')).replace(/\s+/g, ' ').trim();
+      const maintenance = statut >= 500 || /suspendu|maintenance|indisponible|interruption/i.test(texte);
+      throw new Error(maintenance
+        ? `Site PLACE indisponible (HTTP ${statut}) : ${texte.slice(0, 160)}`
+        : `Formulaire de recherche PLACE introuvable (HTTP ${statut}) : la page a peut-être changé.`);
+    }
     await Promise.all([
       page.waitForNavigation({ waitUntil: 'domcontentloaded', timeout: 60000 }),
       page.click('#ctl0_CONTENU_PAGE_AdvancedSearch_lancerRecherche')
