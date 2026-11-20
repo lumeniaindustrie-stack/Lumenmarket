@@ -1652,7 +1652,9 @@ async function suivreVisite() {
   if (url.has("bienvenue")) { $("#bienvenue").hidden = false; history.replaceState(null, "", location.pathname + location.hash); }
   if (!c.essai_1clic && !c.compte_a_finaliser) return false;
   let visites = c.visites || 0, aFinaliser = !!c.compte_a_finaliser;
-  let nouvelle = false; try { nouvelle = !sessionStorage.getItem("lumen-visite"); sessionStorage.setItem("lumen-visite", "1"); } catch (e) {}
+  // Une « connexion » = un retour après au moins 6 heures (pas un 2e onglet ouvert juste après l'inscription)
+  let nouvelle = false;
+  try { const k = "lumen-derniere-visite", der = +localStorage.getItem(k) || 0; nouvelle = Date.now() - der > 6 * 3600e3; localStorage.setItem(k, String(Date.now())); } catch (e) {}
   if (nouvelle && SB && !DEMO) {
     try { const r = await SB.rpc("compter_visite"); if (r.data) { visites = r.data.visites; aFinaliser = r.data.compte_a_finaliser; } } catch (e) {}
   }

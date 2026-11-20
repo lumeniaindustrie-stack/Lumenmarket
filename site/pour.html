@@ -164,8 +164,18 @@ h1{font-size:clamp(1.6rem,3.2vw,2.3rem);font-weight:700;letter-spacing:-.02em;li
     boutons.forEach(b => { b.textContent = "Ouverture de votre espace…"; b.setAttribute("aria-busy", "true"); });
     const remettre = () => { boutons.forEach((b, i) => { b.textContent = textes[i]; b.removeAttribute("aria-busy"); }); enCours = false; };
     try {
-      const metiers = String(e.activite || "").split("—").pop().trim();
-      const mots = [motsAuto(metiers + " " + (e.marche_gagne || "")), motsAuto(offres.map(o => o.objet).join(" "))].filter(Boolean).join(", ");
+      // Profil de départ : les mots qui reviennent dans le marché remporté et dans les offres proposées
+      // (ex. « véhicules »), sans les mots génériques des avis (« fournitures », « marché », « lot »…)
+      const VIDES = new Set("marche marches fourniture fournitures travaux service services prestation prestations accord cadre accords lots lot neufs neuves occasion occasions acquisition acquisitions achat achats livraison livraisons mise place pour dans avec leurs ensemble divers diverses besoins besoin commune communes ville departement departemental departementale region regional regionale public publics publique publiques general generale relatif relative relatifs relatives concernant objet consultation procedure adaptee ouvert ouverte restreint marches attribution contrat contrats annee annees partir entretien maintenance realisation usage usages liaison divers".split(" "));
+      const plat = t => String(t || "").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "");
+      const compte = new Map();
+      const ajouter = (txt, poids) => (String(txt || "").match(/[A-Za-zÀ-ÿœŒ]{5,}/g) || []).forEach(m => {
+        const k = plat(m); if (VIDES.has(k) || VIDES.has(k.replace(/s$/, ""))) return;
+        const c = compte.get(k) || { mot: m.toLowerCase(), n: 0 }; c.n += poids; compte.set(k, c); });
+      ajouter(e.marche_gagne, 2); offres.forEach((o, i) => ajouter(o.objet, i === 0 ? 2 : 1));
+      const top = [...compte.values()].filter(c => c.n >= 2).sort((a, b) => b.n - a.n).map(c => c.mot).slice(0, 8);
+      const metiers = top.slice(0, 3).join(", ") || String(e.activite || "").split("—").pop().trim();
+      const mots = top.join(", ");
       const mdp = motDePasseAleatoire();
       const r = await SB.rpc("activer_essai_prospect", { p_jeton: p, p_mdp: mdp, p_metiers: metiers, p_mots: mots });
       if (r.error) throw r.error;
